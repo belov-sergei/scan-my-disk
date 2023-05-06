@@ -45,6 +45,9 @@ set_property(GLOBAL PROPERTY PREDEFINED_TARGETS_FOLDER Build)
 # Path to project source directory.
 set(PROJECT_SOURCE_PATH ${PROJECT_SOURCE_DIR}/Source)
 
+# Path to test projects directory.
+set(TEST_PROJECTS_PATH ${PROJECT_SOURCE_DIR}/Tests)
+
 # Path to precompiled headers file.
 set(PRECOMPILED_HEADERS_PATH ${PROJECT_SOURCE_PATH}/PrecompiledHeaders.h)
 
@@ -58,7 +61,7 @@ CreateProject(${PROJECT_NAME} ${PROJECT_SOURCE_PATH} "")
 set_property(DIRECTORY ${PROJECT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT ${PROJECT_NAME})
 set_property(TARGET ${PROJECT_NAME} PROPERTY VS_DEBUGGER_WORKING_DIRECTORY ${PROJECT_SOURCE_DIR})
 
-# Including Google Test.
+# Include Google Test.
 set(INSTALL_GTEST OFF CACHE BOOL "" FORCE)
 
 add_subdirectory(${GOOGLE_TEST_PATH})
@@ -70,3 +73,20 @@ set_target_properties(
 	gtest_main
 	PROPERTIES FOLDER "Third Party"
 )
+
+# Include test projects.
+file(GLOB TEST_PROJECTS RELATIVE ${TEST_PROJECTS_PATH} ${TEST_PROJECTS_PATH}/*)
+foreach(TEST_PROJECT ${TEST_PROJECTS})
+	set(TEST_PROJECT_SOURCE_PATH ${TEST_PROJECTS_PATH}/${TEST_PROJECT})
+
+	# Any directories inside TEST_PROJECTS_PATH are test projects.
+	if (NOT IS_DIRECTORY ${TEST_PROJECT_SOURCE_PATH})
+		continue()
+	endif()
+
+	# Create test project.
+	CreateProject(${TEST_PROJECT} ${TEST_PROJECT_SOURCE_PATH} "")
+
+	target_link_libraries(${TEST_PROJECT} gtest)
+	set_target_properties(${TEST_PROJECT} PROPERTIES FOLDER "Tests")
+endforeach()
