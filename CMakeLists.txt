@@ -57,6 +57,9 @@ set(GOOGLE_TEST_PATH ${PROJECT_SOURCE_DIR}/ThirdParty/googletest-1.13.0)
 # Path to SDL library source directory.
 set(SDL_PATH ${PROJECT_SOURCE_DIR}/ThirdParty/SDL-release-2.26.5)
 
+# Path to IMGUI library source directory.
+set(IMGUI_PATH ${PROJECT_SOURCE_DIR}/ThirdParty/imgui-1.89.5)
+
 # Create main project.
 CreateProject(${PROJECT_NAME} ${PROJECT_SOURCE_PATH} "")
 
@@ -104,6 +107,46 @@ target_link_libraries(${PROJECT_NAME}
 )
 
 target_include_directories(${PROJECT_NAME} PRIVATE ${SDL_PATH}/include)
+
+# Include IMGUI.
+set(IMGUI_SOURCE_FILES
+	${IMGUI_PATH}/imgui.cpp
+	${IMGUI_PATH}/imgui_demo.cpp
+	${IMGUI_PATH}/imgui_draw.cpp
+	${IMGUI_PATH}/imgui_tables.cpp
+	${IMGUI_PATH}/imgui_widgets.cpp
+	${IMGUI_PATH}/backends/imgui_impl_sdl2.cpp
+	${IMGUI_PATH}/backends/imgui_impl_opengl3.cpp
+)
+
+set(IMGUI_HEADER_FILES
+	${IMGUI_PATH}/imgui.h
+	${IMGUI_PATH}/backends/imgui_impl_sdl2.h
+	${IMGUI_PATH}/backends/imgui_impl_opengl3.h
+)
+
+add_library(imgui STATIC ${IMGUI_SOURCE_FILES} ${IMGUI_HEADER_FILES})
+
+target_include_directories(imgui PRIVATE
+	${IMGUI_PATH}
+	${IMGUI_PATH}/backends
+	
+	${SDL_PATH}/include
+)
+
+set_target_properties(
+	imgui
+	PROPERTIES FOLDER "Third Party"
+)
+
+target_link_libraries(${PROJECT_NAME}
+	imgui
+)
+
+target_include_directories(${PROJECT_NAME} PRIVATE
+	${IMGUI_PATH}
+	${IMGUI_PATH}/backends
+)
 
 # Include test projects.
 file(GLOB TEST_PROJECTS RELATIVE ${TEST_PROJECTS_PATH} ${TEST_PROJECTS_PATH}/*)
