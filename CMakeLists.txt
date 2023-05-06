@@ -22,6 +22,9 @@ function(CreateProject PROJECT_NAME PROJECT_SOURCE_PATH PLATFORM)
 
 	# Include directories.
 	target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCE_PATH})
+
+	# Precompiled headers.
+	target_precompile_headers(${PROJECT_NAME} PRIVATE ${PRECOMPILED_HEADERS_PATH})
 endfunction()
 
 # C++ standard and extensions.
@@ -41,6 +44,9 @@ set_property(GLOBAL PROPERTY PREDEFINED_TARGETS_FOLDER Build)
 
 # Path to project source directory.
 set(PROJECT_SOURCE_PATH ${PROJECT_SOURCE_DIR}/Source)
+
+# Path to precompiled headers file.
+set(PRECOMPILED_HEADERS_PATH ${PROJECT_SOURCE_PATH}/PrecompiledHeaders.h)
 
 # Create main project.
 CreateProject(${PROJECT_NAME} ${PROJECT_SOURCE_PATH} "")
