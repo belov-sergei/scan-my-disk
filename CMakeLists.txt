@@ -48,9 +48,25 @@ set(PROJECT_SOURCE_PATH ${PROJECT_SOURCE_DIR}/Source)
 # Path to precompiled headers file.
 set(PRECOMPILED_HEADERS_PATH ${PROJECT_SOURCE_PATH}/PrecompiledHeaders.h)
 
+# Path to Google Test library source directory.
+set(GOOGLE_TEST_PATH ${PROJECT_SOURCE_DIR}/ThirdParty/googletest-1.13.0)
+
 # Create main project.
 CreateProject(${PROJECT_NAME} ${PROJECT_SOURCE_PATH} "")
 
 # Startup project and debugger directory.
 set_property(DIRECTORY ${PROJECT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT ${PROJECT_NAME})
 set_property(TARGET ${PROJECT_NAME} PROPERTY VS_DEBUGGER_WORKING_DIRECTORY ${PROJECT_SOURCE_DIR})
+
+# Including Google Test.
+set(INSTALL_GTEST OFF CACHE BOOL "" FORCE)
+
+add_subdirectory(${GOOGLE_TEST_PATH})
+
+set_target_properties(
+	gmock
+	gmock_main
+	gtest
+	gtest_main
+	PROPERTIES FOLDER "Third Party"
+)
