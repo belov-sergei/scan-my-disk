@@ -54,6 +54,9 @@ set(PRECOMPILED_HEADERS_PATH ${PROJECT_SOURCE_PATH}/PrecompiledHeaders.h)
 # Path to Google Test library source directory.
 set(GOOGLE_TEST_PATH ${PROJECT_SOURCE_DIR}/ThirdParty/googletest-1.13.0)
 
+# Path to SDL library source directory.
+set(SDL_PATH ${PROJECT_SOURCE_DIR}/ThirdParty/SDL-release-2.26.5)
+
 # Create main project.
 CreateProject(${PROJECT_NAME} ${PROJECT_SOURCE_PATH} "")
 
@@ -73,6 +76,34 @@ set_target_properties(
 	gtest_main
 	PROPERTIES FOLDER "Third Party"
 )
+
+# Include SDL.
+set(SDL2_DISABLE_INSTALL ON CACHE BOOL "" FORCE)
+set(SDL2_DISABLE_UNINSTALL ON CACHE BOOL "" FORCE)
+
+set(SDL_TEST OFF CACHE BOOL "" FORCE)
+
+set(SDL_SHARED OFF CACHE BOOL "" FORCE)
+set(SDL_STATIC ON CACHE BOOL "" FORCE)
+
+add_subdirectory(${SDL_PATH})
+
+set_target_properties(
+	SDL2main
+	SDL2-static
+	sdl_headers_copy
+	PROPERTIES FOLDER "Third Party"
+)
+
+target_link_libraries(${PROJECT_NAME}
+	SDL2main
+	SDL2-static
+	gdi32
+	opengl32
+	imm32
+)
+
+target_include_directories(${PROJECT_NAME} PRIVATE ${SDL_PATH}/include)
 
 # Include test projects.
 file(GLOB TEST_PROJECTS RELATIVE ${TEST_PROJECTS_PATH} ${TEST_PROJECTS_PATH}/*)
