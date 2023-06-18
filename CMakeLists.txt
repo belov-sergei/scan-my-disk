@@ -162,5 +162,6 @@ foreach(TEST_PROJECT ${TEST_PROJECTS})
 	CreateProject(${TEST_PROJECT} ${TEST_PROJECT_SOURCE_PATH} "")
 
 	target_link_libraries(${TEST_PROJECT} gtest)
+	target_include_directories(${TEST_PROJECT} PRIVATE ${PROJECT_SOURCE_PATH})
 	set_target_properties(${TEST_PROJECT} PROPERTIES FOLDER "Tests")
 endforeach()
