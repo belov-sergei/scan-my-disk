@@ -135,25 +135,37 @@ namespace Tree
 namespace std
 {
 	template <typename ValueType>
-	auto begin(Tree::Node<ValueType> node)
+	auto begin(Tree::Node<ValueType>& node)
 	{
 		return node.GetChildNodes().begin();
 	}
 
 	template <typename ValueType>
-	auto end(Tree::Node<ValueType> node)
+	auto end(Tree::Node<ValueType>& node)
 	{
 		return node.GetChildNodes().end();
 	}
 
 	template <typename ValueType>
-	auto cbegin(Tree::Node<ValueType> node)
+	auto begin(const Tree::Node<ValueType>& node)
+	{
+		return node.GetChildNodes().begin();
+	}
+
+	template <typename ValueType>
+	auto end(const Tree::Node<ValueType>& node)
+	{
+		return node.GetChildNodes().end();
+	}
+
+	template <typename ValueType>
+	auto cbegin(Tree::Node<ValueType>& node)
 	{
 		return node.GetChildNodes().cbegin();
 	}
 
 	template <typename ValueType>
-	auto cend(Tree::Node<ValueType> node)
+	auto cend(Tree::Node<ValueType>& node)
 	{
 		return node.GetChildNodes().cend();
 	}
