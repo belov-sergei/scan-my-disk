@@ -63,6 +63,12 @@ set(IMGUI_PATH ${PROJECT_SOURCE_DIR}/ThirdParty/imgui-1.89.5)
 # Create main project.
 CreateProject(${PROJECT_NAME} ${PROJECT_SOURCE_PATH} "")
 
+# Edit & Continue
+if (MSVC)
+	target_compile_options(${PROJECT_NAME} PUBLIC "/ZI")
+	target_link_options(${PROJECT_NAME} PUBLIC "/INCREMENTAL")
+endif()
+
 # Startup project and debugger directory.
 set_property(DIRECTORY ${PROJECT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT ${PROJECT_NAME})
 set_property(TARGET ${PROJECT_NAME} PROPERTY VS_DEBUGGER_WORKING_DIRECTORY ${PROJECT_SOURCE_DIR})
