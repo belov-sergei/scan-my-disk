@@ -52,33 +52,33 @@ namespace Tree
 		// Executes a user-provided callback function on each visited node. The traversal stops if the callback function returns true.
 		void DepthFirstTraversal(const std::function<bool(ValueType&)>& callback)
 		{
-			DepthFirstTraversalInternal(callback);
+			DepthFirstTraversalInternal(this, callback);
 		}
 
 		// Executes a user-provided callback function on each visited node. The traversal stops if the callback function returns true.
 		void DepthFirstTraversal(const std::function<bool(const ValueType&)>& callback) const
 		{
-			DepthFirstTraversalInternal(callback);
+			DepthFirstTraversalInternal(this, callback);
 		}
 
 		// Executes a user-provided callback function on each visited node. The traversal stops if the callback function returns true.
 		void BreadthFirstTraversal(const std::function<bool(ValueType&)>& callback)
 		{
-			BreadthFirstTraversalInternal(callback);
+			BreadthFirstTraversalInternal(this, callback);
 		}
 
 		// Executes a user-provided callback function on each visited node. The traversal stops if the callback function returns true.
 		void BreadthFirstTraversal(const std::function<bool(const ValueType&)>& callback) const
 		{
-			BreadthFirstTraversalInternal(callback);
+			BreadthFirstTraversalInternal(this, callback);
 		}
 
 	private:
-		template <typename CallbackType>
-		void DepthFirstTraversalInternal(CallbackType&& callback)
+		template <typename NodeType, typename CallbackType>
+		static void DepthFirstTraversalInternal(NodeType* nodeThis, CallbackType&& callback)
 		{
-			std::stack<decltype(this)> processedNodes;
-			processedNodes.emplace(this);
+			std::stack<NodeType*> processedNodes;
+			processedNodes.emplace(nodeThis);
 
 			while (!processedNodes.empty())
 			{
@@ -98,11 +98,11 @@ namespace Tree
 			}
 		}
 
-		template <typename CallbackType>
-		void BreadthFirstTraversalInternal(CallbackType&& callback)
+		template <typename NodeType, typename CallbackType>
+		static void BreadthFirstTraversalInternal(NodeType* nodeThis, CallbackType&& callback)
 		{
-			std::deque<decltype(this)> processedNodes;
-			processedNodes.emplace_back(this);
+			std::deque<NodeType*> processedNodes;
+			processedNodes.emplace_back(nodeThis);
 
 			while (!processedNodes.empty())
 			{
