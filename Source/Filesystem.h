@@ -7,6 +7,7 @@ namespace Filesystem
 {
 	struct Entry
 	{
+		size_t size = 0;
 		std::filesystem::path path;
 	};
 
