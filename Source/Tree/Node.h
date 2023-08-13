@@ -3,131 +3,127 @@
 namespace Tree
 {
 	template <typename ValueType>
-	class Node
+	class Node final
 	{
 	public:
 		Node() = default;
 
-		// Creates a new node, with the condition that the Value can be constructed from the provided argument types.
-		template <typename... ArgumentTypes> requires std::is_constructible_v<ValueType, ArgumentTypes...>
-		Node(ArgumentTypes&&... arguments) : m_Value(std::forward<ArgumentTypes>(arguments)...)
-		{
-		}
+		// Creates a new node, with the condition that the Value can be constructed from the provided arguments.
+		template <typename ... ArgumentTypes> requires std::is_constructible_v<ValueType, ArgumentTypes ...>
+		Node(ArgumentTypes&& ... arguments) : _value(std::forward<ArgumentTypes>(arguments) ...) { }
 
 		// Provide direct access to the underlying value.
-		ValueType* operator->() { return &m_Value; }
-		const ValueType* operator->() const { return &m_Value; }
-
-		// Allow the node to be used as if it were the underlying value.
-		ValueType& operator*() { return m_Value; }
-		const ValueType& operator*() const { return m_Value; }
-
-		std::forward_list<Node>& GetChildNodes() { return m_Children; }
-		const std::forward_list<Node>& GetChildNodes() const { return m_Children; }
-
-		size_t GetChildCount() const
-		{
-			return std::distance(m_Children.cbegin(), m_Children.cend());
+		ValueType* operator->() {
+			return &_value;
 		}
 
-		// A node is considered a parent if it has one or more child nodes.
-		bool IsParent() const
-		{
-			return GetChildCount() > 0;
+		const ValueType* operator->() const {
+			return &_value;
+		}
+
+		// Allow the node to be used as if it were the underlying value.
+		ValueType& operator*() {
+			return _value;
+		}
+
+		const ValueType& operator*() const {
+			return _value;
+		}
+
+		std::forward_list<Node>& getChildNodes() {
+			return _children;
+		}
+
+		const std::forward_list<Node>& getChildNodes() const {
+			return _children;
+		}
+
+		size_t getChildCount() const {
+			return std::distance(_children.cbegin(), _children.cend());
+		}
+
+		// A node is considered a leaf if it has no child nodes.
+		bool isLeaf() const {
+			return getChildCount() == 0;
 		}
 
 		template <typename ValueTypeForward = ValueType>
-		Node& Insert(ValueTypeForward&& value)
-		{
-			*m_Children.emplace_front() = std::forward<ValueTypeForward>(value);
-			return m_Children.front();
+		Node& insert(ValueTypeForward&& value) {
+			*_children.emplace_front() = std::forward<ValueTypeForward>(value);
+			return _children.front();
 		}
 
-		template <typename... Types>
-		Node& Emplace(Types&&... values)
-		{
-			return m_Children.emplace_front(std::forward<Types>(values)...);
-		}
-
-		// Executes a user-provided callback function on each visited node. The traversal stops if the callback function returns true.
-		void DepthFirstTraversal(const std::function<bool(ValueType&)>& callback)
-		{
-			DepthFirstTraversalInternal(this, callback);
+		template <typename ... Types>
+		Node& emplace(Types&& ... values) {
+			return _children.emplace_front(std::forward<Types>(values) ...);
 		}
 
 		// Executes a user-provided callback function on each visited node. The traversal stops if the callback function returns true.
-		void DepthFirstTraversal(const std::function<bool(const ValueType&)>& callback) const
-		{
-			DepthFirstTraversalInternal(this, callback);
+		void depthTraversal(const std::function<bool(Node&)>& callback) {
+			DepthTraversalInternal(this, callback);
 		}
 
 		// Executes a user-provided callback function on each visited node. The traversal stops if the callback function returns true.
-		void BreadthFirstTraversal(const std::function<bool(ValueType&)>& callback)
-		{
-			BreadthFirstTraversalInternal(this, callback);
+		void depthTraversal(const std::function<bool(const Node&)>& callback) const {
+			DepthTraversalInternal(this, callback);
 		}
 
 		// Executes a user-provided callback function on each visited node. The traversal stops if the callback function returns true.
-		void BreadthFirstTraversal(const std::function<bool(const ValueType&)>& callback) const
-		{
-			BreadthFirstTraversalInternal(this, callback);
+		void breadthTraversal(const std::function<bool(Node&)>& callback) {
+			BreadthTraversalInternal(this, callback);
+		}
+
+		// Executes a user-provided callback function on each visited node. The traversal stops if the callback function returns true.
+		void breadthTraversal(const std::function<bool(const Node&)>& callback) const {
+			BreadthTraversalInternal(this, callback);
 		}
 
 	private:
 		template <typename NodeType, typename CallbackType>
-		static void DepthFirstTraversalInternal(NodeType* nodeThis, CallbackType&& callback)
-		{
-			std::stack<NodeType*> processedNodes;
-			processedNodes.emplace(nodeThis);
+		static void DepthTraversalInternal(NodeType* start, CallbackType&& callback) {
+			std::stack<NodeType*> pending;
+			pending.emplace(start);
 
-			while (!processedNodes.empty())
-			{
-				auto& nextNode = *processedNodes.top();
-				processedNodes.pop();
+			while (!pending.empty()) {
+				auto& current = *pending.top();
+				pending.pop();
 
-				for (auto& childNode : nextNode)
-				{
-					processedNodes.emplace(&childNode);
+				for (auto& child : current) {
+					pending.emplace(&child);
 				}
 
 				// This allows for flexible conditions to end the traversal, like stopping after finding a specific node or after a certain number of nodes.
-				if (callback(*nextNode))
-				{
+				if (callback(current)) {
 					return;
 				}
 			}
 		}
 
 		template <typename NodeType, typename CallbackType>
-		static void BreadthFirstTraversalInternal(NodeType* nodeThis, CallbackType&& callback)
-		{
-			std::deque<NodeType*> processedNodes;
-			processedNodes.emplace_back(nodeThis);
+		static void BreadthTraversalInternal(NodeType* start, CallbackType&& callback) {
+			std::deque<NodeType*> pending;
+			pending.emplace_back(start);
 
-			while (!processedNodes.empty())
-			{
-				auto& nextNode = *processedNodes.front();
-				processedNodes.pop_front();
+			while (!pending.empty()) {
+				auto& current = *pending.front();
+				pending.pop_front();
 
-				for (auto& childNode : nextNode)
-				{
-					processedNodes.emplace_back(&childNode);
+				for (auto& child : current) {
+					pending.emplace_back(&child);
 				}
 
-				const auto childCount = nextNode.GetChildCount();
-				std::reverse(processedNodes.end() - childCount, processedNodes.end());
+				std::reverse(pending.end() - current.getChildCount(), pending.end());
 
 				// This allows for flexible conditions to end the traversal, like stopping after finding a specific node or after a certain number of nodes.
-				if (callback(*nextNode))
-				{
+				if (callback(current)) {
 					return;
 				}
 			}
 		}
 
 	private:
-		ValueType m_Value;
-		std::forward_list<Node> m_Children;
+		ValueType _value;
+		std::forward_list<Node> _children;
 	};
 }
 
@@ -135,38 +131,32 @@ namespace Tree
 namespace std
 {
 	template <typename ValueType>
-	auto begin(Tree::Node<ValueType>& node)
-	{
-		return node.GetChildNodes().begin();
+	auto begin(Tree::Node<ValueType>& node) {
+		return node.getChildNodes().begin();
 	}
 
 	template <typename ValueType>
-	auto end(Tree::Node<ValueType>& node)
-	{
-		return node.GetChildNodes().end();
+	auto end(Tree::Node<ValueType>& node) {
+		return node.getChildNodes().end();
 	}
 
 	template <typename ValueType>
-	auto begin(const Tree::Node<ValueType>& node)
-	{
-		return node.GetChildNodes().begin();
+	auto begin(const Tree::Node<ValueType>& node) {
+		return node.getChildNodes().begin();
 	}
 
 	template <typename ValueType>
-	auto end(const Tree::Node<ValueType>& node)
-	{
-		return node.GetChildNodes().end();
+	auto end(const Tree::Node<ValueType>& node) {
+		return node.getChildNodes().end();
 	}
 
 	template <typename ValueType>
-	auto cbegin(Tree::Node<ValueType>& node)
-	{
-		return node.GetChildNodes().cbegin();
+	auto cbegin(Tree::Node<ValueType>& node) {
+		return node.getChildNodes().cbegin();
 	}
 
 	template <typename ValueType>
-	auto cend(Tree::Node<ValueType>& node)
-	{
-		return node.GetChildNodes().cend();
+	auto cend(Tree::Node<ValueType>& node) {
+		return node.getChildNodes().cend();
 	}
 }

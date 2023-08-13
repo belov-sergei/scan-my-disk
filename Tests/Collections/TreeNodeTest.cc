@@ -5,10 +5,8 @@
 
 using DataType = Debug::CopyMoveData<int>;
 
-std::string RemoveWhitespace(std::string string)
-{
-	std::erase_if(string, [](const auto& character)
-	{
+std::string RemoveWhitespace(std::string string) {
+	std::erase_if(string, [](const auto& character) {
 		return std::isspace(character);
 	});
 
@@ -16,17 +14,14 @@ std::string RemoveWhitespace(std::string string)
 }
 
 template <typename TreeNodeType>
-auto NodeToXml(const TreeNodeType& treeNode)
-{
+auto NodeToXml(const TreeNodeType& treeNode) {
 	std::stack<decltype(&treeNode)> stack;
 	stack.emplace(&treeNode);
 
 	std::string result = "<Tree>";
 
-	while (!stack.empty())
-	{
-		if (stack.top() == nullptr)
-		{
+	while (!stack.empty()) {
+		if (stack.top() == nullptr) {
 			result += "</Node>";
 
 			stack.pop();
@@ -38,18 +33,15 @@ auto NodeToXml(const TreeNodeType& treeNode)
 
 		result += std::format(R"(<Node Moved="{}" Copied="{}" Value="{}">)", node->Moved, node->Copied, node->Value);
 
-		if (node.IsParent())
-		{
+		if (!node.isLeaf()) {
 			// Close node later, after all children have been processed.
 			stack.emplace(nullptr);
 		}
-		else
-		{
+		else {
 			result += "</Node>";
 		}
 
-		for (const auto& child : node)
-		{
+		for (const auto& child : node) {
 			stack.emplace(&child);
 		}
 	}
@@ -57,8 +49,7 @@ auto NodeToXml(const TreeNodeType& treeNode)
 	return RemoveWhitespace(result + "</Tree>");
 }
 
-TEST(TreeNode, EmptyNodeCreation)
-{
+TEST(TreeNode, EmptyNodeCreation) {
 	const Tree::Node<DataType> rootNode;
 	EXPECT_EQ(NodeToXml(rootNode), RemoveWhitespace(R"(
 		<Tree>
@@ -67,15 +58,14 @@ TEST(TreeNode, EmptyNodeCreation)
 	)"));
 }
 
-TEST(TreeNode, NodeInsertion)
-{
+TEST(TreeNode, NodeInsertion) {
 	Tree::Node<DataType> rootNode;
 
 	Debug::CopyMoveData<int> counter;
 	counter.Value = 1;
 
-	rootNode.Insert(counter);
-	rootNode.Insert(2);
+	rootNode.insert(counter);
+	rootNode.insert(2);
 
 	EXPECT_EQ(NodeToXml(rootNode), RemoveWhitespace(R"(
 		<Tree>
@@ -87,12 +77,11 @@ TEST(TreeNode, NodeInsertion)
 	)"));
 }
 
-TEST(TreeNode, NodeEmplacement)
-{
+TEST(TreeNode, NodeEmplacement) {
 	Tree::Node<DataType> rootNode;
 
-	rootNode.Emplace(1);
-	rootNode.Emplace(2);
+	rootNode.emplace(1);
+	rootNode.emplace(2);
 
 	EXPECT_EQ(NodeToXml(rootNode), RemoveWhitespace(R"(
 		<Tree>
@@ -104,20 +93,16 @@ TEST(TreeNode, NodeEmplacement)
 	)"));
 }
 
-TEST(TreeNode, ChildNodesEmplacement)
-{
+TEST(TreeNode, ChildNodesEmplacement) {
 	Tree::Node<DataType> rootNode;
 
-	for (const auto& x : {1, 2, 3})
-	{
-		auto& first = rootNode.Emplace(x);
+	for (const auto& x : {1, 2, 3}) {
+		auto& first = rootNode.emplace(x);
 
-		for (const auto& y : {4, 5})
-		{
-			auto& second = first.Emplace(y);
-			for (const auto& z : {6, 7, 8})
-			{
-				second.Emplace(z);
+		for (const auto& y : {4, 5}) {
+			auto& second = first.emplace(y);
+			for (const auto& z : {6, 7, 8}) {
+				second.emplace(z);
 			}
 		}
 	}
@@ -166,18 +151,16 @@ TEST(TreeNode, ChildNodesEmplacement)
 	)"));
 }
 
-TEST(TreeNode, DepthFirstTraversal)
-{
+TEST(TreeNode, DepthFirstTraversal) {
 	Tree::Node<DataType> rootNode;
 
-	rootNode.Emplace(1).Emplace(2).Emplace(3);
-	rootNode.Emplace(1).Emplace(2).Emplace(3);
-	rootNode.Emplace(1).Emplace(2).Emplace(3);
+	rootNode.emplace(1).emplace(2).emplace(3);
+	rootNode.emplace(1).emplace(2).emplace(3);
+	rootNode.emplace(1).emplace(2).emplace(3);
 
 	int next = 0;
-	rootNode.DepthFirstTraversal([&next](DataType& value)
-	{
-		value.Value = next;
+	rootNode.depthTraversal([&next](Tree::Node<DataType>& value) {
+		value->Value = next;
 		next += 1;
 
 		return false;
@@ -206,18 +189,16 @@ TEST(TreeNode, DepthFirstTraversal)
 	)"));
 }
 
-TEST(TreeNode, BreadthFirstTraversal)
-{
+TEST(TreeNode, BreadthFirstTraversal) {
 	Tree::Node<DataType> rootNode;
 
-	rootNode.Emplace(1).Emplace(2).Emplace(3);
-	rootNode.Emplace(1).Emplace(2).Emplace(3);
-	rootNode.Emplace(1).Emplace(2).Emplace(3);
+	rootNode.emplace(1).emplace(2).emplace(3);
+	rootNode.emplace(1).emplace(2).emplace(3);
+	rootNode.emplace(1).emplace(2).emplace(3);
 
 	int next = 0;
-	rootNode.BreadthFirstTraversal([&next](DataType& value)
-	{
-		value.Value = next;
+	rootNode.breadthTraversal([&next](Tree::Node<DataType>& value) {
+		value->Value = next;
 		next += 1;
 
 		return false;
@@ -246,17 +227,11 @@ TEST(TreeNode, BreadthFirstTraversal)
 	)"));
 }
 
-TEST(TreeNode, NodeDeletion)
-{
-}
+TEST(TreeNode, NodeDeletion) {}
 
-TEST(TreeNode, SubtreeCopying)
-{
-	Tree::Node<Tree::Node<DataType>> dd;
-	auto ff = dd;
-
+TEST(TreeNode, SubtreeCopying) {
 	Tree::Node<DataType> rootNode;
-	rootNode.Emplace(1).Emplace(2).Emplace(3);
+	rootNode.emplace(1).emplace(2).emplace(3);
 
 	const auto nodeCopy = rootNode;
 	EXPECT_EQ(NodeToXml(nodeCopy), RemoveWhitespace(R"(
@@ -273,12 +248,9 @@ TEST(TreeNode, SubtreeCopying)
 	)"));
 }
 
-TEST(TreeNode, CheckIndependenceCopiedSubtree)
-{
-}
+TEST(TreeNode, CheckIndependenceCopiedSubtree) {}
 
-int main(int argc, char* argv[])
-{
+int main(int argc, char* argv[]) {
 	::testing::InitGoogleTest(&argc, argv);
 	return RUN_ALL_TESTS();
 }
