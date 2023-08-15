@@ -2,8 +2,7 @@
 
 #include <Debug/CopyMoveData.h>
 
-TEST(CopyMoveCounter, InitializingCounters)
-{
+TEST(CopyMoveCounter, InitializingCounters) {
 	Debug::CopyMoveData<int> defaultInitialized;
 	Debug::CopyMoveData<int> copyInitialized = 1;
 
@@ -16,8 +15,7 @@ TEST(CopyMoveCounter, InitializingCounters)
 	EXPECT_EQ(copyInitialized.Value, 1);
 }
 
-TEST(CopyMoveCounter, CopyingObject)
-{
+TEST(CopyMoveCounter, CopyingObject) {
 	Debug::CopyMoveData<int> counter;
 	counter.Value = 1;
 
@@ -35,8 +33,7 @@ TEST(CopyMoveCounter, CopyingObject)
 	EXPECT_EQ(second.Value, 2);
 
 	auto copied = counter;
-	for (const auto& value : {2, 3, 4, 5})
-	{
+	for (const auto& value : {2, 3, 4, 5}) {
 		copied = copied;
 		copied.Value += 1;
 
@@ -46,8 +43,7 @@ TEST(CopyMoveCounter, CopyingObject)
 	}
 }
 
-TEST(CopyMoveCounter, MovingObject)
-{
+TEST(CopyMoveCounter, MovingObject) {
 	Debug::CopyMoveData<int> counter;
 	counter.Value = 1;
 
@@ -65,8 +61,7 @@ TEST(CopyMoveCounter, MovingObject)
 	EXPECT_EQ(second.Value, 2);
 
 	auto moved = std::move(counter);
-	for (const auto& value : {2, 3, 4, 5})
-	{
+	for (const auto& value : {2, 3, 4, 5}) {
 		moved = std::move(moved);
 		moved.Value += 1;
 
@@ -76,8 +71,7 @@ TEST(CopyMoveCounter, MovingObject)
 	}
 }
 
-TEST(CopyMoveCounter, CopyingAndMoving)
-{
+TEST(CopyMoveCounter, CopyingAndMoving) {
 	Debug::CopyMoveData<int> counter;
 	counter.Value = 1;
 
@@ -92,8 +86,7 @@ TEST(CopyMoveCounter, CopyingAndMoving)
 	EXPECT_EQ(moved.Value, 1);
 }
 
-int main(int argc, char* argv[])
-{
+int main(int argc, char* argv[]) {
 	::testing::InitGoogleTest(&argc, argv);
 	return RUN_ALL_TESTS();
 }

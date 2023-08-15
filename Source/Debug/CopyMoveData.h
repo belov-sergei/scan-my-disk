@@ -1,36 +1,32 @@
 #pragma once
 
-namespace Debug
-{
+namespace Debug {
 	template <typename ValueType>
-	struct CopyMoveData final
-	{
+	struct CopyMoveData final {
 		CopyMoveData() = default;
 		~CopyMoveData() = default;
 
-		template <typename... ArgumentTypes> requires std::is_constructible_v<ValueType, ArgumentTypes...>
-		CopyMoveData(ArgumentTypes... arguments) : Value(std::forward<ArgumentTypes>(arguments)...)
-		{
+		template <typename... ArgumentTypes>
+		requires std::is_constructible_v<ValueType, ArgumentTypes...>
+		CopyMoveData(ArgumentTypes... arguments)
+			: Value(std::forward<ArgumentTypes>(arguments)...) {
 		}
 
-		CopyMoveData(const CopyMoveData& other)
-		{
+		CopyMoveData(const CopyMoveData& other) {
 			this->Value = other.Value;
 
 			this->Moved = other.Moved;
 			this->Copied = other.Copied + 1;
 		}
 
-		CopyMoveData(CopyMoveData&& other) noexcept
-		{
+		CopyMoveData(CopyMoveData&& other) noexcept {
 			this->Value = std::move(other.Value);
 
 			this->Moved = other.Moved + 1;
 			this->Copied = other.Copied;
 		}
 
-		CopyMoveData& operator=(const CopyMoveData& other)
-		{
+		CopyMoveData& operator=(const CopyMoveData& other) {
 			this->Value = other.Value;
 
 			this->Moved = other.Moved;
@@ -39,8 +35,7 @@ namespace Debug
 			return *this;
 		}
 
-		CopyMoveData& operator=(CopyMoveData&& other) noexcept
-		{
+		CopyMoveData& operator=(CopyMoveData&& other) noexcept {
 			this->Value = std::move(other.Value);
 
 			this->Moved = other.Moved + 1;
@@ -54,4 +49,4 @@ namespace Debug
 
 		ValueType Value = {};
 	};
-}
+} // namespace Debug

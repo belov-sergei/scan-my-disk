@@ -1,16 +1,16 @@
 #pragma once
 
-namespace Tree
-{
+namespace Tree {
 	template <typename ValueType>
-	class Node final
-	{
+	class Node final {
 	public:
 		Node() = default;
 
 		// Creates a new node, with the condition that the Value can be constructed from the provided arguments.
-		template <typename ... ArgumentTypes> requires std::is_constructible_v<ValueType, ArgumentTypes ...>
-		Node(ArgumentTypes&& ... arguments) : _value(std::forward<ArgumentTypes>(arguments) ...) { }
+		template <typename... ArgumentTypes>
+		requires std::is_constructible_v<ValueType, ArgumentTypes...>
+		Node(ArgumentTypes&&... arguments)
+			: _value(std::forward<ArgumentTypes>(arguments)...) {}
 
 		// Provide direct access to the underlying value.
 		ValueType* operator->() {
@@ -53,9 +53,9 @@ namespace Tree
 			return _children.front();
 		}
 
-		template <typename ... Types>
-		Node& emplace(Types&& ... values) {
-			return _children.emplace_front(std::forward<Types>(values) ...);
+		template <typename... Types>
+		Node& emplace(Types&&... values) {
+			return _children.emplace_front(std::forward<Types>(values)...);
 		}
 
 		// Executes a user-provided callback function on each visited node. The traversal stops if the callback function returns true.
@@ -125,11 +125,10 @@ namespace Tree
 		ValueType _value;
 		std::forward_list<Node> _children;
 	};
-}
+} // namespace Tree
 
 // It is prohibited to add declarations or definitions into namespace "std". This could lead to undefined behavior.
-namespace std
-{
+namespace std {
 	template <typename ValueType>
 	auto begin(Tree::Node<ValueType>& node) {
 		return node.getChildNodes().begin();
@@ -159,4 +158,4 @@ namespace std
 	auto cend(Tree::Node<ValueType>& node) {
 		return node.getChildNodes().cend();
 	}
-}
+} // namespace std
