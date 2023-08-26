@@ -50,3 +50,9 @@ namespace Debug {
 		ValueType value = {};
 	};
 } // namespace Debug
+
+template <template <typename> typename DataType, typename ValueType>
+requires std::is_same_v<DataType<ValueType>, Debug::CopyMoveData<ValueType>>
+std::string ToString(const DataType<ValueType>& copyMoveData) {
+	return std::format(R"(Moved="{}" Copied="{}" Value="{}")", copyMoveData.moved, copyMoveData.copied, copyMoveData.value);
+}

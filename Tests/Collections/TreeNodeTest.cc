@@ -1,60 +1,21 @@
 #include <gtest/gtest.h>
 
-#include <Tree/Node.h>
 #include <Debug/CopyMoveData.h>
+#include <Tree/Node.h>
 
 using DataType = Debug::CopyMoveData<int>;
 
-std::string RemoveWhitespace(std::string string) {
-	std::erase_if(string, [](const auto& character) {
-		return std::isspace(character);
-	});
-
-	return string;
-}
-
-template <typename TreeNodeType>
-auto NodeToXml(const TreeNodeType& treeNode) {
-	std::stack<decltype(&treeNode)> stack;
-	stack.emplace(&treeNode);
-
-	std::string result = "<Tree>";
-
-	while (!stack.empty()) {
-		if (stack.top() == nullptr) {
-			result += "</Node>";
-
-			stack.pop();
-			continue;
-		}
-
-		auto& node = *stack.top();
-		stack.pop();
-
-		result += std::format(R"(<Node Moved="{}" Copied="{}" Value="{}">)", node->moved, node->copied, node->value);
-
-		if (!node.isLeaf()) {
-			// Close node later, after all children have been processed.
-			stack.emplace(nullptr);
-		}
-		else {
-			result += "</Node>";
-		}
-
-		for (const auto& child : node) {
-			stack.emplace(&child);
-		}
-	}
-
-	return RemoveWhitespace(result + "</Tree>");
-}
-
 TEST(TreeNode, EmptyNodeCreation) {
-	const Tree::Node<DataType> rootNode;
-	EXPECT_EQ(NodeToXml(rootNode), RemoveWhitespace(R"(
+	const Tree::Node<Debug::CopyMoveData<int>> rootNode;
+
+	EXPECT_TRUE(IsEqual(rootNode, R"(
 		<Tree>
 			<Node Moved="0" Copied="0" Value="0"></Node>
 		</Tree>
+	)"));
+
+	EXPECT_FALSE(IsEqual(rootNode, R"(
+		<Tree></Tree>
 	)"));
 }
 
@@ -67,7 +28,7 @@ TEST(TreeNode, NodeInsertion) {
 	rootNode.insert(counter);
 	rootNode.insert(2);
 
-	EXPECT_EQ(NodeToXml(rootNode), RemoveWhitespace(R"(
+	EXPECT_TRUE(IsEqual(rootNode, R"(
 		<Tree>
 			<Node Moved="0" Copied="0" Value="0">
 				<Node Moved="0" Copied="1" Value="1"></Node>
@@ -83,7 +44,7 @@ TEST(TreeNode, NodeEmplacement) {
 	rootNode.emplace(1);
 	rootNode.emplace(2);
 
-	EXPECT_EQ(NodeToXml(rootNode), RemoveWhitespace(R"(
+	EXPECT_TRUE(IsEqual(rootNode, R"(
 		<Tree>
 			<Node Moved="0" Copied="0" Value="0">
 				<Node Moved="0" Copied="0" Value="1"></Node>
@@ -107,7 +68,7 @@ TEST(TreeNode, ChildNodesEmplacement) {
 		}
 	}
 
-	EXPECT_EQ(NodeToXml(rootNode), RemoveWhitespace(R"(
+	EXPECT_TRUE(IsEqual(rootNode, R"(
 		<Tree>
 			<Node Moved="0" Copied="0" Value="0">
 				<Node Moved="0" Copied="0" Value="1">
@@ -166,7 +127,7 @@ TEST(TreeNode, DepthFirstTraversal) {
 		return false;
 	});
 
-	EXPECT_EQ(NodeToXml(rootNode), RemoveWhitespace(R"(
+	EXPECT_TRUE(IsEqual(rootNode, R"(
 		<Tree>
 			<Node Moved="0" Copied="0" Value="0">
 				<Node Moved="0" Copied="0" Value="1">
@@ -204,7 +165,7 @@ TEST(TreeNode, BreadthFirstTraversal) {
 		return false;
 	});
 
-	EXPECT_EQ(NodeToXml(rootNode), RemoveWhitespace(R"(
+	EXPECT_TRUE(IsEqual(rootNode, R"(
 		<Tree>
 			<Node Moved="0" Copied="0" Value="0">
 				<Node Moved="0" Copied="0" Value="1">
@@ -234,7 +195,7 @@ TEST(TreeNode, SubtreeCopying) {
 	rootNode.emplace(1).emplace(2).emplace(3);
 
 	const auto nodeCopy = rootNode;
-	EXPECT_EQ(NodeToXml(nodeCopy), RemoveWhitespace(R"(
+	EXPECT_TRUE(IsEqual(nodeCopy, R"(
 		<Tree>
 			<Node Moved="0" Copied="1" Value="0">
 				<Node Moved="0" Copied="1" Value="1">

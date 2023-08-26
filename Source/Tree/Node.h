@@ -159,3 +159,56 @@ namespace std {
 		return node.getChildNodes().cend();
 	}
 } // namespace std
+
+template <template <typename> typename NodeType, typename DataType>
+requires std::is_same_v<NodeType<DataType>, Tree::Node<DataType>>
+std::string ToString(const NodeType<DataType>& node) {
+	std::stack<const NodeType<DataType>*> pending;
+	pending.emplace(&node);
+
+	std::string result = "<Tree>";
+
+	while (!pending.empty()) {
+		if (pending.top() == nullptr) {
+			result += "</Node>";
+
+			pending.pop();
+			continue;
+		}
+
+		const auto& current = *pending.top();
+		pending.pop();
+
+		result += std::format("<Node {}>", ToString(*current));
+
+		if (!current.isLeaf()) {
+			// Close node later, after all children have been processed.
+			pending.emplace(nullptr);
+		}
+		else {
+			result += "</Node>";
+		}
+
+		for (const auto& child : current) {
+			pending.emplace(&child);
+		}
+	}
+
+	return result + "</Tree>";
+}
+
+template <template <typename> typename NodeType, typename DataType>
+requires std::is_same_v<NodeType<DataType>, Tree::Node<DataType>>
+bool IsEqual(const NodeType<DataType>& node, std::string xmlString) {
+	std::string xmlNodeString = ToString(node);
+
+	std::erase_if(xmlNodeString, [](const auto& character) {
+		return std::isspace(character);
+	});
+
+	std::erase_if(xmlString, [](const auto& character) {
+		return std::isspace(character);
+	});
+
+	return xmlNodeString == xmlString;
+}
