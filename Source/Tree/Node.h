@@ -6,7 +6,7 @@ namespace Tree {
 	public:
 		Node() = default;
 
-		// Creates a new node, with the condition that the Value can be constructed from the provided arguments.
+		// Creates a new node, with the condition that the value can be constructed from the provided arguments.
 		template <typename... ArgumentTypes>
 		requires std::is_constructible_v<ValueType, ArgumentTypes...>
 		Node(ArgumentTypes&&... arguments)

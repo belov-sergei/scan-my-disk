@@ -9,44 +9,44 @@ namespace Debug {
 		template <typename... ArgumentTypes>
 		requires std::is_constructible_v<ValueType, ArgumentTypes...>
 		CopyMoveData(ArgumentTypes... arguments)
-			: Value(std::forward<ArgumentTypes>(arguments)...) {
+			: value(std::forward<ArgumentTypes>(arguments)...) {
 		}
 
 		CopyMoveData(const CopyMoveData& other) {
-			this->Value = other.Value;
+			this->value = other.value;
 
-			this->Moved = other.Moved;
-			this->Copied = other.Copied + 1;
+			this->moved = other.moved;
+			this->copied = other.copied + 1;
 		}
 
 		CopyMoveData(CopyMoveData&& other) noexcept {
-			this->Value = std::move(other.Value);
+			this->value = std::move(other.value);
 
-			this->Moved = other.Moved + 1;
-			this->Copied = other.Copied;
+			this->moved = other.moved + 1;
+			this->copied = other.copied;
 		}
 
 		CopyMoveData& operator=(const CopyMoveData& other) {
-			this->Value = other.Value;
+			this->value = other.value;
 
-			this->Moved = other.Moved;
-			this->Copied = other.Copied + 1;
+			this->moved = other.moved;
+			this->copied = other.copied + 1;
 
 			return *this;
 		}
 
 		CopyMoveData& operator=(CopyMoveData&& other) noexcept {
-			this->Value = std::move(other.Value);
+			this->value = std::move(other.value);
 
-			this->Moved = other.Moved + 1;
-			this->Copied = other.Copied;
+			this->moved = other.moved + 1;
+			this->copied = other.copied;
 
 			return *this;
 		}
 
-		size_t Moved = 0;
-		size_t Copied = 0;
+		size_t moved = 0;
+		size_t copied = 0;
 
-		ValueType Value = {};
+		ValueType value = {};
 	};
 } // namespace Debug

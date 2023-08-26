@@ -31,7 +31,7 @@ auto NodeToXml(const TreeNodeType& treeNode) {
 		auto& node = *stack.top();
 		stack.pop();
 
-		result += std::format(R"(<Node Moved="{}" Copied="{}" Value="{}">)", node->Moved, node->Copied, node->Value);
+		result += std::format(R"(<Node Moved="{}" Copied="{}" Value="{}">)", node->moved, node->copied, node->value);
 
 		if (!node.isLeaf()) {
 			// Close node later, after all children have been processed.
@@ -62,7 +62,7 @@ TEST(TreeNode, NodeInsertion) {
 	Tree::Node<DataType> rootNode;
 
 	Debug::CopyMoveData<int> counter;
-	counter.Value = 1;
+	counter.value = 1;
 
 	rootNode.insert(counter);
 	rootNode.insert(2);
@@ -160,7 +160,7 @@ TEST(TreeNode, DepthFirstTraversal) {
 
 	int next = 0;
 	rootNode.depthTraversal([&next](Tree::Node<DataType>& value) {
-		value->Value = next;
+		value->value = next;
 		next += 1;
 
 		return false;
@@ -198,7 +198,7 @@ TEST(TreeNode, BreadthFirstTraversal) {
 
 	int next = 0;
 	rootNode.breadthTraversal([&next](Tree::Node<DataType>& value) {
-		value->Value = next;
+		value->value = next;
 		next += 1;
 
 		return false;
