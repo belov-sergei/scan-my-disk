@@ -37,6 +37,10 @@ namespace Filesystem {
 		}
 	} // namespace Details
 
+	std::string ToString(const Entry& entry) {
+		return std::format(R"(Path="{}" Size="{}")", entry.path.stem().string(), entry.size);
+	}
+
 	std::vector<std::string> GetLogicalDrives() {
 		std::vector<std::string> logicalDrives;
 

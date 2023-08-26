@@ -9,6 +9,8 @@ namespace Filesystem {
 		std::filesystem::path path;
 	};
 
+	std::string ToString(const Entry& entry);
+
 	std::vector<std::string> GetLogicalDrives();
 	std::pair<ULONGLONG, ULONGLONG> GetDriveSpace(std::string_view driveLetter);
 
