@@ -38,7 +38,7 @@ namespace Filesystem {
 	} // namespace Details
 
 	std::string ToString(const Entry& entry) {
-		return std::format(R"(Path="{}" Size="{}")", entry.path.stem().string(), entry.size);
+		return std::format(R"(Path="{}" Size="{}" Depth="{}")", entry.path.stem().string(), entry.size, entry.depth);
 	}
 
 	std::vector<std::string> GetLogicalDrives() {
@@ -64,10 +64,7 @@ namespace Filesystem {
 	}
 
 	Tree::Node<Entry> BuildTree(const std::filesystem::path& rootPath) {
-		Tree::Node<Entry> filesystemTree;
-
-		auto& rootNode = filesystemTree;
-		rootNode->path = rootPath;
+		Tree::Node<Entry> rootNode = {0, 0, rootPath};
 
 		std::stack<decltype(&rootNode)> stack;
 		stack.emplace(&rootNode);
@@ -77,16 +74,18 @@ namespace Filesystem {
 			auto* nextNode = stack.top();
 			stack.pop();
 
+			const auto depth = (*nextNode)->depth + 1;
 			for (const auto& entry : std::filesystem::directory_iterator((*nextNode)->path, errorCode)) {
-				auto& childNode = nextNode->emplace(entry.file_size(errorCode), entry.path());
+				auto& childNode = nextNode->emplace(entry.file_size(errorCode), depth, entry.path());
+
 				if (std::filesystem::is_directory(entry, errorCode)) {
 					stack.emplace(&childNode);
 				}
 			}
 		}
 
-		Details::CalculateDirectorySizes(filesystemTree);
+		Details::CalculateDirectorySizes(rootNode);
 
-		return filesystemTree;
+		return rootNode;
 	}
 } // namespace Filesystem
