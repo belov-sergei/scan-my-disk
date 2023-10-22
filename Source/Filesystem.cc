@@ -98,4 +98,123 @@ namespace Filesystem {
 
 		return root;
 	}
+
+	Tree::Node<Entry> ParallelBuildTree(const std::filesystem::path& path) {
+		Tree::Node<Entry> root = {0, 0, path};
+
+		// Stack of pending tasks shared among threads.
+		std::stack<Tree::Node<Entry>*> pending;
+		pending.emplace(&root);
+
+		// Mutex to guard access to the shared task list.
+		std::mutex mutex;
+
+		// Semaphore becomes available when a new task is added to the shared list.
+		std::binary_semaphore semaphore(1);
+
+		// Number of threads that have tasks.
+		size_t workers = 0;
+
+		const auto worker = [&] {
+			std::error_code error;
+
+			// List of tasks for the current thread.
+			std::stack<Tree::Node<Entry>*> jobs;
+
+			while (true) {
+				// Wait for a new task.
+				semaphore.acquire();
+
+				{
+					std::lock_guard lock(mutex);
+					const size_t size = pending.size();
+
+					// If there are no pending tasks and threads are idle, wake them up for termination.
+					if (size == 0) {
+						if (workers == 0) {
+							semaphore.release();
+							break;
+						}
+					}
+					// Take one task and wake up a next thread if there are more tasks.
+					else {
+						jobs.emplace(pending.top());
+						pending.pop();
+
+						if (size > 1) {
+							semaphore.release();
+						}
+					}
+
+					// Signal that the thread is busy.
+					++workers;
+				}
+
+				while (!jobs.empty()) {
+					auto& node = *jobs.top();
+					jobs.pop();
+
+					auto iterator = std::filesystem::directory_iterator(node->path, error);
+					const auto end = std::filesystem::end(iterator);
+
+					const auto depth = node->depth + 1;
+					while (iterator != end) {
+						if (!error) {
+							const auto size = iterator->file_size(error);
+							if (!error) {
+								auto& child = node.emplace(size, depth, iterator->path());
+
+								if (iterator->is_directory(error)) {
+									jobs.emplace(&child);
+								}
+							}
+						}
+
+						iterator.increment(error);
+					}
+
+					if (jobs.size() > 1) {
+						std::lock_guard lock(mutex);
+						if (jobs.size() > pending.size()) {
+							std::swap(jobs, pending);
+						}
+
+						// Keep one task and give the rest to other threads.
+						size_t size = jobs.size();
+						while (size > 1) {
+							pending.emplace(jobs.top());
+							jobs.pop();
+
+							--size;
+						}
+
+						// Wake up the next thread.
+						semaphore.release();
+					}
+				}
+
+				{
+					std::lock_guard lock(mutex);
+
+					// Signal that the thread is idle, and if there are no tasks, wake up a next thread as it might be time to exit.
+					if (--workers == 0 && pending.empty()) {
+						semaphore.release();
+					}
+				}
+			}
+		};
+
+		std::array<std::thread, 32> threads;
+		for (auto& thread : threads) {
+			thread = std::thread(worker);
+		}
+
+		for (auto& thread : threads) {
+			thread.join();
+		}
+
+		Details::CalculateDirectorySizes(root);
+
+		return root;
+	}
 } // namespace Filesystem

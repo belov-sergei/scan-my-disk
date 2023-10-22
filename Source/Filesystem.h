@@ -15,4 +15,5 @@ namespace Filesystem {
 	std::pair<ULONGLONG, ULONGLONG> GetDriveSpace(std::string_view driveLetter);
 
 	Tree::Node<Entry> BuildTree(const std::filesystem::path& path);
+	Tree::Node<Entry> ParallelBuildTree(const std::filesystem::path& path);
 } // namespace Filesystem
