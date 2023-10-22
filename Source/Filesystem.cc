@@ -63,29 +63,39 @@ namespace Filesystem {
 		return std::make_pair(bytesTotal.QuadPart, bytesFree.QuadPart);
 	}
 
-	Tree::Node<Entry> BuildTree(const std::filesystem::path& rootPath) {
-		Tree::Node<Entry> rootNode = {0, 0, rootPath};
+	Tree::Node<Entry> BuildTree(const std::filesystem::path& path) {
+		Tree::Node<Entry> root = {0, 0, path};
 
-		std::stack<decltype(&rootNode)> stack;
-		stack.emplace(&rootNode);
+		std::stack<decltype(&root)> pending;
+		pending.emplace(&root);
 
-		std::error_code errorCode;
-		while (!stack.empty()) {
-			auto* nextNode = stack.top();
-			stack.pop();
+		std::error_code error;
+		while (!pending.empty()) {
+			auto& node = *pending.top();
+			pending.pop();
 
-			const auto depth = (*nextNode)->depth + 1;
-			for (const auto& entry : std::filesystem::directory_iterator((*nextNode)->path, errorCode)) {
-				auto& childNode = nextNode->emplace(entry.file_size(errorCode), depth, entry.path());
+			auto iterator = std::filesystem::directory_iterator(node->path, error);
+			const auto end = std::filesystem::end(iterator);
 
-				if (std::filesystem::is_directory(entry, errorCode)) {
-					stack.emplace(&childNode);
+			const auto depth = node->depth + 1;
+			while (iterator != end) {
+				if (!error) {
+					const auto size = iterator->file_size(error);
+					if (!error) {
+						auto& child = node.emplace(size, depth, iterator->path());
+
+						if (iterator->is_directory(error)) {
+							pending.emplace(&child);
+						}
+					}
 				}
+
+				iterator.increment(error);
 			}
 		}
 
-		Details::CalculateDirectorySizes(rootNode);
+		Details::CalculateDirectorySizes(root);
 
-		return rootNode;
+		return root;
 	}
 } // namespace Filesystem
