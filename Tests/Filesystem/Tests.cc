@@ -3,24 +3,24 @@
 
 TEST(Filesystem, BuildTree) {
 	std::atomic<size_t> progress;
-	const auto root = Filesystem::BuildTree(std::filesystem::absolute("../Tests/Filesystem/One"), progress);
+	const auto root = Filesystem::BuildTree(std::filesystem::absolute("../Tests/Filesystem/Sandbox"), progress);
 
 	EXPECT_TRUE(IsEqual(root, R"(
 		<Tree>
-			<Node Path="One" Size="4037017" Depth="0">
-				<Node Path="2097152 Bytes" Size="2097152" Depth="1"></Node>
-				<Node Path="Five" Size="0" Depth="1">
-					<Node Path="Empty" Size="0" Depth="2"></Node>
-				</Node>
-				<Node Path="Three" Size="1572864" Depth="1">
-					<Node Path="1048576 Bytes" Size="1048576" Depth="2"></Node>
-					<Node Path="Four" Size="524288" Depth="2">
-						<Node Path="524288 Bytes" Size="524288" Depth="3"></Node>
+			<Node Path="Sandbox" Size="4037017" Depth="0">
+				<Node Path="Documents" Size="1572864" Depth="1">
+					<Node Path="Personal" Size="524288" Depth="2">
+						<Node Path="Profile Picture" Size="524288" Depth="3"></Node>
 					</Node>
+					<Node Path="Research Paper" Size="1048576" Depth="2"></Node>
 				</Node>
-				<Node Path="Two" Size="367001" Depth="1">
-					<Node Path="104857 Bytes" Size="104857" Depth="2"></Node>
-					<Node Path="262144 Bytes" Size="262144" Depth="2"></Node>
+				<Node Path="Journal" Size="2097152" Depth="1"></Node>
+				<Node Path="Program Data" Size="367001" Depth="1">
+					<Node Path="Reader" Size="104857" Depth="2"></Node>
+					<Node Path="Report" Size="262144" Depth="2"></Node>
+				</Node>
+				<Node Path="Temp" Size="0" Depth="1">
+					<Node Path="Empty" Size="0" Depth="2"></Node>
 				</Node>
 			</Node>
 		</Tree>
@@ -34,24 +34,24 @@ TEST(Filesystem, ParallelBuildTree) {
 
 	const auto worker = [&] {
 		std::atomic<size_t> progress;
-		const auto root = Filesystem::ParallelBuildTree(std::filesystem::absolute("../Tests/Filesystem/One"), progress);
+		const auto root = Filesystem::ParallelBuildTree(std::filesystem::absolute("../Tests/Filesystem/Sandbox"), progress);
 
 		EXPECT_TRUE(IsEqual(root, R"(
 			<Tree>
-				<Node Path="One" Size="4037017" Depth="0">
-					<Node Path="2097152 Bytes" Size="2097152" Depth="1"></Node>
-					<Node Path="Five" Size="0" Depth="1">
-						<Node Path="Empty" Size="0" Depth="2"></Node>
-					</Node>
-					<Node Path="Three" Size="1572864" Depth="1">
-						<Node Path="1048576 Bytes" Size="1048576" Depth="2"></Node>
-						<Node Path="Four" Size="524288" Depth="2">
-							<Node Path="524288 Bytes" Size="524288" Depth="3"></Node>
+				<Node Path="Sandbox" Size="4037017" Depth="0">
+					<Node Path="Documents" Size="1572864" Depth="1">
+						<Node Path="Personal" Size="524288" Depth="2">
+							<Node Path="Profile Picture" Size="524288" Depth="3"></Node>
 						</Node>
+						<Node Path="Research Paper" Size="1048576" Depth="2"></Node>
 					</Node>
-					<Node Path="Two" Size="367001" Depth="1">
-						<Node Path="104857 Bytes" Size="104857" Depth="2"></Node>
-						<Node Path="262144 Bytes" Size="262144" Depth="2"></Node>
+					<Node Path="Journal" Size="2097152" Depth="1"></Node>
+					<Node Path="Program Data" Size="367001" Depth="1">
+						<Node Path="Reader" Size="104857" Depth="2"></Node>
+						<Node Path="Report" Size="262144" Depth="2"></Node>
+					</Node>
+					<Node Path="Temp" Size="0" Depth="1">
+						<Node Path="Empty" Size="0" Depth="2"></Node>
 					</Node>
 				</Node>
 			</Tree>
@@ -65,7 +65,7 @@ TEST(Filesystem, ParallelBuildTree) {
 	while (--iterations > 0) {
 		mutex.lock(); // Lock the mutex before starting a new thread.
 		auto thread = std::thread(worker);
-		
+
 		if (mutex.try_lock_for(1s)) {
 			// If successful, the test iteration completes successfully.
 			mutex.unlock();
