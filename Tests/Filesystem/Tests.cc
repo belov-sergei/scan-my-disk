@@ -2,9 +2,10 @@
 #include <Filesystem.cc>
 
 TEST(Filesystem, BuildTree) {
-	const auto filesystemTree = Filesystem::BuildTree(std::filesystem::absolute("../Tests/Filesystem/One"));
+	std::atomic<size_t> progress;
+	const auto root = Filesystem::BuildTree(std::filesystem::absolute("../Tests/Filesystem/One"), progress);
 
-	EXPECT_TRUE(IsEqual(filesystemTree, R"(
+	EXPECT_TRUE(IsEqual(root, R"(
 		<Tree>
 			<Node Path="One" Size="4037017" Depth="0">
 				<Node Path="2097152 Bytes" Size="2097152" Depth="1"></Node>
@@ -32,9 +33,10 @@ TEST(Filesystem, ParallelBuildTree) {
 	std::timed_mutex mutex;
 
 	const auto worker = [&] {
-		const auto filesystemTree = Filesystem::ParallelBuildTree(std::filesystem::absolute("../Tests/Filesystem/One"));
+		std::atomic<size_t> progress;
+		const auto root = Filesystem::ParallelBuildTree(std::filesystem::absolute("../Tests/Filesystem/One"), progress);
 
-		EXPECT_TRUE(IsEqual(filesystemTree, R"(
+		EXPECT_TRUE(IsEqual(root, R"(
 			<Tree>
 				<Node Path="One" Size="4037017" Depth="0">
 					<Node Path="2097152 Bytes" Size="2097152" Depth="1"></Node>

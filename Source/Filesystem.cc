@@ -63,7 +63,7 @@ namespace Filesystem {
 		return std::make_pair(bytesTotal.QuadPart, bytesFree.QuadPart);
 	}
 
-	Tree::Node<Entry> BuildTree(const std::filesystem::path& path) {
+	Tree::Node<Entry> BuildTree(const std::filesystem::path& path, std::atomic<size_t>& progress) {
 		Tree::Node<Entry> root = {0, 0, path};
 
 		std::stack<decltype(&root)> pending;
@@ -78,9 +78,12 @@ namespace Filesystem {
 			const auto end = std::filesystem::end(iterator);
 
 			const auto depth = node->depth + 1;
+			size_t total = 0;
 			while (iterator != end) {
 				if (!error) {
 					const auto size = iterator->file_size(error);
+					total += size;
+
 					if (!error) {
 						auto& child = node.emplace(size, depth, iterator->path());
 
@@ -92,6 +95,8 @@ namespace Filesystem {
 
 				iterator.increment(error);
 			}
+
+			progress += total;
 		}
 
 		Details::CalculateDirectorySizes(root);
@@ -99,7 +104,7 @@ namespace Filesystem {
 		return root;
 	}
 
-	Tree::Node<Entry> ParallelBuildTree(const std::filesystem::path& path) {
+	Tree::Node<Entry> ParallelBuildTree(const std::filesystem::path& path, std::atomic<size_t>& progress) {
 		Tree::Node<Entry> root = {0, 0, path};
 
 		// Stack of pending tasks shared among threads.
@@ -158,9 +163,12 @@ namespace Filesystem {
 					const auto end = std::filesystem::end(iterator);
 
 					const auto depth = node->depth + 1;
+					size_t total = 0;
 					while (iterator != end) {
 						if (!error) {
 							const auto size = iterator->file_size(error);
+							total += size;
+
 							if (!error) {
 								auto& child = node.emplace(size, depth, iterator->path());
 
@@ -172,6 +180,8 @@ namespace Filesystem {
 
 						iterator.increment(error);
 					}
+
+					progress += total;
 
 					if (jobs.size() > 1) {
 						std::lock_guard lock(mutex);
