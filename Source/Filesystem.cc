@@ -210,7 +210,8 @@ namespace Filesystem {
 			}
 		};
 
-		std::array<std::thread, 32> threads;
+		std::vector<std::thread> threads(std::thread::hardware_concurrency());
+
 		for (auto& thread : threads) {
 			thread = std::thread(worker);
 		}
