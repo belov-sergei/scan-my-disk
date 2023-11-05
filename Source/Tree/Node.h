@@ -160,47 +160,48 @@ namespace std {
 	}
 } // namespace std
 
-template <template <typename> typename NodeType, typename DataType>
-requires std::is_same_v<NodeType<DataType>, Tree::Node<DataType>>
-std::string ToString(const NodeType<DataType>& node) {
-	std::stack<const NodeType<DataType>*> pending;
-	pending.emplace(&node);
+template <typename ValueType>
+struct std::formatter<Tree::Node<ValueType>> : std::formatter<std::string_view> {
+	auto format(const auto& value, auto& context) const {
+		std::stack<decltype(&value)> pending;
+		pending.emplace(&value);
 
-	std::string result = "<Tree>";
+		std::string result = "<Tree>";
 
-	while (!pending.empty()) {
-		if (pending.top() == nullptr) {
-			result += "</Node>";
+		while (!pending.empty()) {
+			if (pending.top() == nullptr) {
+				result += "</Node>";
 
+				pending.pop();
+				continue;
+			}
+
+			const auto& current = *pending.top();
 			pending.pop();
-			continue;
+
+			result += std::format("<Node {}>", *current);
+
+			if (!current.isLeaf()) {
+				// Close node later, after all children have been processed.
+				pending.emplace(nullptr);
+			}
+			else {
+				result += "</Node>";
+			}
+
+			for (const auto& child : current) {
+				pending.emplace(&child);
+			}
 		}
 
-		const auto& current = *pending.top();
-		pending.pop();
-
-		result += std::format("<Node {}>", ToString(*current));
-
-		if (!current.isLeaf()) {
-			// Close node later, after all children have been processed.
-			pending.emplace(nullptr);
-		}
-		else {
-			result += "</Node>";
-		}
-
-		for (const auto& child : current) {
-			pending.emplace(&child);
-		}
+		return std::formatter<std::string_view>::format(result + "</Tree>", context);
 	}
-
-	return result + "</Tree>";
-}
+};
 
 template <template <typename> typename NodeType, typename DataType>
 requires std::is_same_v<NodeType<DataType>, Tree::Node<DataType>>
 bool IsEqual(const NodeType<DataType>& node, std::string xmlString) {
-	std::string xmlNodeString = ToString(node);
+	std::string xmlNodeString = std::format("{}", node);
 
 	std::erase_if(xmlNodeString, [](const auto& character) {
 		return std::isspace(character);

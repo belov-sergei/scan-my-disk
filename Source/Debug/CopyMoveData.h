@@ -1,6 +1,9 @@
 #pragma once
 
 namespace Debug {
+
+	// This template struct is designed to be embedded as a member in other classes
+	// in order to track the number of copy and move operations for tests.
 	template <typename ValueType>
 	struct CopyMoveData final {
 		CopyMoveData() = default;
@@ -51,8 +54,15 @@ namespace Debug {
 	};
 } // namespace Debug
 
-template <template <typename> typename DataType, typename ValueType>
-requires std::is_same_v<DataType<ValueType>, Debug::CopyMoveData<ValueType>>
-std::string ToString(const DataType<ValueType>& copyMoveData) {
-	return std::format(R"(Moved="{}" Copied="{}" Value="{}")", copyMoveData.moved, copyMoveData.copied, copyMoveData.value);
-}
+template <typename ValueType>
+struct std::formatter<Debug::CopyMoveData<ValueType>> : std::formatter<std::string_view> {
+	auto format(const auto& value, auto& context) const {
+		std::string result;
+
+		std::format_to(std::back_inserter(result), "Moved= \"{}\" ", value.moved);
+		std::format_to(std::back_inserter(result), "Copied=\"{}\" ", value.copied);
+		std::format_to(std::back_inserter(result), "Value= \"{}\" ", value.value);
+
+		return std::formatter<std::string_view>::format(result, context);
+	}
+};
