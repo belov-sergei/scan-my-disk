@@ -61,9 +61,7 @@ std::string path;
 size_t size = 0;
 
 void StartedState() {
-	ImGui::Text("Disk Chart");
-
-	for (const auto& drive : Filesystem::GetLogicalDrives()) { 
+	for (const auto& drive : Filesystem::GetLogicalDrives()) {
 		if (ImGui::Button(drive.c_str())) {
 			future = std::async(std::launch::async, [drive] {
 				return Filesystem::BuildTree(drive, progress);
@@ -163,7 +161,17 @@ int main(int argc, char* argv[]) {
 		ImGui_ImplSDL2_NewFrame();
 		ImGui::NewFrame();
 
-		ImGui::Begin("Demo");
+		ImGui::Begin("Demo", nullptr, ImGuiWindowFlags_MenuBar);
+
+		if (ImGui::BeginMenuBar()) {
+			ImGui::Text("Disk Chart");
+			ImGui::SetCursorPosX(ImGui::GetWindowWidth() - 17);
+			if (ImGui::Button("X")) {
+				return 0;
+			}
+
+			ImGui::EndMenuBar();
+		}
 
 		switch (state) {
 			case State::Started:
