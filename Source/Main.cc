@@ -131,9 +131,11 @@ void ChartState() {
 			if (ImGui::IsMouseClicked(ImGuiMouseButton_Left)) {
 				auto* top = history.top();
 
-				if (node == top && history.size() > 1) {
-					history.pop();
-					drawData = BuildDrawData(*history.top());
+				if (node == top) {
+					if (history.size() > 1) {
+						history.pop();
+						drawData = BuildDrawData(*history.top());
+					}
 				}
 				else {
 					history.emplace(node);
