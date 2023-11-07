@@ -61,9 +61,6 @@ Tree::Node<Filesystem::Entry> tree;
 
 std::stack<const Tree::Node<Filesystem::Entry>*> history;
 
-const auto x = 1024 / 2;
-const auto y = 768 / 2;
-
 std::string path;
 std::string size;
 
@@ -118,6 +115,10 @@ std::string BytesToString(size_t value) {
 void ChartState() {
 	ImGui::Text("Path: %s", path.c_str());
 	ImGui::Text("Size: %s", size.c_str());
+
+	auto [x, y] = ImGui::GetWindowSize();
+	x *= 0.5f;
+	y *= 0.5f;
 
 	const auto mx = ImGui::GetMousePos().x - x;
 	const auto my = ImGui::GetMousePos().y - y;
