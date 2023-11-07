@@ -9,6 +9,8 @@
 
 using SliceDrawData = std::vector<std::tuple<float, float, float, float, const Tree::Node<Filesystem::Entry>*>>;
 
+int w = 512, h = 544;
+
 SliceDrawData BuildDrawData(const Tree::Node<Filesystem::Entry>& node) {
 	const size_t root = node->size;
 	const size_t depth = node->depth;
@@ -22,6 +24,10 @@ SliceDrawData BuildDrawData(const Tree::Node<Filesystem::Entry>& node) {
 
 	SliceDrawData result;
 	node.depthTraversal([&](const Tree::Node<Filesystem::Entry>& entry) {
+		if (entry->depth - depth >= 7) {
+			return false;
+		}
+
 		if (depthStartAngle.size() < entry->depth - depth + 2) {
 			depthStartAngle.emplace_back();
 		}
@@ -32,7 +38,7 @@ SliceDrawData BuildDrawData(const Tree::Node<Filesystem::Entry>& node) {
 		const float normalized = entry->size / (float)root;
 		const float relative = entry->size / (float)size;
 		if (relative > 0.01) {
-			result.emplace_back(40 * (entry->depth - depth + 1), start, start + normalized, std::max(0.0f, 0.33f - normalized * 0.66f), &entry);
+			result.emplace_back(32 * (entry->depth - depth + 1), start, start + normalized, std::max(0.0f, 0.33f - normalized * 0.66f), &entry);
 		}
 
 		start += normalized;
@@ -118,8 +124,8 @@ void ChartState() {
 
 	auto [x, y] = ImGui::GetWindowSize();
 	x *= 0.5f;
-	y *= 0.5f;
-
+	y = y * 0.5f + 18;
+	
 	const auto mx = ImGui::GetMousePos().x - x;
 	const auto my = ImGui::GetMousePos().y - y;
 
@@ -128,7 +134,7 @@ void ChartState() {
 
 	Chart::Pie::Begin({x, y});
 	for (const auto& [radius, start, end, hue, node] : drawData | std::views::reverse) {
-		if (length <= radius && length >= radius - 40 && angle >= start && angle <= end) {
+		if (length <= (radius * w / 512) && length >= ((radius - 32) * w / 512) && angle >= start && angle <= end) {
 			if (ImGui::IsMouseClicked(ImGuiMouseButton_Left)) {
 				auto* top = history.top();
 
@@ -154,7 +160,7 @@ void ChartState() {
 			Chart::Pie::Color(ImColor::HSV(hue, 1 - radius / 420, 1.0f));
 		}
 
-		Chart::Pie::Slice(radius, start, end);
+		Chart::Pie::Slice(radius * w / 512, start, end);
 	}
 	Chart::Pie::End();
 }
@@ -168,7 +174,6 @@ void Draw() {
 	ImGui_ImplSDL2_NewFrame();
 	ImGui::NewFrame();
 
-	int w, h;
 	SDL_GetWindowSize(window, &w, &h);
 
 	ImGui::SetNextWindowPos({});
@@ -212,7 +217,7 @@ void Draw() {
 int main(int argc, char* argv[]) {
 	SDL_Init(SDL_INIT_VIDEO);
 
-	window = SDL_CreateWindow("Sample", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 1024, 768, SDL_WINDOW_OPENGL | SDL_WINDOW_BORDERLESS | SDL_WINDOW_RESIZABLE);
+	window = SDL_CreateWindow("Sample", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, w, h, SDL_WINDOW_OPENGL | SDL_WINDOW_BORDERLESS | SDL_WINDOW_RESIZABLE);
 	auto* context = SDL_GL_CreateContext(window);
 
 	SDL_SetWindowResizable(window, SDL_TRUE);
