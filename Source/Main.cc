@@ -64,7 +64,7 @@ void StartedState() {
 	for (const auto& drive : Filesystem::GetLogicalDrives()) {
 		if (ImGui::Button(drive.c_str())) {
 			future = std::async(std::launch::async, [drive] {
-				return Filesystem::BuildTree(drive, progress);
+				return Filesystem::ParallelBuildTree(drive, progress);
 			});
 
 			state = State::Loading;
@@ -133,11 +133,87 @@ void ChartState() {
 	Chart::Pie::End();
 }
 
+SDL_Window* window = nullptr;
+
+void Draw() {
+	glClear(GL_COLOR_BUFFER_BIT);
+
+	ImGui_ImplOpenGL3_NewFrame();
+	ImGui_ImplSDL2_NewFrame();
+	ImGui::NewFrame();
+
+	int w, h;
+	SDL_GetWindowSize(window, &w, &h);
+
+	ImGui::SetNextWindowPos({});
+	ImGui::SetNextWindowSize({(float)w, (float)h});
+
+	ImGui::Begin("Demo", nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoSavedSettings);
+
+	if (ImGui::BeginMenuBar()) {
+		ImGui::Text("Disk Chart");
+		ImGui::SetCursorPosX(ImGui::GetWindowWidth() - 17);
+		if (ImGui::Button("X")) {
+			SDL_Event quit;
+			quit.type = SDL_QUIT;
+
+			SDL_PushEvent(&quit);
+		}
+
+		ImGui::EndMenuBar();
+	}
+
+	switch (state) {
+		case State::Started:
+			StartedState();
+			break;
+		case State::Loading:
+			LoadingState();
+			break;
+		case State::Chart:
+			ChartState();
+			break;
+		default:;
+	}
+
+	ImGui::End();
+	ImGui::Render();
+
+	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+	SDL_GL_SwapWindow(window);
+}
+
 int main(int argc, char* argv[]) {
 	SDL_Init(SDL_INIT_VIDEO);
 
-	auto* window = SDL_CreateWindow("Sample", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 1024, 768, SDL_WINDOW_OPENGL);
+	window = SDL_CreateWindow("Sample", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 1024, 768, SDL_WINDOW_OPENGL | SDL_WINDOW_BORDERLESS | SDL_WINDOW_RESIZABLE);
 	auto* context = SDL_GL_CreateContext(window);
+
+	SDL_SetWindowResizable(window, SDL_TRUE);
+	SDL_AddEventWatch([](void* data, SDL_Event* event){
+		if (event->type == SDL_WINDOWEVENT) {
+			if (event->window.event == SDL_WINDOWEVENT_RESIZED) {
+				Draw();
+			}
+		}
+		return 0;
+	}, window);
+
+	SDL_SetWindowHitTest(
+		window, [](auto* window, const auto area, auto*) {
+			int w, h;
+			SDL_GetWindowSize(window, &w, &h);
+
+			if (area->x < w - 17 && area->y < 20) {
+				return SDL_HITTEST_DRAGGABLE;
+			}
+			else if (area->x > w - 10 && area->y > h - 10) {
+				return SDL_HITTEST_RESIZE_BOTTOMRIGHT;
+			}
+
+			return SDL_HITTEST_NORMAL;
+		},
+		nullptr);
 
 	ImGui::CreateContext();
 
@@ -155,42 +231,7 @@ int main(int argc, char* argv[]) {
 			}
 		}
 
-		glClear(GL_COLOR_BUFFER_BIT);
-
-		ImGui_ImplOpenGL3_NewFrame();
-		ImGui_ImplSDL2_NewFrame();
-		ImGui::NewFrame();
-
-		ImGui::Begin("Demo", nullptr, ImGuiWindowFlags_MenuBar);
-
-		if (ImGui::BeginMenuBar()) {
-			ImGui::Text("Disk Chart");
-			ImGui::SetCursorPosX(ImGui::GetWindowWidth() - 17);
-			if (ImGui::Button("X")) {
-				return 0;
-			}
-
-			ImGui::EndMenuBar();
-		}
-
-		switch (state) {
-			case State::Started:
-				StartedState();
-				break;
-			case State::Loading:
-				LoadingState();
-				break;
-			case State::Chart:
-				ChartState();
-				break;
-			default:;
-		}
-
-		ImGui::End();
-		ImGui::Render();
-
-		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-		SDL_GL_SwapWindow(window);
+		Draw();
 	}
 
 	ImGui_ImplOpenGL3_Shutdown();
