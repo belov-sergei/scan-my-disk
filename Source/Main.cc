@@ -16,7 +16,7 @@ SliceDrawData BuildDrawData(const Tree::Node<Filesystem::Entry>& node) {
 	std::vector<float> depthStartAngle(1);
 
 	size_t size = 0;
-	for (const auto& child : node) { 
+	for (const auto& child : node) {
 		size += child->size;
 	}
 
@@ -65,7 +65,7 @@ const auto x = 1024 / 2;
 const auto y = 768 / 2;
 
 std::string path;
-size_t size = 0;
+std::string size;
 
 void StartedState() {
 	for (const auto& drive : Filesystem::GetLogicalDrives()) {
@@ -101,9 +101,23 @@ void LoadingState() {
 	}
 }
 
+std::string BytesToString(size_t value) {
+	constexpr std::array units = {"B", "KB", "MB", "GB", "TB", "PB"};
+
+	auto size = static_cast<double>(value);
+
+	size_t unit = 0;
+	while (size >= 1024 && unit < units.size()) {
+		size /= 1024;
+		unit++;
+	}
+
+	return std::format("{:.2f} {}", size, units[unit]);
+}
+
 void ChartState() {
 	ImGui::Text("Path: %s", path.c_str());
-	ImGui::Text("Size: %u Byte", size);
+	ImGui::Text("Size: %s", size.c_str());
 
 	const auto mx = ImGui::GetMousePos().x - x;
 	const auto my = ImGui::GetMousePos().y - y;
@@ -131,7 +145,7 @@ void ChartState() {
 			Chart::Pie::Color(ImColor::HSV(hue, 0.25f, 1.0f));
 
 			path = (*node)->path.string();
-			size = (*node)->size;
+			size = BytesToString((*node)->size);
 		}
 		else {
 			Chart::Pie::Color(ImColor::HSV(hue, 1 - radius / 420, 1.0f));
@@ -199,14 +213,15 @@ int main(int argc, char* argv[]) {
 	auto* context = SDL_GL_CreateContext(window);
 
 	SDL_SetWindowResizable(window, SDL_TRUE);
-	SDL_AddEventWatch([](void* data, SDL_Event* event){
+	SDL_AddEventWatch([](void* data, SDL_Event* event) {
 		if (event->type == SDL_WINDOWEVENT) {
 			if (event->window.event == SDL_WINDOWEVENT_RESIZED) {
 				Draw();
 			}
 		}
 		return 0;
-	}, window);
+	},
+		window);
 
 	SDL_SetWindowHitTest(
 		window, [](auto* window, const auto area, auto*) {
