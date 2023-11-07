@@ -52,7 +52,7 @@ namespace Filesystem {
 		return logicalDrives;
 	}
 
-	std::pair<ULONGLONG, ULONGLONG> GetDriveSpace(std::string_view driveLetter) {
+	std::pair<size_t, size_t> GetDriveSpace(std::string_view driveLetter) {
 		ULARGE_INTEGER bytesTotal, bytesFree;
 		::GetDiskFreeSpaceEx(driveLetter.data(), nullptr, &bytesTotal, &bytesFree);
 

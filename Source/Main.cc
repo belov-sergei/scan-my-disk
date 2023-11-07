@@ -10,9 +10,15 @@
 using SliceDrawData = std::vector<std::tuple<float, float, float, float, const Tree::Node<Filesystem::Entry>*>>;
 
 SliceDrawData BuildDrawData(const Tree::Node<Filesystem::Entry>& node) {
-	const size_t size = node->size;
+	const size_t root = node->size;
 	const size_t depth = node->depth;
+
 	std::vector<float> depthStartAngle(1);
+
+	size_t size = 0;
+	for (const auto& child : node) { 
+		size += child->size;
+	}
 
 	SliceDrawData result;
 	node.depthTraversal([&](const Tree::Node<Filesystem::Entry>& entry) {
@@ -23,8 +29,9 @@ SliceDrawData BuildDrawData(const Tree::Node<Filesystem::Entry>& node) {
 		float& start = depthStartAngle[entry->depth - depth];
 		depthStartAngle[entry->depth - depth + 1] = start;
 
-		const float normalized = entry->size / (float)size;
-		if (normalized > 0.01) {
+		const float normalized = entry->size / (float)root;
+		const float relative = entry->size / (float)size;
+		if (relative > 0.01) {
 			result.emplace_back(40 * (entry->depth - depth + 1), start, start + normalized, std::max(0.0f, 0.33f - normalized * 0.66f), &entry);
 		}
 
@@ -42,7 +49,7 @@ enum class State {
 	Chart
 };
 
-const auto space = Filesystem::GetDriveSpace("C://");
+std::pair<size_t, size_t> space = {};
 
 SliceDrawData drawData;
 State state = State::Started;
@@ -63,6 +70,8 @@ size_t size = 0;
 void StartedState() {
 	for (const auto& drive : Filesystem::GetLogicalDrives()) {
 		if (ImGui::Button(drive.c_str())) {
+			space = Filesystem::GetDriveSpace(drive);
+
 			future = std::async(std::launch::async, [drive] {
 				return Filesystem::ParallelBuildTree(drive, progress);
 			});
