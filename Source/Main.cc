@@ -120,7 +120,7 @@ std::string BytesToString(size_t value) {
 }
 
 void ChartState() {
-	ImGui::Text("Path: %s", path.c_str());
+	ImGui::TextWrapped("Path: %s", path.c_str());
 	ImGui::Text("Size: %s", size.c_str());
 
 	std::filesystem::path root = (*history.top())->path;
@@ -140,29 +140,48 @@ void ChartState() {
 	const float length = std::sqrt(mx * mx + my * my);
 	float angle = ((int)(std::atan2(-my, -mx) * 180 / 3.14) + 180) / 360.0f;
 
+	if (ImGui::BeginPopupContextItem("Menu")) {
+		if (ImGui::Selectable("Explore")) {
+			Filesystem::Explore(path);
+		}
+		ImGui::EndPopup();
+	}
+
 	Chart::Pie::Begin({x, y});
 	for (const auto& [radius, start, end, hue, node] : drawData | std::views::reverse) {
-		if (length <= (radius * w / 512) && length >= ((radius - 32) * w / 512) && angle >= start && angle <= end) {
-			if (ImGui::IsMouseClicked(ImGuiMouseButton_Left)) {
-				auto* top = history.top();
+		if (!ImGui::IsPopupOpen("Menu")) {
+			if (length <= (radius * w / 512) && length >= ((radius - 32) * w / 512) && angle >= start && angle <= end) {
+				if (ImGui::IsMouseClicked(ImGuiMouseButton_Left)) {
+					auto* top = history.top();
 
-				if (node == top) {
-					if (history.size() > 1) {
-						history.pop();
-						drawData = BuildDrawData(*history.top());
+					if (node == top) {
+						if (history.size() > 1) {
+							history.pop();
+							drawData = BuildDrawData(*history.top());
+						}
 					}
-				}
-				else {
-					history.emplace(node);
-					drawData = BuildDrawData(*node);
+					else {
+						if (!node->isLeaf()) {
+							history.emplace(node);
+							drawData = BuildDrawData(*node);
+						}
+					}
+
+					break;
 				}
 
-				break;
+				if (ImGui::IsMouseClicked(ImGuiMouseButton_Right)) {
+					ImGui::OpenPopup("Menu");
+				}
+
+				Chart::Pie::Color(ImColor::HSV(hue, 0.25f, 1.0f));
+
+				path = (*node)->path.string();
+				size = BytesToString((*node)->size);
 			}
-			Chart::Pie::Color(ImColor::HSV(hue, 0.25f, 1.0f));
-
-			path = std::filesystem::relative((*node)->path, (*history.top())->path).string();
-			size = BytesToString((*node)->size);
+			else {
+				Chart::Pie::Color(ImColor::HSV(hue, 1 - radius / 420, 1.0f));
+			}
 		}
 		else {
 			Chart::Pie::Color(ImColor::HSV(hue, 1 - radius / 420, 1.0f));

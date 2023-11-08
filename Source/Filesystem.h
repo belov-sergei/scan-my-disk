@@ -1,6 +1,5 @@
 #pragma once
 
-#include <Windows.h>
 #include <Tree/Node.h>
 
 namespace Filesystem {
@@ -11,6 +10,7 @@ namespace Filesystem {
 
 	std::vector<std::string> GetLogicalDrives();
 	std::pair<size_t, size_t> GetDriveSpace(std::string_view driveLetter);
+	void Explore(std::string_view path);
 
 	Tree::Node<Entry> BuildTree(const std::filesystem::path& path, std::atomic<size_t>& progress);
 	Tree::Node<Entry> ParallelBuildTree(const std::filesystem::path& path, std::atomic<size_t>& progress);

@@ -1,4 +1,5 @@
 #include <Filesystem.h>
+#include <Windows.h>
 
 namespace Filesystem {
 	namespace Details {
@@ -43,7 +44,7 @@ namespace Filesystem {
 		DWORD availableDrivesBitmask = ::GetLogicalDrives();
 		for (auto driveLetter = 'A'; driveLetter <= 'Z'; driveLetter++) {
 			if (availableDrivesBitmask & 1) {
-				logicalDrives.emplace_back(std::format("{}://", driveLetter));
+				logicalDrives.emplace_back(std::format("{}:\\", driveLetter));
 			}
 
 			availableDrivesBitmask >>= 1;
@@ -57,6 +58,11 @@ namespace Filesystem {
 		::GetDiskFreeSpaceEx(driveLetter.data(), nullptr, &bytesTotal, &bytesFree);
 
 		return std::make_pair(bytesTotal.QuadPart, bytesFree.QuadPart);
+	}
+
+	void Explore(std::string_view path)
+	{
+		ShellExecute(nullptr, nullptr, path.data(), nullptr, nullptr, SW_NORMAL);
 	}
 
 	Tree::Node<Entry> BuildTree(const std::filesystem::path& path, std::atomic<size_t>& progress) {
