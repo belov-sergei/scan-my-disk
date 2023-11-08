@@ -91,7 +91,7 @@ void LoadingState() {
 	const float scale = std::min<float>(progress / float(space.first - space.second), 1.0f);
 
 	const float padding = w * 0.1;
-	ImGui::GetWindowDrawList()->AddRect({padding, 100}, {(float)w - padding, 105 }, ImColor(255, 0, 0, 255), 1.0f);
+	ImGui::GetWindowDrawList()->AddRect({padding, 100}, {(float)w - padding, 105}, ImColor(255, 0, 0, 255), 1.0f);
 	ImGui::GetWindowDrawList()->AddRectFilled({padding, 100}, {padding + (w - padding * 2) * scale, 105}, ImColor(255, 0, 0, 255), 1.0f);
 
 	if (future.wait_for(0s) == std::future_status::ready) {
@@ -123,10 +123,17 @@ void ChartState() {
 	ImGui::Text("Path: %s", path.c_str());
 	ImGui::Text("Size: %s", size.c_str());
 
+	std::filesystem::path root = (*history.top())->path;
+	if (history.size() > 1) {
+		root = std::filesystem::relative(root, root.parent_path());
+	}
+
+	ImGui::Text("%s", root.string().c_str());
+
 	auto [x, y] = ImGui::GetWindowSize();
 	x *= 0.5f;
 	y = y * 0.5f + 18;
-	
+
 	const auto mx = ImGui::GetMousePos().x - x;
 	const auto my = ImGui::GetMousePos().y - y;
 
@@ -154,7 +161,7 @@ void ChartState() {
 			}
 			Chart::Pie::Color(ImColor::HSV(hue, 0.25f, 1.0f));
 
-			path = (*node)->path.string();
+			path = std::filesystem::relative((*node)->path, (*history.top())->path).string();
 			size = BytesToString((*node)->size);
 		}
 		else {
