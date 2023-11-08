@@ -36,6 +36,8 @@ namespace Filesystem {
 				return false;
 			});
 		}
+
+		bool CancelFlag = false;
 	} // namespace Details
 
 	std::vector<std::string> GetLogicalDrives() {
@@ -66,13 +68,15 @@ namespace Filesystem {
 	}
 
 	Tree::Node<Entry> BuildTree(const std::filesystem::path& path, std::atomic<size_t>& progress) {
+		Details::CancelFlag = false;
+
 		Tree::Node<Entry> root = {0, 0, path};
 
 		std::stack<decltype(&root)> pending;
 		pending.emplace(&root);
 
 		std::error_code error;
-		while (!pending.empty()) {
+		while (!pending.empty() && !Details::CancelFlag) {
 			auto& node = *pending.top();
 			pending.pop();
 
@@ -107,6 +111,8 @@ namespace Filesystem {
 	}
 
 	Tree::Node<Entry> ParallelBuildTree(const std::filesystem::path& path, std::atomic<size_t>& progress) {
+		Details::CancelFlag = false;
+
 		Tree::Node<Entry> root = {0, 0, path};
 
 		// Stack of pending tasks shared among threads.
@@ -157,7 +163,7 @@ namespace Filesystem {
 					++workers;
 				}
 
-				while (!jobs.empty()) {
+				while (!jobs.empty() && !Details::CancelFlag) {
 					auto& node = *jobs.top();
 					jobs.pop();
 
@@ -229,5 +235,10 @@ namespace Filesystem {
 		Details::CalculateDirectorySizes(root);
 
 		return root;
+	}
+
+	void CancelBuildTree()
+	{
+		Details::CancelFlag = true;
 	}
 } // namespace Filesystem

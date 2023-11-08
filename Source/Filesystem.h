@@ -14,6 +14,8 @@ namespace Filesystem {
 
 	Tree::Node<Entry> BuildTree(const std::filesystem::path& path, std::atomic<size_t>& progress);
 	Tree::Node<Entry> ParallelBuildTree(const std::filesystem::path& path, std::atomic<size_t>& progress);
+
+	void CancelBuildTree();
 } // namespace Filesystem
 
 template <>

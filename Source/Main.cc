@@ -94,6 +94,15 @@ void LoadingState() {
 	ImGui::GetWindowDrawList()->AddRect({padding, 100}, {(float)w - padding, 105}, ImColor(255, 0, 0, 255), 1.0f);
 	ImGui::GetWindowDrawList()->AddRectFilled({padding, 100}, {padding + (w - padding * 2) * scale, 105}, ImColor(255, 0, 0, 255), 1.0f);
 
+	if (ImGui::Button("Stop")) {
+		Filesystem::CancelBuildTree();
+		progress = 0;
+		future.wait();
+
+		state = State::Started;
+		return;
+	}
+
 	if (future.wait_for(0s) == std::future_status::ready) {
 		tree = future.get();
 		tree->size = space.first;
@@ -212,6 +221,9 @@ void Draw() {
 		ImGui::Text("Disk Chart");
 		ImGui::SetCursorPosX(ImGui::GetWindowWidth() - 17);
 		if (ImGui::Button("X")) {
+			Filesystem::CancelBuildTree();
+			future.wait();
+
 			SDL_Event quit;
 			quit.type = SDL_QUIT;
 
