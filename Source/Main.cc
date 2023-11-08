@@ -90,8 +90,9 @@ void LoadingState() {
 
 	const float scale = std::min<float>(progress / float(space.first - space.second), 1.0f);
 
-	ImGui::GetWindowDrawList()->AddRect({100, 100}, {924, 105}, ImColor(255, 0, 0, 255), 1.0f);
-	ImGui::GetWindowDrawList()->AddRectFilled({100, 100}, {100 + 824 * scale, 105}, ImColor(255, 0, 0, 255));
+	const float padding = w * 0.1;
+	ImGui::GetWindowDrawList()->AddRect({padding, 100}, {(float)w - padding, 105 }, ImColor(255, 0, 0, 255), 1.0f);
+	ImGui::GetWindowDrawList()->AddRectFilled({padding, 100}, {padding + (w - padding * 2) * scale, 105}, ImColor(255, 0, 0, 255), 1.0f);
 
 	if (future.wait_for(0s) == std::future_status::ready) {
 		tree = future.get();
