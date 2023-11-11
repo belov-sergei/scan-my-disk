@@ -47,20 +47,19 @@ namespace Utilities {
 			0x54de5729, 0x23d967bf, 0xb3667a2e, 0xc4614ab8, 0x5d681b02, 0x2a6f2b94,
 			0xb40bbe37, 0xc30c8ea1, 0x5a05df1b, 0x2d02ef8d};
 
-		template <size_t Index>
-		constexpr uint32_t CRC32(const char* value) {
-			return CRC32<Index - 1>(value) >> 8 ^ CRC32Table[(CRC32<Index - 1>(value) ^ value[Index]) & 0x000000ff];
-		}
 
-		template <>
-		constexpr uint32_t CRC32<static_cast<size_t>(-1)>(const char*) {
-			return 0xffffffff;
+		template <typename T, T... N>
+		constexpr uint32_t CRC32(std::integer_sequence<T, N...>, const char* value) {
+			uint32_t x = -1;
+#ifndef __RESHARPER__
+			((x = CRC32Table[(x ^ value[N]) & 0x000000ff] ^ (x >> 8)), ...);
+#endif
+			return ~x;
 		}
 	} // namespace Details
 
-	// Avoid using long strings. This significantly slows down compilation and requires an increase in constexpr steps. Check the CRC32LongString test.
 	template <size_t Size>
 	constexpr uint32_t CRC32(const char (&value)[Size]) {
-		return Details::CRC32<Size - 2>(value) ^ 0xFFFFFFFF;
+		return Details::CRC32(std::make_index_sequence<Size - 1>(), value);
 	}
 } // namespace Utilities

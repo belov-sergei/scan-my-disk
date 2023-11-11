@@ -27,10 +27,8 @@ TEST(Utilities, CRC32SpecialCharacters) {
 }
 
 TEST(Utilities, CRC32LongString) {
-	// Calls for an extensive number of constexpr steps, ultimately resulting in a memory issue.
-	
-	// static_assert(Utilities::CRC32("This is a long string with many characters!") == 0x88869ba9);
-	// EXPECT_EQ(Utilities::CRC32("This is a long string with many characters!"), 0x88869ba9);
+	static_assert(Utilities::CRC32("This is a long string with many characters!") == 0x88869ba9);
+	EXPECT_EQ(Utilities::CRC32("This is a long string with many characters!"), 0x88869ba9);
 }
 
 TEST(Utilities, CRC32Inequality) {
