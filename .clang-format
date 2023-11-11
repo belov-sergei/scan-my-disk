@@ -52,7 +52,7 @@ BreakConstructorInitializers: BeforeComma
 BreakInheritanceList: BeforeComma
 BreakStringLiterals: false
 ColumnLimit: 0
-UseTab: AlignWithSpaces
+UseTab: ForContinuationAndIndentation
 TabWidth: 4
 Standard: c++20
 CompactNamespaces: false
