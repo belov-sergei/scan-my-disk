@@ -75,6 +75,7 @@ void StartedState() {
 		if (ImGui::Button(drive.c_str())) {
 			space = Filesystem::GetDriveSpace(drive);
 
+			progress = 0;
 			future = std::async(std::launch::async, [drive] {
 				return Filesystem::ParallelBuildTree(drive, progress);
 			});
@@ -96,14 +97,12 @@ void LoadingState() {
 
 	if (ImGui::Button("Stop")) {
 		Filesystem::CancelBuildTree();
-		progress = 0;
-		future.wait();
+		std::ignore = future.get();
 
 		state = State::Started;
-		return;
 	}
 
-	if (future.wait_for(0s) == std::future_status::ready) {
+	if (future.valid() && future.wait_for(0s) == std::future_status::ready) {
 		tree = future.get();
 		tree->size = space.first;
 
@@ -221,8 +220,10 @@ void Draw() {
 		ImGui::Text("Disk Chart");
 		ImGui::SetCursorPosX(ImGui::GetWindowWidth() - 17);
 		if (ImGui::Button("X")) {
-			Filesystem::CancelBuildTree();
-			future.wait();
+			if (state == State::Loading) {
+				Filesystem::CancelBuildTree();
+				std::ignore = future.get();
+			}
 
 			SDL_Event quit;
 			quit.type = SDL_QUIT;
