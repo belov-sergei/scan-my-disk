@@ -6,6 +6,7 @@
 
 #include <Chart.h>
 #include <Filesystem.h>
+#include <Localization.h>
 
 using SliceDrawData = std::vector<std::tuple<float, float, float, float, const Tree::Node<Filesystem::Entry>*>>;
 
@@ -32,8 +33,8 @@ SliceDrawData BuildDrawData(const Tree::Node<Filesystem::Entry>& node) {
 			depthStartAngle.emplace_back();
 		}
 
-		float& start = depthStartAngle[entry->depth - depth];
-		depthStartAngle[entry->depth - depth + 1] = start;
+        float& start = depthStartAngle[entry->depth - depth];
+        depthStartAngle[entry->depth - depth + 1] = start;
 
 		const float normalized = entry->size / (float)root;
 		const float relative = entry->size / (float)size;
@@ -95,7 +96,7 @@ void LoadingState() {
 	ImGui::GetWindowDrawList()->AddRect({padding, 100}, {(float)w - padding, 105}, ImColor(255, 0, 0, 255), 1.0f);
 	ImGui::GetWindowDrawList()->AddRectFilled({padding, 100}, {padding + (w - padding * 2) * scale, 105}, ImColor(255, 0, 0, 255), 1.0f);
 
-	if (ImGui::Button("Stop")) {
+	if (ImGui::Button(Localization::Text("ABORT_LOADING_BUTTON"))) {
 		Filesystem::CancelBuildTree();
 		std::ignore = future.get();
 
@@ -149,7 +150,7 @@ void ChartState() {
 	float angle = ((int)(std::atan2(-my, -mx) * 180 / 3.14) + 180) / 360.0f;
 
 	if (ImGui::BeginPopupContextItem("Menu")) {
-		if (ImGui::Selectable("Explore")) {
+		if (ImGui::Selectable(Localization::Text("EXPLORE_BUTTON"))) {
 			Filesystem::Explore(path);
 		}
 		ImGui::EndPopup();
@@ -232,6 +233,25 @@ void Draw() {
 		}
 
 		ImGui::EndMenuBar();
+	}
+
+	auto language = Localization::Text("ENGLISH_LANGUAGE");
+	if (ImGui::Button(language)) {
+		Localization::Text::SetLanguage(static_cast<Localization::Language>(static_cast<uint32_t>(language)));
+	}
+
+	ImGui::SameLine();
+
+	language = Localization::Text("FRENCH_LANGUAGE");
+	if (ImGui::Button(language)) {
+		Localization::Text::SetLanguage(static_cast<Localization::Language>(static_cast<uint32_t>(language)));
+	}
+
+	ImGui::SameLine();
+
+	language = Localization::Text("SPANISH_LANGUAGE");
+	if (ImGui::Button(language)) {
+		Localization::Text::SetLanguage(static_cast<Localization::Language>(static_cast<uint32_t>(language)));
 	}
 
 	switch (state) {
