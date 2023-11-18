@@ -6,6 +6,8 @@ namespace Localization {
 		English = Utilities::CRC32("ENGLISH_LANGUAGE"),
 		French = Utilities::CRC32("FRENCH_LANGUAGE"),
 		Spanish = Utilities::CRC32("SPANISH_LANGUAGE"),
+		Chinese = Utilities::CRC32("CHINESE_LANGUAGE"),
+		Russian = Utilities::CRC32("RUSSIAN_LANGUAGE"),
 
 	};
 
@@ -13,6 +15,14 @@ namespace Localization {
 	public:
 		constexpr Text(std::string_view textId) {
 			_value = Utilities::CRC32(textId);
+		}
+
+		constexpr Text(uint32_t value) {
+			_value = value;
+		}
+
+		constexpr Text(Language language) {
+			_value = static_cast<uint32_t>(language);
 		}
 
 		operator std::string() const;

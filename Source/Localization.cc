@@ -13,6 +13,8 @@ namespace Localization {
 					{Text("ENGLISH_LANGUAGE"), "English"},
 					{Text("FRENCH_LANGUAGE"), "Français"},
 					{Text("SPANISH_LANGUAGE"), "Español"},
+					{Text("CHINESE_LANGUAGE"), "简体中文"},
+					{Text("RUSSIAN_LANGUAGE"), "Русский"},
 				}
 			},
 			{
@@ -23,6 +25,8 @@ namespace Localization {
 					{Text("ENGLISH_LANGUAGE"), "English"},
 					{Text("FRENCH_LANGUAGE"), "Français"},
 					{Text("SPANISH_LANGUAGE"), "Español"},
+					{Text("CHINESE_LANGUAGE"), "简体中文"},
+					{Text("RUSSIAN_LANGUAGE"), "Русский"},
 				}
 			},
 			{
@@ -33,6 +37,32 @@ namespace Localization {
 					{Text("ENGLISH_LANGUAGE"), "English"},
 					{Text("FRENCH_LANGUAGE"), "Français"},
 					{Text("SPANISH_LANGUAGE"), "Español"},
+					{Text("CHINESE_LANGUAGE"), "简体中文"},
+					{Text("RUSSIAN_LANGUAGE"), "Русский"},
+				}
+			},
+			{
+				Language::Chinese,
+				{
+					{Text("ABORT_LOADING_BUTTON"), "中止"},
+					{Text("EXPLORE_BUTTON"), "探索"},
+					{Text("ENGLISH_LANGUAGE"), "English"},
+					{Text("FRENCH_LANGUAGE"), "Français"},
+					{Text("SPANISH_LANGUAGE"), "Español"},
+					{Text("CHINESE_LANGUAGE"), "简体中文"},
+					{Text("RUSSIAN_LANGUAGE"), "Русский"},
+				}
+			},
+			{
+				Language::Russian,
+				{
+					{Text("ABORT_LOADING_BUTTON"), "Прервать"},
+					{Text("EXPLORE_BUTTON"), "Обозреватель"},
+					{Text("ENGLISH_LANGUAGE"), "English"},
+					{Text("FRENCH_LANGUAGE"), "Français"},
+					{Text("SPANISH_LANGUAGE"), "Español"},
+					{Text("CHINESE_LANGUAGE"), "简体中文"},
+					{Text("RUSSIAN_LANGUAGE"), "Русский"},
 				}
 			},
 		};

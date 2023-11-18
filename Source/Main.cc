@@ -235,23 +235,18 @@ void Draw() {
 		ImGui::EndMenuBar();
 	}
 
-	auto language = Localization::Text("ENGLISH_LANGUAGE");
-	if (ImGui::Button(language)) {
-		Localization::Text::SetLanguage(static_cast<Localization::Language>(static_cast<uint32_t>(language)));
-	}
+	{
+		using namespace Localization;
 
-	ImGui::SameLine();
+		for (const auto language : {Language::English, Language::French, Language::Spanish, Language::Chinese, Language::Russian}) {
+			if (ImGui::Button(Text(language))) {
+				Text::SetLanguage(language);
+			}
 
-	language = Localization::Text("FRENCH_LANGUAGE");
-	if (ImGui::Button(language)) {
-		Localization::Text::SetLanguage(static_cast<Localization::Language>(static_cast<uint32_t>(language)));
-	}
+			ImGui::SameLine();
+		}
 
-	ImGui::SameLine();
-
-	language = Localization::Text("SPANISH_LANGUAGE");
-	if (ImGui::Button(language)) {
-		Localization::Text::SetLanguage(static_cast<Localization::Language>(static_cast<uint32_t>(language)));
+		ImGui::NewLine();
 	}
 
 	switch (state) {
@@ -311,6 +306,12 @@ int main(int argc, char* argv[]) {
 
 	ImGui_ImplSDL2_InitForOpenGL(window, context);
 	ImGui_ImplOpenGL3_Init("#version 150");
+
+	ImFontConfig config;
+	ImGui::GetIO().Fonts->AddFontFromFileTTF("Fonts/NotoSansSC-Regular.ttf", 18.0f, &config, ImGui::GetIO().Fonts->GetGlyphRangesCyrillic());
+
+	config.MergeMode = true;
+	ImGui::GetIO().Fonts->AddFontFromFileTTF("Fonts/NotoSansSC-Regular.ttf", 18.0f, &config, ImGui::GetIO().Fonts->GetGlyphRangesChineseSimplifiedCommon());
 
 	bool exit = false;
 	while (!exit) {
