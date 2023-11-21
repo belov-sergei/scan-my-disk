@@ -272,10 +272,9 @@ void Draw() {
 int main(int argc, char* argv[]) {
 	SDL_Init(SDL_INIT_VIDEO);
 
-	window = SDL_CreateWindow("Sample", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, w, h, SDL_WINDOW_OPENGL | SDL_WINDOW_BORDERLESS | SDL_WINDOW_RESIZABLE);
+	window = SDL_CreateWindow("Sample", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, w, h, SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE);
 	auto* context = SDL_GL_CreateContext(window);
-
-	SDL_SetWindowResizable(window, SDL_TRUE);
+	
 	SDL_AddEventWatch([](void* data, SDL_Event* event) {
 		if (event->type == SDL_WINDOWEVENT) {
 			if (event->window.event == SDL_WINDOWEVENT_RESIZED) {

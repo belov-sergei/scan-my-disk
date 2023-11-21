@@ -110,6 +110,7 @@ target_link_libraries(${PROJECT_NAME}
 	gdi32
 	opengl32
 	imm32
+	dwmapi
 )
 
 target_include_directories(${PROJECT_NAME} PRIVATE ${SDL_PATH}/include)
