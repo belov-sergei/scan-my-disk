@@ -4,6 +4,9 @@
 #include <SDL.h>
 #include <SDL_opengl.h>
 
+#define STB_IMAGE_IMPLEMENTATION
+#include "stb_image.h"
+
 #include <Chart.h>
 #include <Filesystem.h>
 #include <Localization.h>
@@ -11,6 +14,22 @@
 using SliceDrawData = std::vector<std::tuple<float, float, float, float, const Tree::Node<Filesystem::Entry>*>>;
 
 int w = 512, h = 544;
+GLuint texture;
+
+void LoadTexture(const std::string& path, GLuint* texture, int* width, int* height) {
+	auto* image = stbi_load(path.c_str(), width, height, nullptr, 4);
+
+	glGenTextures(1, texture);
+	glBindTexture(GL_TEXTURE_2D, *texture);
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, *width, *height, 0, GL_RGBA, GL_UNSIGNED_BYTE, image);
+	stbi_image_free(image);
+}
 
 SliceDrawData BuildDrawData(const Tree::Node<Filesystem::Entry>& node) {
 	const size_t root = node->size;
@@ -235,6 +254,9 @@ void Draw() {
 		ImGui::EndMenuBar();
 	}
 
+	ImGui::Image((void*)texture, {20, 20});
+	ImGui::SameLine();
+
 	{
 		using namespace Localization;
 
@@ -311,6 +333,9 @@ int main(int argc, char* argv[]) {
 
 	config.MergeMode = true;
 	ImGui::GetIO().Fonts->AddFontFromFileTTF("Fonts/NotoSansSC-Regular.ttf", 18.0f, &config, ImGui::GetIO().Fonts->GetGlyphRangesChineseSimplifiedCommon());
+
+	int w, h;
+	LoadTexture("Icons/Icon.png", &texture, &w, &h);
 
 	bool exit = false;
 	while (!exit) {

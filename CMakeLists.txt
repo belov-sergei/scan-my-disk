@@ -60,6 +60,9 @@ set(SDL_PATH ${PROJECT_SOURCE_DIR}/ThirdParty/SDL-release-2.26.5)
 # Path to IMGUI library source directory.
 set(IMGUI_PATH ${PROJECT_SOURCE_DIR}/ThirdParty/imgui-1.89.5)
 
+# Path to STB library source directory.
+set(STB_PATH ${PROJECT_SOURCE_DIR}/ThirdParty/stb-master)
+
 # Create main project.
 CreateProject(${PROJECT_NAME} ${PROJECT_SOURCE_PATH} "")
 
@@ -154,6 +157,9 @@ target_include_directories(${PROJECT_NAME} PRIVATE
 	${IMGUI_PATH}
 	${IMGUI_PATH}/backends
 )
+
+# Include STB.
+target_include_directories(${PROJECT_NAME} PRIVATE ${STB_PATH})
 
 # Include test projects.
 file(GLOB TEST_PROJECTS RELATIVE ${TEST_PROJECTS_PATH} ${TEST_PROJECTS_PATH}/*)
