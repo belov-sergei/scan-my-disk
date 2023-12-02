@@ -9,26 +9,40 @@
 
 #include <Chart.h>
 #include <Filesystem.h>
+#include <imgui_internal.h>
 #include <Localization.h>
 
 using SliceDrawData = std::vector<std::tuple<float, float, float, float, const Tree::Node<Filesystem::Entry>*>>;
 
 int w = 512, h = 544;
-GLuint texture;
 
-void LoadTexture(const std::string& path, GLuint* texture, int* width, int* height) {
-	auto* image = stbi_load(path.c_str(), width, height, nullptr, 4);
+enum Icons {
+	Close,
+	Maximize,
+	Menu,
+	Minimize,
+	Restore,
+	Icon,
 
-	glGenTextures(1, texture);
-	glBindTexture(GL_TEXTURE_2D, *texture);
+	Last
+};
 
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+std::array<void*, Icons::Last> icons;
 
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, *width, *height, 0, GL_RGBA, GL_UNSIGNED_BYTE, image);
-	stbi_image_free(image);
+void LoadTexture(std::string_view path, void*& textureId) {
+	int width, height;
+	if (auto* pixels = stbi_load(path.data(), &width, &height, nullptr, 4)) {
+		glGenTextures(1, (GLuint*)&textureId);
+		glBindTexture(GL_TEXTURE_2D, (GLuint)textureId);
+
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
+		stbi_image_free(pixels);
+	}
 }
 
 SliceDrawData BuildDrawData(const Tree::Node<Filesystem::Entry>& node) {
@@ -52,8 +66,8 @@ SliceDrawData BuildDrawData(const Tree::Node<Filesystem::Entry>& node) {
 			depthStartAngle.emplace_back();
 		}
 
-        float& start = depthStartAngle[entry->depth - depth];
-        depthStartAngle[entry->depth - depth + 1] = start;
+		float& start = depthStartAngle[entry->depth - depth];
+		depthStartAngle[entry->depth - depth + 1] = start;
 
 		const float normalized = entry->size / (float)root;
 		const float relative = entry->size / (float)size;
@@ -234,27 +248,46 @@ void Draw() {
 	ImGui::SetNextWindowPos({});
 	ImGui::SetNextWindowSize({(float)w, (float)h});
 
-	ImGui::Begin("Demo", nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoSavedSettings);
+	ImGui::Begin("Demo", nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoSavedSettings);
 
-	if (ImGui::BeginMenuBar()) {
-		ImGui::Text("Disk Chart");
-		ImGui::SetCursorPosX(ImGui::GetWindowWidth() - 17);
-		if (ImGui::Button("X")) {
-			if (state == State::Loading) {
-				Filesystem::CancelBuildTree();
-				std::ignore = future.get();
-			}
+	ImGui::ImageButton("#Menu", icons[Icons::Menu], {12, 12});
 
-			SDL_Event quit;
-			quit.type = SDL_QUIT;
+	const auto* windowTitle = "Disk Chart";
+	ImGui::SameLine(ImGui::GetWindowWidth() / 2 - ImGui::CalcTextSize(windowTitle).x / 2);
+	ImGui::Text(windowTitle);
 
-			SDL_PushEvent(&quit);
-		}
-
-		ImGui::EndMenuBar();
+	ImGui::SameLine(ImGui::GetWindowWidth() - 28 * 3);
+	if (ImGui::ImageButton("#Minimize", icons[Icons::Minimize], {12, 12})) {
+		SDL_MinimizeWindow(window);
 	}
 
-	ImGui::Image((void*)texture, {20, 20});
+	if (SDL_GetWindowFlags(window) & SDL_WINDOW_MAXIMIZED) {
+		ImGui::SameLine(ImGui::GetWindowWidth() - 28 * 2);
+		if (ImGui::ImageButton("#Restore", icons[Icons::Restore], {12, 12})) {
+			SDL_RestoreWindow(window);
+		}
+	}
+	else {
+		ImGui::SameLine(ImGui::GetWindowWidth() - 28 * 2);
+		if (ImGui::ImageButton("#Maximize", icons[Icons::Maximize], {12, 12})) {
+			SDL_MaximizeWindow(window);
+		}
+	}
+
+	ImGui::SameLine(ImGui::GetWindowWidth() - 28);
+	if (ImGui::ImageButton("#Close", icons[Icons::Close], {12, 12})) {
+		if (state == State::Loading) {
+			Filesystem::CancelBuildTree();
+			std::ignore = future.get();
+		}
+
+		SDL_Event quit;
+		quit.type = SDL_QUIT;
+
+		SDL_PushEvent(&quit);
+	}
+
+	ImGui::Image(icons[Icons::Icon], {20, 20});
 	ImGui::SameLine();
 
 	{
@@ -296,11 +329,14 @@ int main(int argc, char* argv[]) {
 
 	window = SDL_CreateWindow("Sample", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, w, h, SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE);
 	auto* context = SDL_GL_CreateContext(window);
-	
+
 	SDL_AddEventWatch([](void* data, SDL_Event* event) {
 		if (event->type == SDL_WINDOWEVENT) {
-			if (event->window.event == SDL_WINDOWEVENT_RESIZED) {
-				Draw();
+			// To prevent recursive calls to Draw function when the user clicks on Maximize and Minimize.
+			if (event->window.event == SDL_WINDOWEVENT_SIZE_CHANGED) {
+				if (!ImGui::GetCurrentContext()->WithinFrameScope) {
+					Draw();
+				}
 			}
 		}
 		return 0;
@@ -334,8 +370,12 @@ int main(int argc, char* argv[]) {
 	config.MergeMode = true;
 	ImGui::GetIO().Fonts->AddFontFromFileTTF("Fonts/NotoSansSC-Regular.ttf", 18.0f, &config, ImGui::GetIO().Fonts->GetGlyphRangesChineseSimplifiedCommon());
 
-	int w, h;
-	LoadTexture("Icons/Icon.png", &texture, &w, &h);
+	LoadTexture("Icons/Close.png", icons[Icons::Close]);
+	LoadTexture("Icons/Maximize.png", icons[Icons::Maximize]);
+	LoadTexture("Icons/Menu.png", icons[Icons::Menu]);
+	LoadTexture("Icons/Minimize.png", icons[Icons::Minimize]);
+	LoadTexture("Icons/Restore.png", icons[Icons::Restore]);
+	LoadTexture("Icons/Icon.png", icons[Icons::Icon]);
 
 	bool exit = false;
 	while (!exit) {
