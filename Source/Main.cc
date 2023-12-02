@@ -248,44 +248,73 @@ void Draw() {
 	ImGui::SetNextWindowPos({});
 	ImGui::SetNextWindowSize({(float)w, (float)h});
 
+	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2());
+
 	ImGui::Begin("Demo", nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoSavedSettings);
 
-	ImGui::ImageButton("#Menu", icons[Icons::Menu], {12, 12});
-
-	const auto* windowTitle = "Disk Chart";
-	ImGui::SameLine(ImGui::GetWindowWidth() / 2 - ImGui::CalcTextSize(windowTitle).x / 2);
-	ImGui::Text(windowTitle);
-
-	ImGui::SameLine(ImGui::GetWindowWidth() - 28 * 3);
-	if (ImGui::ImageButton("#Minimize", icons[Icons::Minimize], {12, 12})) {
-		SDL_MinimizeWindow(window);
+	// Window Background.
+	{
+		ImGui::GetWindowDrawList()->AddRectFilled({}, ImGui::GetWindowSize(), IM_COL32(55, 57, 62, 255));
+		ImGui::GetWindowDrawList()->AddRectFilled({}, {ImGui::GetWindowWidth(), 30}, IM_COL32(43, 45, 48, 255));
 	}
 
-	if (SDL_GetWindowFlags(window) & SDL_WINDOW_MAXIMIZED) {
-		ImGui::SameLine(ImGui::GetWindowWidth() - 28 * 2);
-		if (ImGui::ImageButton("#Restore", icons[Icons::Restore], {12, 12})) {
-			SDL_RestoreWindow(window);
-		}
-	}
-	else {
-		ImGui::SameLine(ImGui::GetWindowWidth() - 28 * 2);
-		if (ImGui::ImageButton("#Maximize", icons[Icons::Maximize], {12, 12})) {
-			SDL_MaximizeWindow(window);
-		}
-	}
+	// Window Title.
+	{
+		ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(18, 9));
 
-	ImGui::SameLine(ImGui::GetWindowWidth() - 28);
-	if (ImGui::ImageButton("#Close", icons[Icons::Close], {12, 12})) {
-		if (state == State::Loading) {
-			Filesystem::CancelBuildTree();
-			std::ignore = future.get();
+		ImGui::PushStyleColor(ImGuiCol_Button, IM_COL32(0, 0, 0, 0));
+		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, IM_COL32(255, 255, 255, 32));
+		ImGui::PushStyleColor(ImGuiCol_ButtonActive, IM_COL32(255, 255, 255, 32));
+
+		ImGui::ImageButton("#Menu", icons[Icons::Menu], {12, 12});
+
+		ImGui::SameLine(ImGui::GetWindowWidth() - 48 * 3);
+		if (ImGui::ImageButton("#Minimize", icons[Icons::Minimize], {12, 12})) {
+			SDL_MinimizeWindow(window);
 		}
 
-		SDL_Event quit;
-		quit.type = SDL_QUIT;
+		if (SDL_GetWindowFlags(window) & SDL_WINDOW_MAXIMIZED) {
+			ImGui::SameLine(ImGui::GetWindowWidth() - 48 * 2);
+			if (ImGui::ImageButton("#Restore", icons[Icons::Restore], {12, 12})) {
+				SDL_RestoreWindow(window);
+			}
+		}
+		else {
+			ImGui::SameLine(ImGui::GetWindowWidth() - 48 * 2);
+			if (ImGui::ImageButton("#Maximize", icons[Icons::Maximize], {12, 12})) {
+				SDL_MaximizeWindow(window);
+			}
+		}
 
-		SDL_PushEvent(&quit);
+		{
+			ImGui::PushStyleColor(ImGuiCol_ButtonHovered, IM_COL32(196, 43, 23, 255));
+			ImGui::PushStyleColor(ImGuiCol_ButtonActive, IM_COL32(196, 43, 23, 255));
+
+			ImGui::SameLine(ImGui::GetWindowWidth() - 48);
+			if (ImGui::ImageButton("#Close", icons[Icons::Close], {12, 12})) {
+				if (state == State::Loading) {
+					Filesystem::CancelBuildTree();
+					std::ignore = future.get();
+				}
+
+				SDL_Event quit;
+				quit.type = SDL_QUIT;
+
+				SDL_PushEvent(&quit);
+			}
+
+			ImGui::PopStyleColor(2);
+		}
+
+		ImGui::PopStyleColor(3);
+		ImGui::PopStyleVar();
+
+		const auto* windowTitle = "Disk Chart";
+		ImGui::SetCursorPos({ImGui::GetWindowWidth() / 2 - ImGui::CalcTextSize(windowTitle).x / 2, 15 - ImGui::CalcTextSize(windowTitle).y / 2});
+		ImGui::Text(windowTitle);
 	}
+
+	ImGui::SetCursorPos({0, 50});
 
 	ImGui::Image(icons[Icons::Icon], {20, 20});
 	ImGui::SameLine();
@@ -318,6 +347,9 @@ void Draw() {
 	}
 
 	ImGui::End();
+
+	ImGui::PopStyleVar();
+
 	ImGui::Render();
 
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
