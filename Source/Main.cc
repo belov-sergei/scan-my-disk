@@ -258,6 +258,18 @@ void Draw() {
 		ImGui::GetWindowDrawList()->AddRectFilled({}, {ImGui::GetWindowWidth(), 30}, IM_COL32(43, 45, 48, 255));
 	}
 
+	const auto close = []() {
+		if (state == State::Loading) {
+			Filesystem::CancelBuildTree();
+			std::ignore = future.get();
+		}
+
+		SDL_Event quit;
+		quit.type = SDL_QUIT;
+
+		SDL_PushEvent(&quit);
+	};
+
 	// Window Title.
 	{
 		ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(18, 9));
@@ -266,7 +278,9 @@ void Draw() {
 		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, IM_COL32(255, 255, 255, 32));
 		ImGui::PushStyleColor(ImGuiCol_ButtonActive, IM_COL32(255, 255, 255, 32));
 
-		ImGui::ImageButton("#Menu", icons[Icons::Menu], {12, 12});
+		if (ImGui::ImageButton("#Menu", icons[Icons::Menu], {12, 12})) {
+			ImGui::OpenPopup("File");
+		}
 
 		ImGui::SameLine(ImGui::GetWindowWidth() - 48 * 3);
 		if (ImGui::ImageButton("#Minimize", icons[Icons::Minimize], {12, 12})) {
@@ -292,15 +306,7 @@ void Draw() {
 
 			ImGui::SameLine(ImGui::GetWindowWidth() - 48);
 			if (ImGui::ImageButton("#Close", icons[Icons::Close], {12, 12})) {
-				if (state == State::Loading) {
-					Filesystem::CancelBuildTree();
-					std::ignore = future.get();
-				}
-
-				SDL_Event quit;
-				quit.type = SDL_QUIT;
-
-				SDL_PushEvent(&quit);
+				close();
 			}
 
 			ImGui::PopStyleColor(2);
@@ -315,23 +321,47 @@ void Draw() {
 	}
 
 	ImGui::SetCursorPos({0, 50});
+	ImGui::PushStyleColor(ImGuiCol_PopupBg, IM_COL32(55, 57, 62, 255));
+	ImGui::PushStyleColor(ImGuiCol_Border, IM_COL32(67, 69, 74, 255));
+
+	ImGui::PushStyleVar(ImGuiStyleVar_PopupRounding, 5.0f);
+	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 5));
+	ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(80, 5));
+
+	ImGui::SetNextWindowPos({10, 30});
+	if (ImGui::BeginPopup("File")) {
+		ImGui::NewLine();
+		ImGui::SameLine(18.0f);
+		if (ImGui::BeginMenu("Language")) {
+			using namespace Localization;
+
+			for (const auto language : {Language::English, Language::French, Language::Spanish, Language::Chinese, Language::Russian}) {
+				ImGui::NewLine();
+				ImGui::SameLine(18.0f);
+				if (ImGui::MenuItem(Text(language))) {
+					Text::SetLanguage(language);
+				}
+			}
+
+			ImGui::EndMenu();
+		}
+
+		ImGui::Separator();
+
+		ImGui::NewLine();
+		ImGui::SameLine(18.0f);
+		if (ImGui::MenuItem("Exit")) {
+			close();
+		}
+
+		ImGui::EndPopup();
+	}
+
+	ImGui::PopStyleColor(2);
+	ImGui::PopStyleVar(3);
 
 	ImGui::Image(icons[Icons::Icon], {20, 20});
 	ImGui::SameLine();
-
-	{
-		using namespace Localization;
-
-		for (const auto language : {Language::English, Language::French, Language::Spanish, Language::Chinese, Language::Russian}) {
-			if (ImGui::Button(Text(language))) {
-				Text::SetLanguage(language);
-			}
-
-			ImGui::SameLine();
-		}
-
-		ImGui::NewLine();
-	}
 
 	switch (state) {
 		case State::Started:
