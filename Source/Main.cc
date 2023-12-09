@@ -23,6 +23,7 @@ enum Icons {
 	Minimize,
 	Restore,
 	Icon,
+	Shadow,
 
 	Last
 };
@@ -44,6 +45,153 @@ void LoadTexture(std::string_view path, void*& textureId) {
 		stbi_image_free(pixels);
 	}
 }
+
+namespace ImGui {
+	namespace Shadow {
+		namespace Details {
+			int* Index;
+
+			ImVec2* Position;
+			ImVec2* Size;
+
+			ImDrawList* DrawList;
+
+			std::stack<std::tuple<int, ImVec2, ImVec2>> State;
+
+			constexpr float UV[] = {0.00f, 1.0f / 3.0f, 1.0f / 1.5f, 1.00f};
+
+			void AddImage(float minX, float minY, float maxX, float maxY) {
+				DrawList->AddImage(icons[Icons::Shadow], {}, {}, {minX, minY}, {maxX, maxY}, IM_COL32(0, 0, 0, 128));
+			}
+		} // namespace Details
+
+		void Begin() {
+			using namespace Details;
+
+			if (State.empty()) {
+				DrawList = ImGui::GetWindowDrawList();
+			}
+
+			auto& [index, position, size] = State.emplace();
+
+			Index = &index;
+			Position = &position;
+			Size = &size;
+
+			*Index = DrawList->VtxBuffer.Size;
+
+			AddImage(UV[0], UV[0], UV[1], UV[1]);
+			AddImage(UV[1], UV[0], UV[2], UV[1]);
+			AddImage(UV[2], UV[0], UV[3], UV[1]);
+
+			AddImage(UV[0], UV[1], UV[1], UV[2]);
+			AddImage(UV[1], UV[1], UV[2], UV[2]);
+			AddImage(UV[2], UV[1], UV[3], UV[2]);
+
+			AddImage(UV[0], UV[2], UV[1], UV[3]);
+			AddImage(UV[1], UV[2], UV[2], UV[3]);
+			AddImage(UV[2], UV[2], UV[3], UV[3]);
+		}
+
+		void Position(ImVec2 position) {
+			*Details::Position = position;
+
+			Details::Position->x -= 130;
+			Details::Position->y -= 130;
+		}
+
+		void Size(ImVec2 size) {
+			*Details::Size = size;
+
+			Details::Size->x += 260;
+			Details::Size->y += 260;
+		}
+
+		void End() {
+			const auto [w, h] = *Details::Size;
+
+			if (!(w > 0.0f && h > 0.0f)) {
+				Details::State.pop();
+
+				if (!Details::State.empty()) {
+					auto& [index, position, size] = Details::State.top();
+
+					Details::Index = &index;
+					Details::Position = &position;
+					Details::Size = &size;
+				}
+
+				return;
+			}
+
+			const auto [x, y] = *Details::Position;
+
+			const std::initializer_list<ImVec2> vertices = {
+				{      0,       0},
+				{    130,       0},
+				{    130,     130},
+				{      0,     130},
+
+				{    130,       0},
+				{w - 130,       0},
+				{w - 130,     130},
+				{    130,     130},
+
+				{w - 130,       0},
+				{      w,       0},
+				{      w,     130},
+				{w - 130,     130},
+ // ---
+				{      0,     130},
+				{    130,     130},
+				{    130, h - 130},
+				{      0, h - 130},
+
+				{    130,     130},
+				{w - 130,     130},
+				{w - 130, h - 130},
+				{    130, h - 130},
+
+				{w - 130,     130},
+				{      w,     130},
+				{      w, h - 130},
+				{w - 130, h - 130},
+ // ---
+				{      0, h - 130},
+				{    130, h - 130},
+				{    130,       h},
+				{      0,       h},
+
+				{    130, h - 130},
+				{w - 130, h - 130},
+				{w - 130,       h},
+				{    130,       h},
+
+				{w - 130, h - 130},
+				{      w, h - 130},
+				{      w,       h},
+				{w - 130,       h},
+			};
+
+			int index = *Details::Index;
+
+			for (const auto& [vx, vy] : vertices) {
+				Details::DrawList->VtxBuffer[index++].pos = {x + vx, y + vy};
+			}
+
+			Details::State.pop();
+
+			if (!Details::State.empty()) {
+				auto& [index, position, size] = Details::State.top();
+
+				Details::Index = &index;
+				Details::Position = &position;
+				Details::Size = &size;
+			}
+		}
+	} // namespace Shadow
+
+} // namespace ImGui
 
 SliceDrawData BuildDrawData(const Tree::Node<Filesystem::Entry>& node) {
 	const size_t root = node->size;
@@ -329,10 +477,20 @@ void Draw() {
 	ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(80, 5));
 
 	ImGui::SetNextWindowPos({10, 30});
+
+	ImGui::Shadow::Begin();
 	if (ImGui::BeginPopup("File")) {
+		ImGui::Shadow::Position(ImGui::GetWindowPos());
+		ImGui::Shadow::Size(ImGui::GetWindowSize());
+
 		ImGui::NewLine();
 		ImGui::SameLine(18.0f);
+
+		ImGui::Shadow::Begin();
 		if (ImGui::BeginMenu("Language")) {
+			ImGui::Shadow::Position(ImGui::GetWindowPos());
+			ImGui::Shadow::Size(ImGui::GetWindowSize());
+
 			using namespace Localization;
 
 			for (const auto language : {Language::English, Language::French, Language::Spanish, Language::Chinese, Language::Russian}) {
@@ -345,6 +503,7 @@ void Draw() {
 
 			ImGui::EndMenu();
 		}
+		ImGui::Shadow::End();
 
 		ImGui::Separator();
 
@@ -356,11 +515,14 @@ void Draw() {
 
 		ImGui::EndPopup();
 	}
+	ImGui::Shadow::End();
 
 	ImGui::PopStyleColor(2);
 	ImGui::PopStyleVar(3);
 
+	ImGui::SetCursorPos({50, 50});
 	ImGui::Image(icons[Icons::Icon], {20, 20});
+
 	ImGui::SameLine();
 
 	switch (state) {
@@ -438,6 +600,7 @@ int main(int argc, char* argv[]) {
 	LoadTexture("Icons/Minimize.png", icons[Icons::Minimize]);
 	LoadTexture("Icons/Restore.png", icons[Icons::Restore]);
 	LoadTexture("Icons/Icon.png", icons[Icons::Icon]);
+	LoadTexture("Icons/Shadow.png", icons[Icons::Shadow]);
 
 	bool exit = false;
 	while (!exit) {
