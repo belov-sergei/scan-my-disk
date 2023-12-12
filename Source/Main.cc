@@ -237,6 +237,20 @@ enum class State {
 	Chart
 };
 
+std::string BytesToString(size_t value) {
+	constexpr std::array units = {"B", "KB", "MB", "GB", "TB", "PB"};
+
+	auto size = static_cast<double>(value);
+
+	size_t unit = 0;
+	while (size >= 1024 && unit < units.size()) {
+		size /= 1024;
+		unit++;
+	}
+
+	return std::format("{:.2f} {}", size, units[unit]);
+}
+
 std::pair<size_t, size_t> space = {};
 
 SliceDrawData drawData;
@@ -253,19 +267,56 @@ std::string path;
 std::string size;
 
 void StartedState() {
-	for (const auto& drive : Filesystem::GetLogicalDrives()) {
-		if (ImGui::Button(drive.c_str())) {
-			space = Filesystem::GetDriveSpace(drive);
+	ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(190, 190, 190, 255));
 
-			progress = 0;
-			future = std::async(std::launch::async, [drive] {
-				return Filesystem::ParallelBuildTree(drive, progress);
-			});
+	ImGui::Indent(30);
+	ImGui::Text("Select disk:");
 
-			state = State::Loading;
-			break;
-		}
+	{
+		const auto& [x, y] = ImGui::GetCursorPos();
+		ImGui::GetWindowDrawList()->AddLine({x, y}, {x + ImGui::GetWindowWidth() - 60, y + 1}, IM_COL32(190, 190, 190, 255));
 	}
+
+	ImGui::NewLine();
+	for (const auto& drive : Filesystem::GetLogicalDrives()) {
+		const auto [bytesTotal, bytesFree] = Filesystem::GetDriveSpace(drive);
+
+		ImGui::BeginGroup();
+		{
+			ImGui::Text(drive.c_str());
+
+			const float scale = 1.0f - bytesFree / (float)bytesTotal;
+
+			const auto [x, y] = ImGui::GetCursorPos();
+
+			if (ImRect(x - 5, y - 25, x + 165, y + 35).Contains(ImGui::GetMousePos())) {
+				if (ImGui::IsMouseClicked(ImGuiMouseButton_Left)) {
+					space = Filesystem::GetDriveSpace(drive);
+
+					progress = 0;
+					future = std::async(std::launch::async, [drive] {
+						return Filesystem::ParallelBuildTree(drive, progress);
+					});
+
+					state = State::Loading;
+				}
+
+				ImGui::GetWindowDrawList()->AddRectFilled({x - 5, y - 25}, {x + 165, y + 35}, IM_COL32(190, 190, 190, 32), 8);
+			}
+
+			ImGui::ItemSize({x, y, x + 170, y + 8});
+
+			ImGui::GetWindowDrawList()->AddRectFilled({x, y}, {x + 160, y + 8}, IM_COL32(190, 190, 190, 127));
+			ImGui::GetWindowDrawList()->AddRectFilled({x, y}, {x + 160 * scale, y + 8}, IM_COL32(190, 190, 190, 255));
+
+			ImGui::Text("%s free of %s", BytesToString(bytesFree).c_str(), BytesToString(bytesTotal).c_str());
+		}
+		ImGui::EndGroup();
+
+		ImGui::SameLine();
+	}
+
+	ImGui::PopStyleColor();
 }
 
 void LoadingState() {
@@ -293,20 +344,6 @@ void LoadingState() {
 		history.emplace(&tree);
 		state = State::Chart;
 	}
-}
-
-std::string BytesToString(size_t value) {
-	constexpr std::array units = {"B", "KB", "MB", "GB", "TB", "PB"};
-
-	auto size = static_cast<double>(value);
-
-	size_t unit = 0;
-	while (size >= 1024 && unit < units.size()) {
-		size /= 1024;
-		unit++;
-	}
-
-	return std::format("{:.2f} {}", size, units[unit]);
 }
 
 void ChartState() {
@@ -463,14 +500,19 @@ void Draw() {
 		ImGui::PopStyleColor(3);
 		ImGui::PopStyleVar();
 
-		const auto* windowTitle = "Disk Chart";
-		ImGui::SetCursorPos({ImGui::GetWindowWidth() / 2 - ImGui::CalcTextSize(windowTitle).x / 2, 15 - ImGui::CalcTextSize(windowTitle).y / 2});
-		ImGui::Text(windowTitle);
+		ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(190, 190, 190, 255));
+		{
+			const auto* windowTitle = "Disk Chart";
+			ImGui::SetCursorPos({ImGui::GetWindowWidth() / 2 - ImGui::CalcTextSize(windowTitle).x / 2, 15 - ImGui::CalcTextSize(windowTitle).y / 2});
+			ImGui::Text(windowTitle);
+		}
+		ImGui::PopStyleColor();
 	}
 
 	ImGui::SetCursorPos({0, 50});
 	ImGui::PushStyleColor(ImGuiCol_PopupBg, IM_COL32(55, 57, 62, 255));
 	ImGui::PushStyleColor(ImGuiCol_Border, IM_COL32(67, 69, 74, 255));
+	ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(190, 190, 190, 255));
 
 	ImGui::PushStyleVar(ImGuiStyleVar_PopupRounding, 5.0f);
 	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 5));
@@ -517,13 +559,8 @@ void Draw() {
 	}
 	ImGui::Shadow::End();
 
-	ImGui::PopStyleColor(2);
+	ImGui::PopStyleColor(3);
 	ImGui::PopStyleVar(3);
-
-	ImGui::SetCursorPos({50, 50});
-	ImGui::Image(icons[Icons::Icon], {20, 20});
-
-	ImGui::SameLine();
 
 	switch (state) {
 		case State::Started:
