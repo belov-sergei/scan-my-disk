@@ -25,6 +25,7 @@ enum Icons {
 	Icon,
 	Shadow,
 	Back,
+	Folder,
 
 	Last
 };
@@ -384,8 +385,6 @@ void ChartState() {
 		root = std::filesystem::relative(root, root.parent_path());
 	}
 
-	ImGui::Text("%s", root.string().c_str());
-
 	auto [x, y] = ImGui::GetWindowSize();
 	x *= 0.5f;
 	y = y * 0.5f + 18;
@@ -416,6 +415,7 @@ void ChartState() {
 							drawData = BuildDrawData(*history.top());
 						}
 						else {
+							history = {};
 							state = State::Started;
 						}
 					}
@@ -465,10 +465,22 @@ void ChartState() {
 	}
 	Chart::Pie::End();
 
-	ImGui::PopStyleColor(1);
 
 	ImGui::SetCursorPos({x - 6, y - 6});
 	ImGui::Image(icons[Icons::Back], {12, 12});
+
+	ImGui::GetWindowDrawList()->AddLine({0, ImGui::GetWindowHeight() - 30}, {ImGui::GetWindowWidth(), ImGui::GetWindowHeight() - 30}, IM_COL32(43, 45, 48, 255));
+
+	ImGui::SetCursorPos({0 + 9, ImGui::GetWindowHeight() - 21});
+	ImGui::Image(icons[Icons::Folder], {14, 13});
+
+	ImGui::SameLine();
+
+	ImGui::SetCursorPosY(ImGui::GetWindowHeight() - 24);
+	ImGui::Text("%s", root.string().c_str());
+
+	ImGui::PopStyleColor(1);
+
 }
 
 SDL_Window* window = nullptr;
@@ -691,6 +703,7 @@ int main(int argc, char* argv[]) {
 	LoadTexture("Icons/Icon.png", icons[Icons::Icon]);
 	LoadTexture("Icons/Shadow.png", icons[Icons::Shadow]);
 	LoadTexture("Icons/Back.png", icons[Icons::Back]);
+	LoadTexture("Icons/Folder.png", icons[Icons::Folder]);
 
 	bool exit = false;
 	while (!exit) {
