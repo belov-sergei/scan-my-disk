@@ -24,6 +24,7 @@ enum Icons {
 	Restore,
 	Icon,
 	Shadow,
+	Back,
 
 	Last
 };
@@ -220,7 +221,7 @@ SliceDrawData BuildDrawData(const Tree::Node<Filesystem::Entry>& node) {
 		const float normalized = entry->size / (float)root;
 		const float relative = entry->size / (float)size;
 		if (relative > 0.01) {
-			result.emplace_back(32 * (entry->depth - depth + 1), start, start + normalized, std::max(0.0f, 0.33f - normalized * 0.66f), &entry);
+			result.emplace_back(32 * (entry->depth - depth + 1), start, start + normalized, std::max(0.0f, 0.25f - normalized * 0.75f), &entry);
 		}
 
 		start += normalized;
@@ -324,7 +325,6 @@ void LoadingState() {
 
 	const float scale = std::min<float>(progress / float(space.first - space.second), 1.0f);
 
-
 	ImGui::SetCursorPosY(ImGui::GetWindowHeight() * 0.5f);
 	ImGui::Indent(30);
 
@@ -345,8 +345,8 @@ void LoadingState() {
 	const auto buttonText = Localization::Text("ABORT_LOADING_BUTTON");
 
 	ImGui::NewLine();
-	ImGui::SetCursorPosX((ImGui::GetWindowWidth() - ImGui::CalcTextSize(buttonText).x + ImGui::GetStyle().FramePadding.x * 2.0f) * 0.5f);
-	
+	ImGui::SetCursorPosX((ImGui::GetWindowWidth() - (ImGui::CalcTextSize(buttonText).x + ImGui::GetStyle().FramePadding.x * 2.0f)) * 0.5f);
+
 	if (ImGui::Button(buttonText)) {
 		Filesystem::CancelBuildTree();
 		std::ignore = future.get();
@@ -369,7 +369,14 @@ void LoadingState() {
 }
 
 void ChartState() {
+	ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(190, 190, 190, 255));
+
+	ImGui::Indent(30);
+
+	ImGui::PushTextWrapPos(ImGui::GetWindowWidth() - 60);
 	ImGui::TextWrapped("Path: %s", path.c_str());
+	ImGui::PopTextWrapPos();
+
 	ImGui::Text("Size: %s", size.c_str());
 
 	std::filesystem::path root = (*history.top())->path;
@@ -396,17 +403,20 @@ void ChartState() {
 		ImGui::EndPopup();
 	}
 
-	Chart::Pie::Begin({x, y});
+	Chart::Pie::Begin({x, y}); 
 	for (const auto& [radius, start, end, hue, node] : drawData | std::views::reverse) {
+		auto* top = history.top();
+
 		if (!ImGui::IsPopupOpen("Menu")) {
 			if (length <= (radius * w / 512) && length >= ((radius - 32) * w / 512) && angle >= start && angle <= end) {
 				if (ImGui::IsMouseClicked(ImGuiMouseButton_Left)) {
-					auto* top = history.top();
-
 					if (node == top) {
 						if (history.size() > 1) {
 							history.pop();
 							drawData = BuildDrawData(*history.top());
+						}
+						else {
+							state = State::Started;
 						}
 					}
 					else {
@@ -423,22 +433,42 @@ void ChartState() {
 					ImGui::OpenPopup("Menu");
 				}
 
-				Chart::Pie::Color(ImColor::HSV(hue, 0.25f, 1.0f));
+				if (node == top) {
+					Chart::Pie::Color(IM_COL32(94, 97, 101, 255), IM_COL32(55, 57, 62, 255));
+				}
+				else {
+					Chart::Pie::Color(ImColor::HSV(hue, 0.15f, 0.9f));
+				}
 
 				path = (*node)->path.string();
 				size = BytesToString((*node)->size);
 			}
 			else {
-				Chart::Pie::Color(ImColor::HSV(hue, 1 - radius / 420, 1.0f));
+				if (node == top) {
+					Chart::Pie::Color(IM_COL32(72, 74, 78, 255), IM_COL32(55, 57, 62, 255));
+				}
+				else {
+					Chart::Pie::Color(ImColor::HSV(hue, (1 - radius / 420) * 0.75f, 0.9f));
+				}
 			}
 		}
 		else {
-			Chart::Pie::Color(ImColor::HSV(hue, 1 - radius / 420, 1.0f));
+			if (node == top) {
+				Chart::Pie::Color(IM_COL32(72, 74, 78, 255), IM_COL32(55, 57, 62, 255));
+			}
+			else {
+				Chart::Pie::Color(ImColor::HSV(hue, (1 - radius / 420) * 0.75f, 0.9f));
+			}
 		}
 
 		Chart::Pie::Slice(radius * w / 512, start, end);
 	}
 	Chart::Pie::End();
+
+	ImGui::PopStyleColor(1);
+
+	ImGui::SetCursorPos({x - 6, y - 6});
+	ImGui::Image(icons[Icons::Back], {12, 12});
 }
 
 SDL_Window* window = nullptr;
@@ -660,6 +690,7 @@ int main(int argc, char* argv[]) {
 	LoadTexture("Icons/Restore.png", icons[Icons::Restore]);
 	LoadTexture("Icons/Icon.png", icons[Icons::Icon]);
 	LoadTexture("Icons/Shadow.png", icons[Icons::Shadow]);
+	LoadTexture("Icons/Back.png", icons[Icons::Back]);
 
 	bool exit = false;
 	while (!exit) {
