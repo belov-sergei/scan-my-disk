@@ -324,16 +324,38 @@ void LoadingState() {
 
 	const float scale = std::min<float>(progress / float(space.first - space.second), 1.0f);
 
-	const float padding = w * 0.1;
-	ImGui::GetWindowDrawList()->AddRect({padding, 100}, {(float)w - padding, 105}, ImColor(255, 0, 0, 255), 1.0f);
-	ImGui::GetWindowDrawList()->AddRectFilled({padding, 100}, {padding + (w - padding * 2) * scale, 105}, ImColor(255, 0, 0, 255), 1.0f);
 
-	if (ImGui::Button(Localization::Text("ABORT_LOADING_BUTTON"))) {
+	ImGui::SetCursorPosY(ImGui::GetWindowHeight() * 0.5f);
+	ImGui::Indent(30);
+
+	const auto& [x, y] = ImGui::GetCursorPos();
+
+	ImGui::ItemSize({x, y, x + ImGui::GetWindowWidth() - 60, y + 8});
+	ImGui::GetWindowDrawList()->AddRect({x, y}, {x + ImGui::GetWindowWidth() - 60, y + 8}, IM_COL32(190, 190, 190, 127));
+	ImGui::GetWindowDrawList()->AddRectFilled({x, y}, {(x + ImGui::GetWindowWidth() - 60) * scale, y + 8}, IM_COL32(190, 190, 190, 255));
+
+	ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(8, 4));
+	ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 8.0f);
+
+	ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(190, 190, 190, 255));
+	ImGui::PushStyleColor(ImGuiCol_Button, IM_COL32(55, 57, 62, 255));
+	ImGui::PushStyleColor(ImGuiCol_ButtonHovered, IM_COL32(255, 255, 255, 32));
+	ImGui::PushStyleColor(ImGuiCol_ButtonActive, IM_COL32(255, 255, 255, 32));
+
+	const auto buttonText = Localization::Text("ABORT_LOADING_BUTTON");
+
+	ImGui::NewLine();
+	ImGui::SetCursorPosX((ImGui::GetWindowWidth() - ImGui::CalcTextSize(buttonText).x + ImGui::GetStyle().FramePadding.x * 2.0f) * 0.5f);
+	
+	if (ImGui::Button(buttonText)) {
 		Filesystem::CancelBuildTree();
 		std::ignore = future.get();
 
 		state = State::Started;
 	}
+
+	ImGui::PopStyleColor(4);
+	ImGui::PopStyleVar(2);
 
 	if (future.valid() && future.wait_for(0s) == std::future_status::ready) {
 		tree = future.get();
