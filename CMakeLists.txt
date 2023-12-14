@@ -10,6 +10,8 @@ project(
 
 # Create project from all source files located in PROJECT_SOURCE_PATH.
 function(CreateProject PROJECT_NAME PROJECT_SOURCE_PATH PLATFORM)
+	set(ADDITIONAL_FILES ${ARGN})
+
 	# Project header and source files.
 	file(GLOB_RECURSE PROJECT_SOURCE_FILES ${PROJECT_SOURCE_PATH}/*.cc)
 	file(GLOB_RECURSE PROJECT_HEADER_FILES ${PROJECT_SOURCE_PATH}/*.h)
@@ -18,7 +20,7 @@ function(CreateProject PROJECT_NAME PROJECT_SOURCE_PATH PLATFORM)
 	source_group(TREE ${PROJECT_SOURCE_PATH} FILES ${PROJECT_SOURCE_FILES} ${PROJECT_HEADER_FILES})
 
 	# Create project executable.
-	add_executable(${PROJECT_NAME} ${PLATFORM} ${PROJECT_SOURCE_FILES} ${PROJECT_HEADER_FILES})
+	add_executable(${PROJECT_NAME} ${PLATFORM} ${PROJECT_SOURCE_FILES} ${PROJECT_HEADER_FILES} ${ADDITIONAL_FILES})
 
 	# Include directories.
 	target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCE_PATH})
@@ -64,7 +66,7 @@ set(IMGUI_PATH ${PROJECT_SOURCE_DIR}/ThirdParty/imgui-1.89.5)
 set(STB_PATH ${PROJECT_SOURCE_DIR}/ThirdParty/stb-master)
 
 # Create main project.
-CreateProject(${PROJECT_NAME} ${PROJECT_SOURCE_PATH} "")
+CreateProject(${PROJECT_NAME} ${PROJECT_SOURCE_PATH} "" "DiskUsage.rc")
 
 # Edit & Continue
 if (MSVC)
