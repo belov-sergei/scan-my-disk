@@ -395,13 +395,6 @@ void ChartState() {
 	const float length = std::sqrt(mx * mx + my * my);
 	float angle = ((int)(std::atan2(-my, -mx) * 180 / 3.14) + 180) / 360.0f;
 
-	if (ImGui::BeginPopupContextItem("Menu")) {
-		if (ImGui::Selectable(Localization::Text("EXPLORE_BUTTON"))) {
-			Filesystem::Explore(path);
-		}
-		ImGui::EndPopup();
-	}
-
 	Chart::Pie::Begin({x, y}); 
 	for (const auto& [radius, start, end, hue, node] : drawData | std::views::reverse) {
 		auto* top = history.top();
@@ -464,6 +457,33 @@ void ChartState() {
 		Chart::Pie::Slice(radius * w / 512, start, end);
 	}
 	Chart::Pie::End();
+
+	ImGui::PushStyleColor(ImGuiCol_PopupBg, IM_COL32(55, 57, 62, 255));
+	ImGui::PushStyleColor(ImGuiCol_Border, IM_COL32(67, 69, 74, 255));
+	ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(190, 190, 190, 255));
+
+	ImGui::PushStyleVar(ImGuiStyleVar_PopupRounding, 5.0f);
+	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 5));
+	ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(80, 5));
+
+	ImGui::Shadow::Begin();
+	if (ImGui::BeginPopup("Menu")) {
+		ImGui::Shadow::Position(ImGui::GetWindowPos());
+		ImGui::Shadow::Size(ImGui::GetWindowSize());
+
+		ImGui::NewLine();
+		ImGui::SameLine(18.0f);
+
+		if (ImGui::MenuItem(Localization::Text("EXPLORE_BUTTON"))) {
+			Filesystem::Explore(path);
+		}
+
+		ImGui::EndPopup();
+	}
+	ImGui::Shadow::End();
+
+	ImGui::PopStyleColor(3);
+	ImGui::PopStyleVar(3);
 
 
 	ImGui::SetCursorPos({x - 6, y - 6});
