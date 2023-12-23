@@ -1,7 +1,5 @@
 #include <Log.cc>
 #include <gtest/gtest.h>
-#include <Windows.h>
-#include "Debug/CopyMoveData.h"
 
 namespace Log {
 	namespace Level {
@@ -140,6 +138,28 @@ TEST(Log, Level) {
 
 TEST(Log, Multithreading) {
 	// Feature not implemented.
+}
+
+TEST(Log, FileOutput) {
+	constexpr auto file = "Log.txt";
+
+	if (std::filesystem::exists(file)) {
+		std::filesystem::remove(file);
+	}
+
+	Log::Reset();
+
+	Log::CreateLogger<Log::FileStreamLogger>(file);
+	Log::SetLevel(Log::Level::Debug::Level);
+
+	Log::Debug(Message);
+
+	std::ifstream input(file);
+
+	const std::stringstream buffer;
+	while (input >> buffer.rdbuf())
+
+	EXPECT_EQ(buffer.str(), std::format("[{}] {}\n", Log::Level::Debug::Name, Message));
 }
 
 int main(int argc, char* argv[]) {

@@ -1,4 +1,5 @@
 #pragma once
+#include <Windows.h>
 
 namespace Log {
 	namespace Details {
@@ -35,5 +36,33 @@ namespace Log {
 
 	// Resets the logging configuration.
 	void Reset();
+
+	struct WindowsDebugOutputLogger {
+		void operator()(std::string_view string) const {
+			OutputDebugString(string.data());
+		}
+	};
+
+	struct OutputStreamLogger {
+		void operator()(std::string_view string) const {
+			std::cout << string;
+		}
+	};
+
+	struct FileStreamLogger final {
+		FileStreamLogger(std::string_view file) {
+			_file = file;
+		}
+
+		void operator()(std::string_view string) const {
+			std::ofstream stream(_file);
+			if (stream.is_open()) {
+				stream << string;
+			}
+		}
+
+	private:
+		std::string _file;
+	};
 
 } // namespace Log
