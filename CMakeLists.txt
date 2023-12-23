@@ -65,6 +65,9 @@ set(IMGUI_PATH ${PROJECT_SOURCE_DIR}/ThirdParty/imgui-1.89.5)
 # Path to STB library source directory.
 set(STB_PATH ${PROJECT_SOURCE_DIR}/ThirdParty/stb-master)
 
+# Path to Pugixml library source directory.
+set(PUGIXML_PATH ${PROJECT_SOURCE_DIR}/ThirdParty/pugixml-1.14)
+
 # Create main project.
 CreateProject(${PROJECT_NAME} ${PROJECT_SOURCE_PATH} "" "DiskUsage.rc")
 
@@ -162,6 +165,18 @@ target_include_directories(${PROJECT_NAME} PRIVATE
 
 # Include STB.
 target_include_directories(${PROJECT_NAME} PRIVATE ${STB_PATH})
+
+# Include Pugixml.
+add_subdirectory(${PUGIXML_PATH})
+
+set_target_properties(
+	pugixml
+	PROPERTIES FOLDER "Third Party"
+)
+
+target_link_libraries(${PROJECT_NAME}
+	pugixml-static
+)
 
 # Include test projects.
 file(GLOB TEST_PROJECTS RELATIVE ${TEST_PROJECTS_PATH} ${TEST_PROJECTS_PATH}/*)
