@@ -1,0 +1,64 @@
+<?xml version="1.0"?>
+<Translations>
+	<English>
+		<Text Id="StartedState_SelectDisk_Text" Value="Select disk:" />
+		<Text Id="StartedState_FreeSpace_Text" Value="%s free of %s" />
+		<Text Id="LoadingState_AbortLoading_Button" Value="Abort" />
+		<Text Id="ChartState_Path_Text" Value="Path: %s" />
+		<Text Id="ChartState_Size_Text" Value="Size: %s" />
+		<Text Id="ChartState_Explore_Button" Value="Browse" />
+		<Text Id="Menu_File_Button" Value="File" />
+		<Text Id="Menu_Language_Button" Value="Language" />
+		<Text Id="Menu_Exit_Button" Value="Exit" />
+
+		<Text Id="English_Language" Value="English" />
+		<Text Id="French_Language" Value="Français" />
+		<Text Id="Spanish_Language" Value="Español" />
+		<Text Id="Chinese_Language" Value="简体中文" />
+		<Text Id="Russian_Language" Value="Русский" />
+	</English>
+	<French>
+		<Text Id="StartedState_SelectDisk_Text" Value="Sélectionnez le disque:" />
+        <Text Id="StartedState_FreeSpace_Text" Value="%s libres sur %s" />
+        <Text Id="LoadingState_AbortLoading_Button" Value="Annuler" />
+        <Text Id="ChartState_Path_Text" Value="Chemin: %s" />
+        <Text Id="ChartState_Size_Text" Value="Taille: %s" />
+        <Text Id="ChartState_Explore_Button" Value="Parcourir" />
+        <Text Id="Menu_File_Button" Value="Fichier" />
+        <Text Id="Menu_Language_Button" Value="Langue" />
+        <Text Id="Menu_Exit_Button" Value="Quitter" />
+	</French>
+	<Spanish>
+		<Text Id="StartedState_SelectDisk_Text" Value="Seleccionar disco:" />
+        <Text Id="StartedState_FreeSpace_Text" Value="%s libres de %s" />
+        <Text Id="LoadingState_AbortLoading_Button" Value="Abortar" />
+        <Text Id="ChartState_Path_Text" Value="Ruta: %s" />
+        <Text Id="ChartState_Size_Text" Value="Tamaño: %s" />
+        <Text Id="ChartState_Explore_Button" Value="Navegar" />
+        <Text Id="Menu_File_Button" Value="Archivo" />
+        <Text Id="Menu_Language_Button" Value="Idioma" />
+        <Text Id="Menu_Exit_Button" Value="Salir" />
+	</Spanish>
+	<SimplifiedChinese>
+		<Text Id="StartedState_SelectDisk_Text" Value="选择磁盘: " />
+        <Text Id="StartedState_FreeSpace_Text" Value="%s 可用的总共 %s" />
+        <Text Id="LoadingState_AbortLoading_Button" Value="中止" />
+        <Text Id="ChartState_Path_Text" Value="路径: %s" />
+        <Text Id="ChartState_Size_Text" Value="大小: %s" />
+        <Text Id="ChartState_Explore_Button" Value="浏览" />
+        <Text Id="Menu_File_Button" Value="文件" />
+        <Text Id="Menu_Language_Button" Value="语言" />
+        <Text Id="Menu_Exit_Button" Value="退出" />
+	</SimplifiedChinese>
+	<Russian>
+        <Text Id="StartedState_SelectDisk_Text" Value="Выберите диск:" />
+        <Text Id="StartedState_FreeSpace_Text" Value="%s свободно из %s" />
+        <Text Id="LoadingState_AbortLoading_Button" Value="Прервать" />
+        <Text Id="ChartState_Path_Text" Value="Путь: %s" />
+        <Text Id="ChartState_Size_Text" Value="Размер: %s" />
+        <Text Id="ChartState_Explore_Button" Value="Обзор" />
+        <Text Id="Menu_File_Button" Value="Файл" />
+        <Text Id="Menu_Language_Button" Value="Язык" />
+        <Text Id="Menu_Exit_Button" Value="Выход" />
+    </Russian>
+</Translations>
