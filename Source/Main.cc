@@ -12,6 +12,8 @@
 #include <imgui_internal.h>
 #include <Localization.h>
 
+#include "Settings.h"
+
 using SliceDrawData = std::vector<std::tuple<float, float, float, float, const Tree::Node<Filesystem::Entry>*>>;
 
 int w = 512, h = 544;
@@ -269,7 +271,7 @@ std::string path;
 std::string size;
 
 void StartedState() {
-	ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(190, 190, 190, 255));
+	ImGui::PushStyleColor(ImGuiCol_Text, Settings<Color>::Text);
 
 	ImGui::Indent(30);
 	ImGui::Text("Select disk:");
@@ -338,7 +340,7 @@ void LoadingState() {
 	ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(8, 4));
 	ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 8.0f);
 
-	ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(190, 190, 190, 255));
+	ImGui::PushStyleColor(ImGuiCol_Text, Settings<Color>::Text);
 	ImGui::PushStyleColor(ImGuiCol_Button, IM_COL32(55, 57, 62, 255));
 	ImGui::PushStyleColor(ImGuiCol_ButtonHovered, IM_COL32(255, 255, 255, 32));
 	ImGui::PushStyleColor(ImGuiCol_ButtonActive, IM_COL32(255, 255, 255, 32));
@@ -370,7 +372,7 @@ void LoadingState() {
 }
 
 void ChartState() {
-	ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(190, 190, 190, 255));
+	ImGui::PushStyleColor(ImGuiCol_Text, Settings<Color>::Text);
 
 	ImGui::Indent(30);
 
@@ -460,7 +462,7 @@ void ChartState() {
 
 	ImGui::PushStyleColor(ImGuiCol_PopupBg, IM_COL32(55, 57, 62, 255));
 	ImGui::PushStyleColor(ImGuiCol_Border, IM_COL32(67, 69, 74, 255));
-	ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(190, 190, 190, 255));
+	ImGui::PushStyleColor(ImGuiCol_Text, Settings<Color>::Text);
 
 	ImGui::PushStyleVar(ImGuiStyleVar_PopupRounding, 5.0f);
 	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 5));
@@ -584,7 +586,7 @@ void Draw() {
 		ImGui::PopStyleColor(3);
 		ImGui::PopStyleVar();
 
-		ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(190, 190, 190, 255));
+		ImGui::PushStyleColor(ImGuiCol_Text, Settings<Color>::Text);
 		{
 			const auto* windowTitle = "Disk Chart";
 			ImGui::SetCursorPos({ImGui::GetWindowWidth() / 2 - ImGui::CalcTextSize(windowTitle).x / 2, 15 - ImGui::CalcTextSize(windowTitle).y / 2});
@@ -596,7 +598,7 @@ void Draw() {
 	ImGui::SetCursorPos({0, 50});
 	ImGui::PushStyleColor(ImGuiCol_PopupBg, IM_COL32(55, 57, 62, 255));
 	ImGui::PushStyleColor(ImGuiCol_Border, IM_COL32(67, 69, 74, 255));
-	ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(190, 190, 190, 255));
+	ImGui::PushStyleColor(ImGuiCol_Text, Settings<Color>::Text);
 
 	ImGui::PushStyleVar(ImGuiStyleVar_PopupRounding, 5.0f);
 	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 5));
@@ -624,6 +626,9 @@ void Draw() {
 				ImGui::SameLine(18.0f);
 				if (ImGui::MenuItem(Text(language))) {
 					Text::SetLanguage(language);
+
+					Settings<User>::Language = language;
+					Settings<>::Save();
 				}
 			}
 
@@ -670,6 +675,9 @@ void Draw() {
 }
 
 int main(int argc, char* argv[]) {
+	Settings<>::Load();
+	Localization::Text::SetLanguage(Settings<User>::Language);
+
 	SDL_Init(SDL_INIT_VIDEO);
 
 	window = SDL_CreateWindow("Sample", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, w, h, SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE);
