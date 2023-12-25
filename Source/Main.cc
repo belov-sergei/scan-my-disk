@@ -274,7 +274,7 @@ void StartedState() {
 	ImGui::PushStyleColor(ImGuiCol_Text, Settings<Color>::Text);
 
 	ImGui::Indent(30);
-	ImGui::Text("Select disk:");
+	ImGui::Text(Localization::Text("StartedState_SelectDisk_Text"));
 
 	{
 		const auto& [x, y] = ImGui::GetCursorPos();
@@ -313,7 +313,7 @@ void StartedState() {
 			ImGui::GetWindowDrawList()->AddRectFilled({x, y}, {x + 160, y + 8}, IM_COL32(190, 190, 190, 127));
 			ImGui::GetWindowDrawList()->AddRectFilled({x, y}, {x + 160 * scale, y + 8}, IM_COL32(190, 190, 190, 255));
 
-			ImGui::Text("%s free of %s", BytesToString(bytesFree).c_str(), BytesToString(bytesTotal).c_str());
+			ImGui::Text(Localization::Text("StartedState_FreeSpace_Text"), BytesToString(bytesFree).c_str(), BytesToString(bytesTotal).c_str());
 		}
 		ImGui::EndGroup();
 
@@ -345,7 +345,7 @@ void LoadingState() {
 	ImGui::PushStyleColor(ImGuiCol_ButtonHovered, IM_COL32(255, 255, 255, 32));
 	ImGui::PushStyleColor(ImGuiCol_ButtonActive, IM_COL32(255, 255, 255, 32));
 
-	const auto buttonText = Localization::Text("ABORT_LOADING_BUTTON");
+	const auto buttonText = Localization::Text("LoadingState_AbortLoading_Button");
 
 	ImGui::NewLine();
 	ImGui::SetCursorPosX((ImGui::GetWindowWidth() - (ImGui::CalcTextSize(buttonText).x + ImGui::GetStyle().FramePadding.x * 2.0f)) * 0.5f);
@@ -377,10 +377,10 @@ void ChartState() {
 	ImGui::Indent(30);
 
 	ImGui::PushTextWrapPos(ImGui::GetWindowWidth() - 60);
-	ImGui::TextWrapped("Path: %s", path.c_str());
+	ImGui::TextWrapped(Localization::Text("ChartState_Path_Text"), path.c_str());
 	ImGui::PopTextWrapPos();
 
-	ImGui::Text("Size: %s", size.c_str());
+	ImGui::Text(Localization::Text("ChartState_Size_Text"), size.c_str());
 
 	std::filesystem::path root = (*history.top())->path;
 	if (history.size() > 1) {
@@ -476,7 +476,7 @@ void ChartState() {
 		ImGui::NewLine();
 		ImGui::SameLine(18.0f);
 
-		if (ImGui::MenuItem(Localization::Text("EXPLORE_BUTTON"))) {
+		if (ImGui::MenuItem(Localization::Text("ChartState_Explore_Button"))) {
 			Filesystem::Explore(path);
 		}
 
@@ -615,17 +615,15 @@ void Draw() {
 		ImGui::SameLine(18.0f);
 
 		ImGui::Shadow::Begin();
-		if (ImGui::BeginMenu("Language")) {
+		if (ImGui::BeginMenu(Localization::Text("Menu_Language_Button"))) {
 			ImGui::Shadow::Position(ImGui::GetWindowPos());
 			ImGui::Shadow::Size(ImGui::GetWindowSize());
 
-			using namespace Localization;
-
-			for (const auto language : {Language::English, Language::French, Language::Spanish, Language::Chinese, Language::Russian}) {
+			for (const auto language : Localization::Languages()) {
 				ImGui::NewLine();
 				ImGui::SameLine(18.0f);
-				if (ImGui::MenuItem(Text(language))) {
-					Text::SetLanguage(language);
+				if (ImGui::MenuItem(Localization::Text(language))) {
+					Localization::Language(language);
 
 					Settings<User>::Language = language;
 					Settings<>::Save();
@@ -640,7 +638,7 @@ void Draw() {
 
 		ImGui::NewLine();
 		ImGui::SameLine(18.0f);
-		if (ImGui::MenuItem("Exit")) {
+		if (ImGui::MenuItem(Localization::Text("Menu_Exit_Button"))) {
 			close();
 		}
 
@@ -674,9 +672,30 @@ void Draw() {
 	SDL_GL_SwapWindow(window);
 }
 
+void LocalizationInitialization() {
+	pugi::xml_document xml;
+	xml.load_file("Translations.xml");
+
+	const auto root = xml.document_element();
+
+	for (const auto language : root) {
+		Localization::Language(language.name());
+
+		for (const auto text : language) {
+			const auto textId = text.attribute("Id").as_string();
+			const auto value = text.attribute("Value").as_string();
+
+			Localization::Text::Add(textId, value);
+		}
+	}
+
+	Localization::Language(Settings<User>::Language);
+}
+
 int main(int argc, char* argv[]) {
 	Settings<>::Load();
-	Localization::Text::SetLanguage(Settings<User>::Language);
+
+	LocalizationInitialization();
 
 	SDL_Init(SDL_INIT_VIDEO);
 

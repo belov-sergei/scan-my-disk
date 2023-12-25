@@ -7,8 +7,11 @@ namespace Localization {
 		return Utilities::CRC32(textId);
 	}
 
-	// Sets the current language.
-	void Language(std::string_view languageId);
+	// Sets the current language using a numerical ID.
+	void Language(uint32_t language);
+
+	// Sets the current language using a language name.
+	void Language(std::string_view language);
 
 	// Returns the current language.
 	uint32_t Language();

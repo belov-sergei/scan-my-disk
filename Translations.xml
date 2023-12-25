@@ -11,11 +11,11 @@
 		<Text Id="Menu_Language_Button" Value="Language" />
 		<Text Id="Menu_Exit_Button" Value="Exit" />
 
-		<Text Id="English_Language" Value="English" />
-		<Text Id="French_Language" Value="Français" />
-		<Text Id="Spanish_Language" Value="Español" />
-		<Text Id="Chinese_Language" Value="简体中文" />
-		<Text Id="Russian_Language" Value="Русский" />
+		<Text Id="English" Value="English" />
+		<Text Id="French" Value="Français" />
+		<Text Id="Spanish" Value="Español" />
+		<Text Id="SimplifiedChinese" Value="简体中文" />
+		<Text Id="Russian" Value="Русский" />
 	</English>
 	<French>
 		<Text Id="StartedState_SelectDisk_Text" Value="Sélectionnez le disque:" />

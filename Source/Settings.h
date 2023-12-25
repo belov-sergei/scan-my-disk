@@ -10,14 +10,13 @@ struct User {};
 
 template <>
 struct Settings<User> {
-	inline static auto Language = Localization::Language::English;
+	inline static auto Language = Localization::Id("English");
 
 	static void Load(pugi::xml_node root) {
 		const auto user = root.child("User");
 		const auto language = user.child("Language");
 
-		const auto value = language.attribute("Value").as_ullong(static_cast<unsigned long long>(Language));
-		Language = static_cast<Localization::Language>(value);
+		Language = language.attribute("Value").as_uint(Language);
 	}
 
 	static void Save(pugi::xml_node root) {
@@ -25,7 +24,7 @@ struct Settings<User> {
 		auto language = user.append_child("Language");
 
 		auto value = language.append_attribute("Value");
-		value.set_value(static_cast<unsigned long long>(Language));
+		value.set_value(Language);
 	}
 };
 

@@ -14,14 +14,18 @@ namespace Localization {
 		std::unordered_map<uint32_t, std::unordered_map<uint32_t, std::string>> Languages;
 	} // namespace Details
 
-	void Language(std::string_view languageId) {
-		Details::Language = Id(languageId);
+	void Language(uint32_t language) {
+		Details::Language = language;
 		Details::Languages[Details::Language];
 
 		// The first added language will be used as default.
 		if (std::size(Details::Languages) == 1) {
 			Details::Default = Details::Language;
 		}
+	}
+
+	void Language(std::string_view language) {
+		Language(Id(language));
 	}
 
 	uint32_t Language() {
