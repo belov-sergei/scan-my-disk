@@ -1,13 +1,12 @@
 <?xml version="1.0"?>
 <Translations>
 	<English>
-		<Text Id="StartedState_SelectDisk_Text" Value="Select disk:" />
-		<Text Id="StartedState_FreeSpace_Text" Value="%s free of %s" />
+		<Text Id="StartedState_SelectDisk_Text" Value="Select a disk:" />
+		<Text Id="StartedState_FreeSpace_Text" Value="{0} free of {1}" />
 		<Text Id="LoadingState_AbortLoading_Button" Value="Abort" />
-		<Text Id="ChartState_Path_Text" Value="Path: %s" />
-		<Text Id="ChartState_Size_Text" Value="Size: %s" />
+		<Text Id="ChartState_Path_Text" Value="Path: {}" />
+		<Text Id="ChartState_Size_Text" Value="Size: {}" />
 		<Text Id="ChartState_Explore_Button" Value="Browse" />
-		<Text Id="Menu_File_Button" Value="File" />
 		<Text Id="Menu_Language_Button" Value="Language" />
 		<Text Id="Menu_Exit_Button" Value="Exit" />
 
@@ -16,49 +15,111 @@
 		<Text Id="Spanish" Value="Español" />
 		<Text Id="SimplifiedChinese" Value="简体中文" />
 		<Text Id="Russian" Value="Русский" />
+		<Text Id="Dutch" Value="Nederlands" />
+		<Text Id="Italian" Value="Italiano" />
+		<Text Id="Korean" Value="한국어" />
+		<Text Id="Japanese" Value="日本語" />
+		<Text Id="Portuguese" Value="Português" />
+		<Text Id="German" Value="Deutsch" />
 	</English>
 	<French>
-		<Text Id="StartedState_SelectDisk_Text" Value="Sélectionnez le disque:" />
-        <Text Id="StartedState_FreeSpace_Text" Value="%s libres sur %s" />
-        <Text Id="LoadingState_AbortLoading_Button" Value="Annuler" />
-        <Text Id="ChartState_Path_Text" Value="Chemin: %s" />
-        <Text Id="ChartState_Size_Text" Value="Taille: %s" />
-        <Text Id="ChartState_Explore_Button" Value="Parcourir" />
-        <Text Id="Menu_File_Button" Value="Fichier" />
-        <Text Id="Menu_Language_Button" Value="Langue" />
-        <Text Id="Menu_Exit_Button" Value="Quitter" />
+		<Text Id="StartedState_SelectDisk_Text" Value="Sélectionnez un disque :" />
+		<Text Id="StartedState_FreeSpace_Text" Value="{0} libre sur {1}" />
+		<Text Id="LoadingState_AbortLoading_Button" Value="Annuler" />
+		<Text Id="ChartState_Path_Text" Value="Chemin : {}" />
+		<Text Id="ChartState_Size_Text" Value="Taille : {}" />
+		<Text Id="ChartState_Explore_Button" Value="Explorer" />
+		<Text Id="Menu_Language_Button" Value="Langue" />
+		<Text Id="Menu_Exit_Button" Value="Quitter" />
 	</French>
 	<Spanish>
-		<Text Id="StartedState_SelectDisk_Text" Value="Seleccionar disco:" />
-        <Text Id="StartedState_FreeSpace_Text" Value="%s libres de %s" />
-        <Text Id="LoadingState_AbortLoading_Button" Value="Abortar" />
-        <Text Id="ChartState_Path_Text" Value="Ruta: %s" />
-        <Text Id="ChartState_Size_Text" Value="Tamaño: %s" />
-        <Text Id="ChartState_Explore_Button" Value="Navegar" />
-        <Text Id="Menu_File_Button" Value="Archivo" />
-        <Text Id="Menu_Language_Button" Value="Idioma" />
-        <Text Id="Menu_Exit_Button" Value="Salir" />
+		<Text Id="StartedState_SelectDisk_Text" Value="Seleccione un disco:" />
+		<Text Id="StartedState_FreeSpace_Text" Value="{0} libre de {1}" />
+		<Text Id="LoadingState_AbortLoading_Button" Value="Abortar" />
+		<Text Id="ChartState_Path_Text" Value="Ruta: {}" />
+		<Text Id="ChartState_Size_Text" Value="Tamaño: {}" />
+		<Text Id="ChartState_Explore_Button" Value="Explorar" />
+		<Text Id="Menu_Language_Button" Value="Idioma" />
+		<Text Id="Menu_Exit_Button" Value="Salir" />
 	</Spanish>
 	<SimplifiedChinese>
-		<Text Id="StartedState_SelectDisk_Text" Value="选择磁盘: " />
-        <Text Id="StartedState_FreeSpace_Text" Value="%s 可用的总共 %s" />
-        <Text Id="LoadingState_AbortLoading_Button" Value="中止" />
-        <Text Id="ChartState_Path_Text" Value="路径: %s" />
-        <Text Id="ChartState_Size_Text" Value="大小: %s" />
-        <Text Id="ChartState_Explore_Button" Value="浏览" />
-        <Text Id="Menu_File_Button" Value="文件" />
-        <Text Id="Menu_Language_Button" Value="语言" />
-        <Text Id="Menu_Exit_Button" Value="退出" />
+		<Text Id="StartedState_SelectDisk_Text" Value="选择一个磁盘：" />
+		<Text Id="StartedState_FreeSpace_Text" Value="{0} 可用，共 {1}" />
+		<Text Id="LoadingState_AbortLoading_Button" Value="中止" />
+		<Text Id="ChartState_Path_Text" Value="路径：{}" />
+		<Text Id="ChartState_Size_Text" Value="大小：{}" />
+		<Text Id="ChartState_Explore_Button" Value="浏览" />
+		<Text Id="Menu_Language_Button" Value="语言" />
+		<Text Id="Menu_Exit_Button" Value="退出" />
 	</SimplifiedChinese>
 	<Russian>
-        <Text Id="StartedState_SelectDisk_Text" Value="Выберите диск:" />
-        <Text Id="StartedState_FreeSpace_Text" Value="%s свободно из %s" />
-        <Text Id="LoadingState_AbortLoading_Button" Value="Прервать" />
-        <Text Id="ChartState_Path_Text" Value="Путь: %s" />
-        <Text Id="ChartState_Size_Text" Value="Размер: %s" />
-        <Text Id="ChartState_Explore_Button" Value="Обзор" />
-        <Text Id="Menu_File_Button" Value="Файл" />
-        <Text Id="Menu_Language_Button" Value="Язык" />
-        <Text Id="Menu_Exit_Button" Value="Выход" />
-    </Russian>
+		<Text Id="StartedState_SelectDisk_Text" Value="Выберите диск:" />
+		<Text Id="StartedState_FreeSpace_Text" Value="{0} свободно из {1}" />
+		<Text Id="LoadingState_AbortLoading_Button" Value="Прервать" />
+		<Text Id="ChartState_Path_Text" Value="Путь: {}" />
+		<Text Id="ChartState_Size_Text" Value="Размер: {}" />
+		<Text Id="ChartState_Explore_Button" Value="Обзор" />
+		<Text Id="Menu_Language_Button" Value="Язык" />
+		<Text Id="Menu_Exit_Button" Value="Выход" />
+	</Russian>
+	<German>
+		<Text Id="StartedState_SelectDisk_Text" Value="Wählen Sie ein Laufwerk:" />
+		<Text Id="StartedState_FreeSpace_Text" Value="{0} frei von {1}" />
+		<Text Id="LoadingState_AbortLoading_Button" Value="Abbrechen" />
+		<Text Id="ChartState_Path_Text" Value="Pfad: {}" />
+		<Text Id="ChartState_Size_Text" Value="Größe: {}" />
+		<Text Id="ChartState_Explore_Button" Value="Erkunden" />
+		<Text Id="Menu_Language_Button" Value="Sprache" />
+		<Text Id="Menu_Exit_Button" Value="Beenden" />
+	</German>
+	<Portuguese>
+		<Text Id="StartedState_SelectDisk_Text" Value="Selecione um disco:" />
+		<Text Id="StartedState_FreeSpace_Text" Value="{0} livre de {1}" />
+		<Text Id="LoadingState_AbortLoading_Button" Value="Abortar" />
+		<Text Id="ChartState_Path_Text" Value="Caminho: {}" />
+		<Text Id="ChartState_Size_Text" Value="Tamanho: {}" />
+		<Text Id="ChartState_Explore_Button" Value="Explorar" />
+		<Text Id="Menu_Language_Button" Value="Idioma" />
+		<Text Id="Menu_Exit_Button" Value="Sair" />
+	</Portuguese>
+	<Japanese>
+		<Text Id="StartedState_SelectDisk_Text" Value="ディスクを選択：" />
+		<Text Id="StartedState_FreeSpace_Text" Value="{0} の空き、合計 {1}" />
+		<Text Id="LoadingState_AbortLoading_Button" Value="中止" />
+		<Text Id="ChartState_Path_Text" Value="パス：{}" />
+		<Text Id="ChartState_Size_Text" Value="サイズ：{}" />
+		<Text Id="ChartState_Explore_Button" Value="探索" />
+		<Text Id="Menu_Language_Button" Value="言語" />
+		<Text Id="Menu_Exit_Button" Value="終了" />
+	</Japanese>
+	<Korean>
+		<Text Id="StartedState_SelectDisk_Text" Value="디스크 선택:" />
+		<Text Id="StartedState_FreeSpace_Text" Value="{0} 여유, 총 {1}" />
+		<Text Id="LoadingState_AbortLoading_Button" Value="중단" />
+		<Text Id="ChartState_Path_Text" Value="경로: {}" />
+		<Text Id="ChartState_Size_Text" Value="크기: {}" />
+		<Text Id="ChartState_Explore_Button" Value="탐색" />
+		<Text Id="Menu_Language_Button" Value="언어" />
+		<Text Id="Menu_Exit_Button" Value="종료" />
+	</Korean>
+	<Italian>
+		<Text Id="StartedState_SelectDisk_Text" Value="Seleziona un disco:" />
+		<Text Id="StartedState_FreeSpace_Text" Value="{0} libero di {1}" />
+		<Text Id="LoadingState_AbortLoading_Button" Value="Interrompi" />
+		<Text Id="ChartState_Path_Text" Value="Percorso: {}" />
+		<Text Id="ChartState_Size_Text" Value="Dimensione: {}" />
+		<Text Id="ChartState_Explore_Button" Value="Esplora" />
+		<Text Id="Menu_Language_Button" Value="Lingua" />
+		<Text Id="Menu_Exit_Button" Value="Esci" />
+	</Italian>
+	<Dutch>
+		<Text Id="StartedState_SelectDisk_Text" Value="Selecteer een schijf:" />
+		<Text Id="StartedState_FreeSpace_Text" Value="{0} vrij van {1}" />
+		<Text Id="LoadingState_AbortLoading_Button" Value="Afbreken" />
+		<Text Id="ChartState_Path_Text" Value="Pad: {}" />
+		<Text Id="ChartState_Size_Text" Value="Grootte: {}" />
+		<Text Id="ChartState_Explore_Button" Value="Verkennen" />
+		<Text Id="Menu_Language_Button" Value="Taal" />
+		<Text Id="Menu_Exit_Button" Value="Afsluiten" />
+	</Dutch>
 </Translations>

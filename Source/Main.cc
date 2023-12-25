@@ -313,7 +313,7 @@ void StartedState() {
 			ImGui::GetWindowDrawList()->AddRectFilled({x, y}, {x + 160, y + 8}, IM_COL32(190, 190, 190, 127));
 			ImGui::GetWindowDrawList()->AddRectFilled({x, y}, {x + 160 * scale, y + 8}, IM_COL32(190, 190, 190, 255));
 
-			ImGui::Text(Localization::Text("StartedState_FreeSpace_Text"), BytesToString(bytesFree).c_str(), BytesToString(bytesTotal).c_str());
+			ImGui::Text("%s", std::vformat(Localization::Text("StartedState_FreeSpace_Text"), std::make_format_args(BytesToString(bytesFree), BytesToString(bytesTotal))).c_str());
 		}
 		ImGui::EndGroup();
 
@@ -377,10 +377,10 @@ void ChartState() {
 	ImGui::Indent(30);
 
 	ImGui::PushTextWrapPos(ImGui::GetWindowWidth() - 60);
-	ImGui::TextWrapped(Localization::Text("ChartState_Path_Text"), path.c_str());
+	ImGui::TextWrapped("%s", std::vformat(Localization::Text("ChartState_Path_Text"), std::make_format_args(path)).c_str());
 	ImGui::PopTextWrapPos();
 
-	ImGui::Text(Localization::Text("ChartState_Size_Text"), size.c_str());
+	ImGui::Text("%s", std::vformat(Localization::Text("ChartState_Size_Text"), std::make_format_args(size)).c_str());
 
 	std::filesystem::path root = (*history.top())->path;
 	if (history.size() > 1) {
@@ -737,10 +737,12 @@ int main(int argc, char* argv[]) {
 	ImGui_ImplOpenGL3_Init("#version 150");
 
 	ImFontConfig config;
-	ImGui::GetIO().Fonts->AddFontFromFileTTF("Fonts/NotoSansSC-Regular.ttf", 18.0f, &config, ImGui::GetIO().Fonts->GetGlyphRangesCyrillic());
+	ImGui::GetIO().Fonts->AddFontFromFileTTF("Fonts/NotoSans-Regular.ttf", 18.0f, &config, ImGui::GetIO().Fonts->GetGlyphRangesCyrillic());
 
 	config.MergeMode = true;
 	ImGui::GetIO().Fonts->AddFontFromFileTTF("Fonts/NotoSansSC-Regular.ttf", 18.0f, &config, ImGui::GetIO().Fonts->GetGlyphRangesChineseSimplifiedCommon());
+	ImGui::GetIO().Fonts->AddFontFromFileTTF("Fonts/NotoSansJP-Regular.ttf", 18.0f, &config, ImGui::GetIO().Fonts->GetGlyphRangesJapanese());
+	ImGui::GetIO().Fonts->AddFontFromFileTTF("Fonts/NotoSansKR-Regular.ttf", 18.0f, &config, ImGui::GetIO().Fonts->GetGlyphRangesKorean());
 
 	LoadTexture("Icons/Close.png", icons[Icons::Close]);
 	LoadTexture("Icons/Maximize.png", icons[Icons::Maximize]);
