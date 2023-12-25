@@ -2,44 +2,42 @@
 #include <Utilities.h>
 
 namespace Localization {
-	enum class Language : uint32_t {
-		English = Utilities::CRC32("ENGLISH_LANGUAGE"),
-		French = Utilities::CRC32("FRENCH_LANGUAGE"),
-		Spanish = Utilities::CRC32("SPANISH_LANGUAGE"),
-		Chinese = Utilities::CRC32("CHINESE_LANGUAGE"),
-		Russian = Utilities::CRC32("RUSSIAN_LANGUAGE"),
+	// Calculates the CRC32 of a string, which is considered the numeric ID of the text.
+	constexpr uint32_t Id(std::string_view textId) {
+		return Utilities::CRC32(textId);
+	}
 
-	};
+	// Sets the current language.
+	void Language(std::string_view languageId);
 
-	class Text {
-	public:
+	// Returns the current language.
+	uint32_t Language();
+
+	// Returns a list of IDs for all languages that have been added.
+	std::vector<uint32_t> Languages();
+
+	// Resets the localization state.
+	void Reset();
+
+	// Helper class for creating and retrieving the translation of text by ID..
+	struct Text {
+		// Adds new text to the current language, which is selected using the Language function.
+		static void Add(std::string_view textId, std::string_view value);
+
 		constexpr Text(std::string_view textId) {
-			_value = Utilities::CRC32(textId);
+			_id = Id(textId);
 		}
 
-		constexpr Text(uint32_t value) {
-			_value = value;
+		constexpr Text(uint32_t textId) {
+			_id = textId;
 		}
 
-		constexpr Text(Language language) {
-			_value = static_cast<uint32_t>(language);
-		}
-
-		operator std::string() const;
+		operator const std::string &() const;
 		operator std::string_view() const;
 		operator const char *() const;
 		operator uint32_t() const;
 
-		static void SetLanguage(Language value) {
-			_language = value;
-		}
-
-		static Language GetLanguage() {
-			return _language;
-		}
-
 	private:
-		uint32_t _value;
-		inline static Language _language = Language::English;
+		uint32_t _id;
 	};
 } // namespace Localization
