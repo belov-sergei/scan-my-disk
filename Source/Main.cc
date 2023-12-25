@@ -337,7 +337,7 @@ void LoadingState() {
 
 	ImGui::ItemSize({x, y, x + ImGui::GetWindowWidth() - 60, y + 8});
 	ImGui::GetWindowDrawList()->AddRect({x, y}, {x + ImGui::GetWindowWidth() - 60, y + 8}, IM_COL32(190, 190, 190, 127));
-	ImGui::GetWindowDrawList()->AddRectFilled({x, y}, {(x + ImGui::GetWindowWidth() - 60) * scale, y + 8}, IM_COL32(190, 190, 190, 255));
+	ImGui::GetWindowDrawList()->AddRectFilled({x, y}, {x + (ImGui::GetWindowWidth() - 60) * scale, y + 8}, IM_COL32(190, 190, 190, 255));
 
 	ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(8, 4));
 	ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 8.0f);
