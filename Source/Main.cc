@@ -7,6 +7,8 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 
+#include <dwmapi.h>
+
 #include <Chart.h>
 #include <Filesystem.h>
 #include <imgui_internal.h>
@@ -692,6 +694,20 @@ void LocalizationInitialization() {
 	Localization::Language(Settings<User>::Language);
 }
 
+WNDPROC SDLWndProc;
+
+LRESULT CALLBACK MyWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
+	switch (msg) {
+		case WM_NCCALCSIZE:
+			if (wParam == TRUE) {
+				return 0;
+			}
+			break;
+	}
+
+	return CallWindowProc(SDLWndProc, hwnd, msg, wParam, lParam);
+}
+
 int main(int argc, char* argv[]) {
 	Settings<>::Load();
 
@@ -699,8 +715,14 @@ int main(int argc, char* argv[]) {
 
 	SDL_Init(SDL_INIT_VIDEO);
 
-	window = SDL_CreateWindow("Sample", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, w, h, SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE);
+	window = SDL_CreateWindow("Sample", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, w, h, SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE);
 	auto* context = SDL_GL_CreateContext(window);
+
+	MARGINS margins = {-1};
+	DwmExtendFrameIntoClientArea(GetActiveWindow(), &margins);
+
+	SDLWndProc = (WNDPROC)SetWindowLongPtr(GetActiveWindow(), GWLP_WNDPROC, (LONG_PTR)MyWndProc);
+	SetWindowPos(GetActiveWindow(), NULL, 0, 0, w, h, SWP_FRAMECHANGED | SWP_NOMOVE);
 
 	SDL_AddEventWatch([](void* data, SDL_Event* event) {
 		if (event->type == SDL_WINDOWEVENT) {
@@ -716,11 +738,13 @@ int main(int argc, char* argv[]) {
 		window);
 
 	SDL_SetWindowHitTest(
-		window, [](auto* window, const auto area, auto*) {
+		window,
+		[](auto* window, const auto* area, auto*) {
 			int w, h;
 			SDL_GetWindowSize(window, &w, &h);
 
-			if (area->x < w - 17 && area->y < 20) {
+			const SDL_Rect draggable(48, 0, w - 48 * 4, 30);
+			if (SDL_PointInRect(area, &draggable) == SDL_TRUE) {
 				return SDL_HITTEST_DRAGGABLE;
 			}
 			else if (area->x > w - 10 && area->y > h - 10) {
