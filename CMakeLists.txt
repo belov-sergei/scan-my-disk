@@ -27,6 +27,13 @@ function(CreateProject PROJECT_NAME PROJECT_SOURCE_PATH PLATFORM)
 
 	# Precompiled headers.
 	target_precompile_headers(${PROJECT_NAME} PRIVATE ${PRECOMPILED_HEADERS_PATH})
+
+	if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
+		target_compile_definitions(${PROJECT_NAME} PUBLIC "WINDOWS")
+	endif()
+	if (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
+		target_compile_definitions(${PROJECT_NAME} PUBLIC "MACOS")
+	endif()
 endfunction()
 
 # C++ standard and extensions.

@@ -7,7 +7,9 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 
+#if defined(WINDOWS)
 #include <dwmapi.h>
+#endif
 
 #include <Chart.h>
 #include <Filesystem.h>
@@ -694,6 +696,7 @@ void LocalizationInitialization() {
 	Localization::Language(Settings<User>::Language);
 }
 
+#if defined(WINDOWS)
 WNDPROC SDLWndProc;
 
 LRESULT CALLBACK MyWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
@@ -707,6 +710,7 @@ LRESULT CALLBACK MyWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 
 	return CallWindowProc(SDLWndProc, hwnd, msg, wParam, lParam);
 }
+#endif
 
 int main(int argc, char* argv[]) {
 	Settings<>::Load();
@@ -718,11 +722,13 @@ int main(int argc, char* argv[]) {
 	window = SDL_CreateWindow("Sample", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, w, h, SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE);
 	auto* context = SDL_GL_CreateContext(window);
 
+#if defined(WINDOWS)
 	MARGINS margins = {-1};
 	DwmExtendFrameIntoClientArea(GetActiveWindow(), &margins);
 
 	SDLWndProc = (WNDPROC)SetWindowLongPtr(GetActiveWindow(), GWLP_WNDPROC, (LONG_PTR)MyWndProc);
 	SetWindowPos(GetActiveWindow(), NULL, 0, 0, w, h, SWP_FRAMECHANGED | SWP_NOMOVE);
+#endif
 
 	SDL_AddEventWatch([](void* data, SDL_Event* event) {
 		if (event->type == SDL_WINDOWEVENT) {

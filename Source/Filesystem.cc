@@ -1,5 +1,8 @@
 #include <Filesystem.h>
+
+#if defined(WINDOWS)
 #include <Windows.h>
+#endif
 
 namespace Filesystem {
 	namespace Details {
@@ -43,6 +46,7 @@ namespace Filesystem {
 	std::vector<std::string> GetLogicalDrives() {
 		std::vector<std::string> logicalDrives;
 
+#if defined(WINDOWS)
 		DWORD availableDrivesBitmask = ::GetLogicalDrives();
 		for (auto driveLetter = 'A'; driveLetter <= 'Z'; driveLetter++) {
 			if (availableDrivesBitmask & 1) {
@@ -51,20 +55,29 @@ namespace Filesystem {
 
 			availableDrivesBitmask >>= 1;
 		}
+#else
+		return {};
+#endif
 
 		return logicalDrives;
 	}
 
 	std::pair<size_t, size_t> GetDriveSpace(std::string_view driveLetter) {
+#if defined(WINDOWS)
 		ULARGE_INTEGER bytesTotal, bytesFree;
 		::GetDiskFreeSpaceEx(driveLetter.data(), nullptr, &bytesTotal, &bytesFree);
 
 		return std::make_pair(bytesTotal.QuadPart, bytesFree.QuadPart);
+#else
+		return {};
+#endif
 	}
 
 	void Explore(std::string_view path)
 	{
+#if defined(WINDOWS)
 		ShellExecute(nullptr, nullptr, path.data(), nullptr, nullptr, SW_NORMAL);
+#endif
 	}
 
 	Tree::Node<Entry> BuildTree(const std::filesystem::path& path, std::atomic<size_t>& progress) {

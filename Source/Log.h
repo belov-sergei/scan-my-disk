@@ -1,5 +1,8 @@
 #pragma once
+
+#if defined(WINDOWS)
 #include <Windows.h>
+#endif
 
 namespace Log {
 	namespace Details {
@@ -39,7 +42,9 @@ namespace Log {
 
 	struct WindowsDebugOutputLogger {
 		void operator()(std::string_view string) const {
+#if defined(WINDOWS)
 			OutputDebugString(string.data());
+#endif
 		}
 	};
 
