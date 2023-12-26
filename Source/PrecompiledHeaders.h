@@ -17,11 +17,9 @@
 #include <cstddef>
 #include <cstdlib>
 #include <ctime>
-#include <expected>
 #include <functional>
 #include <initializer_list>
 #include <optional>
-#include <source_location>
 #include <tuple>
 #include <type_traits>
 #include <typeindex>
@@ -32,7 +30,6 @@
 
 // Dynamic memory management.
 #include <memory>
-#include <memory_resource>
 #include <new>
 #include <scoped_allocator>
 
@@ -47,7 +44,6 @@
 #include <cassert>
 #include <cerrno>
 #include <exception>
-#include <stacktrace>
 #include <stdexcept>
 #include <system_error>
 
@@ -111,11 +107,9 @@
 #include <iostream>
 #include <istream>
 #include <ostream>
-#include <spanstream>
 #include <sstream>
 #include <streambuf>
 #include <strstream>
-#include <syncstream>
 
 // Filesystem library.
 #include <filesystem>
@@ -134,5 +128,4 @@
 #include <mutex>
 #include <semaphore>
 #include <shared_mutex>
-#include <stop_token>
 #include <thread>
