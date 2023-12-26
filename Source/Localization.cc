@@ -33,8 +33,14 @@ namespace Localization {
 	}
 
 	std::vector<uint32_t> Languages() {
-		const auto keys = std::views::keys(Details::Languages);
-		return {keys.begin(), keys.end()};
+		std::vector<uint32_t> result;
+		result.reserve(std::size(Details::Languages));
+
+		for (const auto& [key, value] : Details::Languages) {
+			result.emplace_back(key);
+		}
+
+		return result;
 	}
 
 	void Reset() {

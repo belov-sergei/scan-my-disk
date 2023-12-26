@@ -131,11 +131,20 @@ set_target_properties(
 target_link_libraries(${PROJECT_NAME}
 	SDL2main
 	SDL2-static
-	gdi32
-	opengl32
-	imm32
-	dwmapi
 )
+
+if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
+	target_link_libraries(${PROJECT_NAME}
+		gdi32
+		opengl32
+		imm32
+		dwmapi
+	)
+endif()
+
+if (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
+	target_link_libraries(${PROJECT_NAME} "-framework OpenGL")
+endif()
 
 target_include_directories(${PROJECT_NAME} PRIVATE ${SDL_PATH}/include)
 

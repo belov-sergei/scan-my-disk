@@ -36,13 +36,13 @@ enum Icons {
 	Last
 };
 
-std::array<void*, Icons::Last> icons;
+std::array<GLuint, Icons::Last> icons;
 
-void LoadTexture(std::string_view path, void*& textureId) {
+void LoadTexture(std::string_view path, GLuint& textureId) {
 	int width, height;
 	if (auto* pixels = stbi_load(path.data(), &width, &height, nullptr, 4)) {
-		glGenTextures(1, (GLuint*)&textureId);
-		glBindTexture(GL_TEXTURE_2D, (GLuint)textureId);
+		glGenTextures(1, &textureId);
+		glBindTexture(GL_TEXTURE_2D, textureId);
 
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -69,7 +69,7 @@ namespace ImGui {
 			constexpr float UV[] = {0.00f, 1.0f / 3.0f, 1.0f / 1.5f, 1.00f};
 
 			void AddImage(float minX, float minY, float maxX, float maxY) {
-				DrawList->AddImage(icons[Icons::Shadow], {}, {}, {minX, minY}, {maxX, maxY}, IM_COL32(0, 0, 0, 128));
+				DrawList->AddImage((void*)icons[Icons::Shadow], {}, {}, {minX, minY}, {maxX, maxY}, IM_COL32(0, 0, 0, 128));
 			}
 		} // namespace Details
 
@@ -495,12 +495,12 @@ void ChartState() {
 
 
 	ImGui::SetCursorPos({x - 6, y - 6});
-	ImGui::Image(icons[Icons::Back], {12, 12});
+	ImGui::Image((void*)icons[Icons::Back], {12, 12});
 
 	ImGui::GetWindowDrawList()->AddLine({0, ImGui::GetWindowHeight() - 30}, {ImGui::GetWindowWidth(), ImGui::GetWindowHeight() - 30}, IM_COL32(43, 45, 48, 255));
 
 	ImGui::SetCursorPos({0 + 9, ImGui::GetWindowHeight() - 21});
-	ImGui::Image(icons[Icons::Folder], {14, 13});
+	ImGui::Image((void*)icons[Icons::Folder], {14, 13});
 
 	ImGui::SameLine();
 
@@ -555,24 +555,24 @@ void Draw() {
 		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, IM_COL32(255, 255, 255, 32));
 		ImGui::PushStyleColor(ImGuiCol_ButtonActive, IM_COL32(255, 255, 255, 32));
 
-		if (ImGui::ImageButton("#Menu", icons[Icons::Menu], {12, 12})) {
+		if (ImGui::ImageButton("#Menu", (void*)icons[Icons::Menu], {12, 12})) {
 			ImGui::OpenPopup("File");
 		}
 
 		ImGui::SameLine(ImGui::GetWindowWidth() - 48 * 3);
-		if (ImGui::ImageButton("#Minimize", icons[Icons::Minimize], {12, 12})) {
+		if (ImGui::ImageButton("#Minimize", (void*)icons[Icons::Minimize], {12, 12})) {
 			SDL_MinimizeWindow(window);
 		}
 
 		if (SDL_GetWindowFlags(window) & SDL_WINDOW_MAXIMIZED) {
 			ImGui::SameLine(ImGui::GetWindowWidth() - 48 * 2);
-			if (ImGui::ImageButton("#Restore", icons[Icons::Restore], {12, 12})) {
+			if (ImGui::ImageButton("#Restore", (void*)icons[Icons::Restore], {12, 12})) {
 				SDL_RestoreWindow(window);
 			}
 		}
 		else {
 			ImGui::SameLine(ImGui::GetWindowWidth() - 48 * 2);
-			if (ImGui::ImageButton("#Maximize", icons[Icons::Maximize], {12, 12})) {
+			if (ImGui::ImageButton("#Maximize", (void*)icons[Icons::Maximize], {12, 12})) {
 				SDL_MaximizeWindow(window);
 			}
 		}
@@ -582,7 +582,7 @@ void Draw() {
 			ImGui::PushStyleColor(ImGuiCol_ButtonActive, IM_COL32(196, 43, 23, 255));
 
 			ImGui::SameLine(ImGui::GetWindowWidth() - 48);
-			if (ImGui::ImageButton("#Close", icons[Icons::Close], {12, 12})) {
+			if (ImGui::ImageButton("#Close", (void*)icons[Icons::Close], {12, 12})) {
 				close();
 			}
 
@@ -751,7 +751,12 @@ int main(int argc, char* argv[]) {
 			int w, h;
 			SDL_GetWindowSize(window, &w, &h);
 
-			const SDL_Rect draggable(48, 0, w - 48 * 4, 30);
+			SDL_Rect draggable;
+			draggable.x = 48;
+			draggable.y = 0;
+			draggable.w = w - 48 * 4;
+			draggable.h = 30;
+
 			if (SDL_PointInRect(area, &draggable) == SDL_TRUE) {
 				return SDL_HITTEST_DRAGGABLE;
 			}
@@ -766,7 +771,7 @@ int main(int argc, char* argv[]) {
 	ImGui::CreateContext();
 
 	ImGui_ImplSDL2_InitForOpenGL(window, context);
-	ImGui_ImplOpenGL3_Init("#version 150");
+	ImGui_ImplOpenGL3_Init("#version 120");
 
 	ImFontConfig config;
 	ImGui::GetIO().Fonts->AddFontFromFileTTF("Fonts/NotoSans-Regular.ttf", 18.0f, &config, ImGui::GetIO().Fonts->GetGlyphRangesCyrillic());

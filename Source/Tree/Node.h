@@ -79,6 +79,30 @@ namespace Tree {
 			BreadthTraversalInternal(this, callback);
 		}
 
+		auto begin() {
+			return getChildNodes().begin();
+		}
+
+		auto end() {
+			return getChildNodes().end();
+		}
+
+		auto begin() const {
+			return getChildNodes().begin();
+		}
+
+		auto end() const {
+			return getChildNodes().end();
+		}
+
+		auto cbegin() {
+			return getChildNodes().cbegin();
+		}
+
+		auto cend() {
+			return getChildNodes().cend();
+		}
+
 	private:
 		template <typename NodeType, typename CallbackType>
 		static void DepthTraversalInternal(NodeType* start, CallbackType&& callback) {
@@ -127,39 +151,6 @@ namespace Tree {
 		std::forward_list<Node> _children;
 	};
 } // namespace Tree
-
-// It is prohibited to add declarations or definitions into namespace "std". This could lead to undefined behavior.
-namespace std {
-	template <typename ValueType>
-	auto begin(Tree::Node<ValueType>& node) {
-		return node.getChildNodes().begin();
-	}
-
-	template <typename ValueType>
-	auto end(Tree::Node<ValueType>& node) {
-		return node.getChildNodes().end();
-	}
-
-	template <typename ValueType>
-	auto begin(const Tree::Node<ValueType>& node) {
-		return node.getChildNodes().begin();
-	}
-
-	template <typename ValueType>
-	auto end(const Tree::Node<ValueType>& node) {
-		return node.getChildNodes().end();
-	}
-
-	template <typename ValueType>
-	auto cbegin(Tree::Node<ValueType>& node) {
-		return node.getChildNodes().cbegin();
-	}
-
-	template <typename ValueType>
-	auto cend(Tree::Node<ValueType>& node) {
-		return node.getChildNodes().cend();
-	}
-} // namespace std
 
 template <typename ValueType>
 struct fmt::formatter<Tree::Node<ValueType>> : fmt::formatter<std::string_view> {

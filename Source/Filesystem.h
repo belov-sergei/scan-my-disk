@@ -4,6 +4,14 @@
 
 namespace Filesystem {
 	struct Entry {
+		Entry() = default;
+
+		Entry(size_t s, size_t d, const std::filesystem::path& p) {
+			size = s;
+			depth = d;
+			path = p;
+		}
+
 		size_t size, depth;
 		std::filesystem::path path;
 	};
