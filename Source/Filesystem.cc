@@ -1,4 +1,5 @@
 #include <Filesystem.h>
+#include <fmt/format.h>
 
 #if defined(WINDOWS)
 #include <Windows.h>
@@ -50,7 +51,7 @@ namespace Filesystem {
 		DWORD availableDrivesBitmask = ::GetLogicalDrives();
 		for (auto driveLetter = 'A'; driveLetter <= 'Z'; driveLetter++) {
 			if (availableDrivesBitmask & 1) {
-				logicalDrives.emplace_back(std::format("{}:\\", driveLetter));
+				logicalDrives.emplace_back(fmt::format("{}:\\", driveLetter));
 			}
 
 			availableDrivesBitmask >>= 1;

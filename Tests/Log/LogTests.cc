@@ -50,7 +50,7 @@ TEST(Log, Basic) {
 	Log::SetLevel(Log::Level::Debug::Level);
 
 	Log::Debug(Message);
-	EXPECT_EQ(TestLoggerBuffer, std::format("[{}] {}\n", Log::Level::Debug::Name, Message));
+	EXPECT_EQ(TestLoggerBuffer, fmt::format("[{}] {}\n", Log::Level::Debug::Name, Message));
 }
 
 TEST(Log, Reset) {
@@ -60,7 +60,7 @@ TEST(Log, Reset) {
 	Log::SetLevel(Log::Level::Debug::Level);
 
 	Log::Debug(Message);
-	EXPECT_EQ(TestLoggerBuffer, std::format("[{}] {}\n", Log::Level::Debug::Name, Message));
+	EXPECT_EQ(TestLoggerBuffer, fmt::format("[{}] {}\n", Log::Level::Debug::Name, Message));
 
 	TestLoggerBuffer = {};
 
@@ -128,7 +128,7 @@ TEST(Log, Level) {
 
 		std::string expected;
 		for (size_t index = 0; index <= levels.size() - level; index++) {
-			expected += std::format("[{}] {}\n", names[index], Message);
+			expected += fmt::format("[{}] {}\n", names[index], Message);
 		}
 
 		EXPECT_EQ(TestLoggerBuffer, expected);
@@ -159,7 +159,7 @@ TEST(Log, FileOutput) {
 	const std::stringstream buffer;
 	while (input >> buffer.rdbuf())
 
-	EXPECT_EQ(buffer.str(), std::format("[{}] {}\n", Log::Level::Debug::Name, Message));
+	EXPECT_EQ(buffer.str(), fmt::format("[{}] {}\n", Log::Level::Debug::Name, Message));
 }
 
 int main(int argc, char* argv[]) {

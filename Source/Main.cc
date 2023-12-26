@@ -256,7 +256,7 @@ std::string BytesToString(size_t value) {
 		unit++;
 	}
 
-	return std::format("{:.2f} {}", size, units[unit]);
+	return fmt::format("{:.2f} {}", size, units[unit]);
 }
 
 std::pair<size_t, size_t> space = {};
@@ -317,7 +317,9 @@ void StartedState() {
 			ImGui::GetWindowDrawList()->AddRectFilled({x, y}, {x + 160, y + 8}, IM_COL32(190, 190, 190, 127));
 			ImGui::GetWindowDrawList()->AddRectFilled({x, y}, {x + 160 * scale, y + 8}, IM_COL32(190, 190, 190, 255));
 
-			ImGui::Text("%s", std::vformat(Localization::Text("StartedState_FreeSpace_Text"), std::make_format_args(BytesToString(bytesFree), BytesToString(bytesTotal))).c_str());
+			const auto arg1 = BytesToString(bytesFree);
+			const auto arg2 = BytesToString(bytesTotal);
+			ImGui::Text("%s", fmt::vformat((std::string_view)Localization::Text("StartedState_FreeSpace_Text"), fmt::make_format_args(arg1, arg2)).c_str());
 		}
 		ImGui::EndGroup();
 
@@ -381,10 +383,10 @@ void ChartState() {
 	ImGui::Indent(30);
 
 	ImGui::PushTextWrapPos(ImGui::GetWindowWidth() - 60);
-	ImGui::TextWrapped("%s", std::vformat(Localization::Text("ChartState_Path_Text"), std::make_format_args(path)).c_str());
+	ImGui::TextWrapped("%s", fmt::vformat((std::string_view)Localization::Text("ChartState_Path_Text"), fmt::make_format_args(path)).c_str());
 	ImGui::PopTextWrapPos();
 
-	ImGui::Text("%s", std::vformat(Localization::Text("ChartState_Size_Text"), std::make_format_args(size)).c_str());
+	ImGui::Text("%s", fmt::vformat((std::string_view)Localization::Text("ChartState_Size_Text"), fmt::make_format_args(size)).c_str());
 
 	std::filesystem::path root = (*history.top())->path;
 	if (history.size() > 1) {

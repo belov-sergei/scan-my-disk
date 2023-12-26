@@ -1,4 +1,5 @@
 #pragma once
+#include <fmt/format.h>
 
 #if defined(WINDOWS)
 #include <Windows.h>
@@ -27,9 +28,9 @@ namespace Log {
 	template <typename LevelType>
 	auto Log = []<typename Message, typename... Value>(Message&& message, Value&&... values) {
 		if (LevelType::Level >= Details::Level) {
-			const auto output = std::vformat(std::forward<Message>(message), std::make_format_args(std::forward<Value>(values)...));
+			const auto output = fmt::vformat(std::forward<Message>(message), fmt::make_format_args(std::forward<Value>(values)...));
 			for (const auto& logger : Details::Loggers) {
-				logger(std::format("[{}] {}\n", LevelType::Name, output));
+				logger(fmt::format("[{}] {}\n", LevelType::Name, output));
 			}
 		}
 	};

@@ -1,4 +1,5 @@
 #pragma once
+#include <fmt/format.h>
 
 namespace Tree {
 	template <typename ValueType>
@@ -161,7 +162,7 @@ namespace std {
 } // namespace std
 
 template <typename ValueType>
-struct std::formatter<Tree::Node<ValueType>> : std::formatter<std::string_view> {
+struct fmt::formatter<Tree::Node<ValueType>> : fmt::formatter<std::string_view> {
 	auto format(const auto& value, auto& context) const {
 		std::stack<decltype(&value)> pending;
 		pending.emplace(&value);
@@ -179,7 +180,7 @@ struct std::formatter<Tree::Node<ValueType>> : std::formatter<std::string_view> 
 			const auto& current = *pending.top();
 			pending.pop();
 
-			result += std::format("<Node {}>", *current);
+			result += fmt::format("<Node {}>", *current);
 
 			if (!current.isLeaf()) {
 				// Close node later, after all children have been processed.
@@ -194,14 +195,14 @@ struct std::formatter<Tree::Node<ValueType>> : std::formatter<std::string_view> 
 			}
 		}
 
-		return std::formatter<std::string_view>::format(result + "</Tree>", context);
+		return fmt::formatter<std::string_view>::format(result + "</Tree>", context);
 	}
 };
 
 template <template <typename> typename NodeType, typename DataType>
 requires std::is_same_v<NodeType<DataType>, Tree::Node<DataType>>
 bool IsEqual(const NodeType<DataType>& node, std::string xmlString) {
-	std::string xmlNodeString = std::format("{}", node);
+	std::string xmlNodeString = fmt::format("{}", node);
 
 	std::erase_if(xmlNodeString, [](const auto& character) {
 		return std::isspace(character);

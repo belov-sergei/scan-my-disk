@@ -1,4 +1,5 @@
 #pragma once
+#include <fmt/format.h>
 
 namespace Debug {
 
@@ -55,14 +56,14 @@ namespace Debug {
 } // namespace Debug
 
 template <typename ValueType>
-struct std::formatter<Debug::CopyMoveData<ValueType>> : std::formatter<std::string_view> {
+struct fmt::formatter<Debug::CopyMoveData<ValueType>> : fmt::formatter<std::string_view> {
 	auto format(const auto& value, auto& context) const {
 		std::string result;
 
-		std::format_to(std::back_inserter(result), "Moved= \"{}\" ", value.moved);
-		std::format_to(std::back_inserter(result), "Copied=\"{}\" ", value.copied);
-		std::format_to(std::back_inserter(result), "Value= \"{}\" ", value.value);
+		fmt::format_to(std::back_inserter(result), "Moved= \"{}\" ", value.moved);
+		fmt::format_to(std::back_inserter(result), "Copied=\"{}\" ", value.copied);
+		fmt::format_to(std::back_inserter(result), "Value= \"{}\" ", value.value);
 
-		return std::formatter<std::string_view>::format(result, context);
+		return fmt::formatter<std::string_view>::format(result, context);
 	}
 };

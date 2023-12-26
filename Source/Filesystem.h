@@ -1,5 +1,5 @@
 #pragma once
-
+#include <fmt/format.h>
 #include <Tree/Node.h>
 
 namespace Filesystem {
@@ -19,14 +19,14 @@ namespace Filesystem {
 } // namespace Filesystem
 
 template <>
-struct std::formatter<Filesystem::Entry> : std::formatter<std::string_view> {
+struct fmt::formatter<Filesystem::Entry> : fmt::formatter<std::string_view> {
 	auto format(const auto& value, auto& context) const {
 		std::string result;
 
-		std::format_to(std::back_inserter(result), "Path= \"{}\" ", value.path.stem().string());
-		std::format_to(std::back_inserter(result), "Size= \"{}\" ", value.size);
-		std::format_to(std::back_inserter(result), "Depth=\"{}\" ", value.depth);
+		fmt::format_to(std::back_inserter(result), "Path= \"{}\" ", value.path.stem().string());
+		fmt::format_to(std::back_inserter(result), "Size= \"{}\" ", value.size);
+		fmt::format_to(std::back_inserter(result), "Depth=\"{}\" ", value.depth);
 
-		return std::formatter<std::string_view>::format(result, context);
+		return fmt::formatter<std::string_view>::format(result, context);
 	}
 };

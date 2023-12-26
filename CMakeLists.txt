@@ -34,6 +34,12 @@ function(CreateProject PROJECT_NAME PROJECT_SOURCE_PATH PLATFORM)
 	if (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
 		target_compile_definitions(${PROJECT_NAME} PUBLIC "MACOS")
 	endif()
+
+	target_link_libraries(${PROJECT_NAME}
+		fmt
+	)
+
+	target_include_directories(${PROJECT_NAME} PRIVATE ${FMT_PATH}/include)
 endfunction()
 
 # C++ standard and extensions.
@@ -74,6 +80,9 @@ set(STB_PATH ${PROJECT_SOURCE_DIR}/ThirdParty/stb-master)
 
 # Path to Pugixml library source directory.
 set(PUGIXML_PATH ${PROJECT_SOURCE_DIR}/ThirdParty/pugixml-1.14)
+
+# Path to FMT library source directory.
+set(FMT_PATH ${PROJECT_SOURCE_DIR}/ThirdParty/fmt-10.1.1)
 
 # Create main project.
 CreateProject(${PROJECT_NAME} ${PROJECT_SOURCE_PATH} "" "DiskUsage.rc")
@@ -177,12 +186,20 @@ target_include_directories(${PROJECT_NAME} PRIVATE ${STB_PATH})
 add_subdirectory(${PUGIXML_PATH})
 
 set_target_properties(
-	pugixml
+	pugixml-static
 	PROPERTIES FOLDER "Third Party"
 )
 
 target_link_libraries(${PROJECT_NAME}
 	pugixml-static
+)
+
+# Include FMT.
+add_subdirectory(${FMT_PATH})
+
+set_target_properties(
+	fmt
+	PROPERTIES FOLDER "Third Party"
 )
 
 # Include test projects.

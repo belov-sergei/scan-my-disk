@@ -54,7 +54,6 @@
 #include <cuchar>
 #include <cwchar>
 #include <cwctype>
-#include <format>
 #include <string>
 #include <string_view>
 
