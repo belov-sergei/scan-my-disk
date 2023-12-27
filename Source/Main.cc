@@ -303,7 +303,12 @@ void StartedState() {
 
 					progress = 0;
 					future = std::async(std::launch::async, [drive] {
-						return Filesystem::ParallelBuildTree(drive, progress);
+						return Filesystem::ParallelBuildTree(
+#if defined(MACOS)
+							"/Volumes/" + 
+#endif
+							drive, progress
+						);
 					});
 
 					state = State::Loading;

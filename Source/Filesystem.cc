@@ -2,7 +2,13 @@
 #include <fmt/format.h>
 
 #if defined(WINDOWS)
-#include <Windows.h>
+	#include <Windows.h>
+#endif
+
+#if defined(MACOS)
+	#include <dirent.h>
+	#include <sys/param.h>
+	#include <sys/mount.h>
 #endif
 
 namespace Filesystem {
@@ -57,7 +63,18 @@ namespace Filesystem {
 			availableDrivesBitmask >>= 1;
 		}
 #else
-		return {};
+		DIR* volumes = opendir("/Volumes");
+		dirent* entry;
+
+		while ((entry = readdir(volumes)) != nullptr) {
+			if (entry->d_name[0] == '.') {
+				continue;
+			}
+
+			logicalDrives.emplace_back(entry->d_name);
+		}
+
+		closedir(volumes);
 #endif
 
 		return logicalDrives;
@@ -70,12 +87,20 @@ namespace Filesystem {
 
 		return std::make_pair(bytesTotal.QuadPart, bytesFree.QuadPart);
 #else
-		return {};
+		struct statfs stats;
+		size_t totalBytes = 0;
+		size_t freeBytes = 0;
+
+		if (statfs(("/Volumes/" + std::string(driveLetter)).c_str(), &stats) == 0) {
+			totalBytes = stats.f_blocks * stats.f_bsize;
+			freeBytes = stats.f_bfree * stats.f_bsize;
+		}
+
+		return std::make_pair(totalBytes, freeBytes);
 #endif
 	}
 
-	void Explore(std::string_view path)
-	{
+	void Explore(std::string_view path) {
 #if defined(WINDOWS)
 		ShellExecute(nullptr, nullptr, path.data(), nullptr, nullptr, SW_NORMAL);
 #endif
@@ -101,15 +126,19 @@ namespace Filesystem {
 			size_t total = 0;
 			while (iterator != end) {
 				if (!error) {
-					const auto size = iterator->file_size(error);
-					total += size;
+					if (iterator->is_symlink(error) || error) {
+						iterator.increment(error);
+						continue;
+					}
 
-					if (!error) {
-						auto& child = node.emplace(size, depth, iterator->path());
+					auto& child = node.emplace(0, depth, iterator->path());
 
-						if (iterator->is_directory(error)) {
-							pending.emplace(&child);
-						}
+					if (iterator->is_directory(error) && !error) {
+						pending.emplace(&child);
+					}
+					else if (iterator->file_size(error) && !error) {
+						child->size = iterator->file_size(error);
+						total += child->size;
 					}
 				}
 
@@ -188,15 +217,19 @@ namespace Filesystem {
 					size_t total = 0;
 					while (iterator != end) {
 						if (!error) {
-							const auto size = iterator->file_size(error);
-							total += size;
+							if (iterator->is_symlink(error) || error) {
+								iterator.increment(error);
+								continue;
+							}
 
-							if (!error) {
-								auto& child = node.emplace(size, depth, iterator->path());
+							auto& child = node.emplace(0, depth, iterator->path());
 
-								if (iterator->is_directory(error)) {
-									jobs.emplace(&child);
-								}
+							if (iterator->is_directory(error) && !error) {
+								jobs.emplace(&child);
+							}
+							else if (iterator->file_size(error) && !error) {
+								child->size = iterator->file_size(error);
+								total += child->size;
 							}
 						}
 
@@ -251,8 +284,7 @@ namespace Filesystem {
 		return root;
 	}
 
-	void CancelBuildTree()
-	{
+	void CancelBuildTree() {
 		Details::CancelFlag = true;
 	}
 } // namespace Filesystem
