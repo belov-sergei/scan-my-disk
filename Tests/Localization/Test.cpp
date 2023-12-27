@@ -1,3 +1,5 @@
+// Copyright ❤️ 2023-2024, Sergei Belov
+
 #include <gtest/gtest.h>
 #include <Localization.cpp>
 

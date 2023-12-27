@@ -1,3 +1,5 @@
+﻿// Copyright ❤️ 2023-2024, Sergei Belov
+
 #include <Chart.h>
 #include "imgui.h"
 
@@ -18,7 +20,6 @@ namespace Chart {
 
 			// Number of segments for a full circle.
 			constexpr int kSegments = 180;
-
 		} // namespace Details
 
 		void Begin(const ImVec2& position) {

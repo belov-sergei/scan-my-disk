@@ -1,3 +1,5 @@
+﻿// Copyright ❤️ 2023-2024, Sergei Belov
+
 #pragma once
 #include <fmt/format.h>
 
@@ -9,7 +11,7 @@ namespace Tree {
 
 		// Creates a new node, with the condition that the value can be constructed from the provided arguments.
 		template <typename... ArgumentTypes>
-		requires std::is_constructible_v<ValueType, ArgumentTypes...>
+			requires std::is_constructible_v<ValueType, ArgumentTypes...>
 		Node(ArgumentTypes&&... arguments)
 			: _value(std::forward<ArgumentTypes>(arguments)...) {}
 
@@ -191,7 +193,7 @@ struct fmt::formatter<Tree::Node<ValueType>> : fmt::formatter<std::string_view> 
 };
 
 template <template <typename> typename NodeType, typename DataType>
-requires std::is_same_v<NodeType<DataType>, Tree::Node<DataType>>
+	requires std::is_same_v<NodeType<DataType>, Tree::Node<DataType>>
 bool IsEqual(const NodeType<DataType>& node, std::string xmlString) {
 	std::string xmlNodeString = fmt::format("{}", node);
 

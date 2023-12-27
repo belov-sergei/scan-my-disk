@@ -1,3 +1,5 @@
+﻿// Copyright ❤️ 2023-2024, Sergei Belov
+
 #include <Utilities.h>
 #include <gtest/gtest.h>
 

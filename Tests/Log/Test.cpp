@@ -1,3 +1,5 @@
+﻿// Copyright ❤️ 2023-2024, Sergei Belov
+
 #include <Log.cpp>
 #include <gtest/gtest.h>
 
@@ -157,7 +159,7 @@ TEST(Log, FileOutput) {
 	std::ifstream input(file);
 
 	const std::stringstream buffer;
-	while (input >> buffer.rdbuf())
+	while (input >> buffer.rdbuf()) {}
 
 	EXPECT_EQ(buffer.str(), fmt::format("[{}] {}\n", Log::Level::Debug::Name, Message));
 }

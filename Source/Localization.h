@@ -1,3 +1,5 @@
+﻿// Copyright ❤️ 2023-2024, Sergei Belov
+
 #pragma once
 #include <Utilities.h>
 
@@ -35,9 +37,9 @@ namespace Localization {
 			_id = textId;
 		}
 
-		operator const std::string &() const;
+		operator const std::string&() const;
 		operator std::string_view() const;
-		operator const char *() const;
+		operator const char*() const;
 		operator uint32_t() const;
 
 	private:

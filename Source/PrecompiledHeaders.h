@@ -1,4 +1,6 @@
-﻿#pragma once
+﻿// Copyright ❤️ 2023-2024, Sergei Belov
+
+#pragma once
 
 // Concepts library.
 #include <concepts>

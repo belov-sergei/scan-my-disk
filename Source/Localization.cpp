@@ -1,3 +1,5 @@
+﻿// Copyright ❤️ 2023-2024, Sergei Belov
+
 #include <Localization.h>
 
 namespace Localization {
@@ -53,7 +55,7 @@ namespace Localization {
 		Details::Languages[Details::Language][Id(textId)] = value;
 	}
 
-	Text::operator const std::string &() const {
+	Text::operator const std::string&() const {
 		if (std::empty(Details::Languages)) {
 			return Details::Empty;
 		}
@@ -71,7 +73,7 @@ namespace Localization {
 		return static_cast<const std::string&>(*this);
 	}
 
-	Text::operator const char *() const {
+	Text::operator const char*() const {
 		return static_cast<const std::string&>(*this).c_str();
 	}
 

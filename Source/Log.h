@@ -1,3 +1,5 @@
+﻿// Copyright ❤️ 2023-2024, Sergei Belov
+
 #pragma once
 #include <fmt/format.h>
 
@@ -43,9 +45,9 @@ namespace Log {
 
 	struct WindowsDebugOutputLogger {
 		void operator()(std::string_view string) const {
-#if defined(WINDOWS)
+			#if defined(WINDOWS)
 			OutputDebugString(string.data());
-#endif
+			#endif
 		}
 	};
 
@@ -70,5 +72,4 @@ namespace Log {
 	private:
 		std::string _file;
 	};
-
 } // namespace Log

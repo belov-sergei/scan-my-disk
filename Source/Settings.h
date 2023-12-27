@@ -1,3 +1,5 @@
+﻿// Copyright ❤️ 2023-2024, Sergei Belov
+
 #pragma once
 #include <imgui.h>
 #include <Localization.h>

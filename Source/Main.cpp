@@ -1,3 +1,5 @@
+// Copyright ❤️ 2023-2024, Sergei Belov
+
 #include <imgui.h>
 #include <imgui_impl_sdl2.h>
 #include <imgui_impl_opengl3.h>
@@ -135,50 +137,50 @@ namespace ImGui {
 			const auto [x, y] = *Details::Position;
 
 			const std::initializer_list<ImVec2> vertices = {
-				{      0,       0},
-				{    130,       0},
-				{    130,     130},
-				{      0,     130},
+				{0, 0},
+				{130, 0},
+				{130, 130},
+				{0, 130},
 
-				{    130,       0},
-				{w - 130,       0},
-				{w - 130,     130},
-				{    130,     130},
+				{130, 0},
+				{w - 130, 0},
+				{w - 130, 130},
+				{130, 130},
 
-				{w - 130,       0},
-				{      w,       0},
-				{      w,     130},
-				{w - 130,     130},
- // ---
-				{      0,     130},
-				{    130,     130},
-				{    130, h - 130},
-				{      0, h - 130},
+				{w - 130, 0},
+				{w, 0},
+				{w, 130},
+				{w - 130, 130},
+				// ---
+				{0, 130},
+				{130, 130},
+				{130, h - 130},
+				{0, h - 130},
 
-				{    130,     130},
-				{w - 130,     130},
+				{130, 130},
+				{w - 130, 130},
 				{w - 130, h - 130},
-				{    130, h - 130},
+				{130, h - 130},
 
-				{w - 130,     130},
-				{      w,     130},
-				{      w, h - 130},
+				{w - 130, 130},
+				{w, 130},
+				{w, h - 130},
 				{w - 130, h - 130},
- // ---
-				{      0, h - 130},
-				{    130, h - 130},
-				{    130,       h},
-				{      0,       h},
+				// ---
+				{0, h - 130},
+				{130, h - 130},
+				{130, h},
+				{0, h},
 
-				{    130, h - 130},
+				{130, h - 130},
 				{w - 130, h - 130},
-				{w - 130,       h},
-				{    130,       h},
+				{w - 130, h},
+				{130, h},
 
 				{w - 130, h - 130},
-				{      w, h - 130},
-				{      w,       h},
-				{w - 130,       h},
+				{w, h - 130},
+				{w, h},
+				{w - 130, h},
 			};
 
 			int index = *Details::Index;
@@ -198,7 +200,6 @@ namespace ImGui {
 			}
 		}
 	} // namespace Shadow
-
 } // namespace ImGui
 
 SliceDrawData BuildDrawData(const Tree::Node<Filesystem::Entry>& node) {
@@ -304,11 +305,11 @@ void StartedState() {
 					progress = 0;
 					future = std::async(std::launch::async, [drive] {
 						return Filesystem::ParallelBuildTree(
-#if defined(MACOS)
+							#if defined(MACOS)
 							"/Volumes/" + 
-#endif
+							#endif
 							drive, progress
-						);
+							);
 					});
 
 					state = State::Loading;
@@ -408,7 +409,7 @@ void ChartState() {
 	const float length = std::sqrt(mx * mx + my * my);
 	float angle = ((int)(std::atan2(-my, -mx) * 180 / 3.14) + 180) / 360.0f;
 
-	Chart::Pie::Begin({x, y}); 
+	Chart::Pie::Begin({x, y});
 	for (const auto& [radius, start, end, hue, node] : drawData | std::views::reverse) {
 		auto* top = history.top();
 
@@ -498,7 +499,6 @@ void ChartState() {
 	ImGui::PopStyleColor(3);
 	ImGui::PopStyleVar(3);
 
-
 	ImGui::SetCursorPos({x - 6, y - 6});
 	ImGui::Image((void*)icons[Icons::Back], {12, 12});
 
@@ -513,7 +513,6 @@ void ChartState() {
 	ImGui::Text("%s", root.string().c_str());
 
 	ImGui::PopStyleColor(1);
-
 }
 
 SDL_Window* window = nullptr;
@@ -670,7 +669,7 @@ void Draw() {
 		case State::Chart:
 			ChartState();
 			break;
-		default:;
+		default: ;
 	}
 
 	ImGui::End();
@@ -729,25 +728,25 @@ int main(int argc, char* argv[]) {
 	window = SDL_CreateWindow("Scan My Disk", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, w, h, SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE);
 	auto* context = SDL_GL_CreateContext(window);
 
-#if defined(WINDOWS)
+	#if defined(WINDOWS)
 	MARGINS margins = {-1};
 	DwmExtendFrameIntoClientArea(GetActiveWindow(), &margins);
 
 	SDLWndProc = (WNDPROC)SetWindowLongPtr(GetActiveWindow(), GWLP_WNDPROC, (LONG_PTR)MyWndProc);
 	SetWindowPos(GetActiveWindow(), NULL, 0, 0, w, h, SWP_FRAMECHANGED | SWP_NOMOVE);
-#endif
+	#endif
 
 	SDL_AddEventWatch([](void* data, SDL_Event* event) {
-		if (event->type == SDL_WINDOWEVENT) {
-			// To prevent recursive calls to Draw function when the user clicks on Maximize and Minimize.
-			if (event->window.event == SDL_WINDOWEVENT_SIZE_CHANGED) {
-				if (!ImGui::GetCurrentContext()->WithinFrameScope) {
-					Draw();
+			if (event->type == SDL_WINDOWEVENT) {
+				// To prevent recursive calls to Draw function when the user clicks on Maximize and Minimize.
+				if (event->window.event == SDL_WINDOWEVENT_SIZE_CHANGED) {
+					if (!ImGui::GetCurrentContext()->WithinFrameScope) {
+						Draw();
+					}
 				}
 			}
-		}
-		return 0;
-	},
+			return 0;
+		},
 		window);
 
 	SDL_SetWindowHitTest(

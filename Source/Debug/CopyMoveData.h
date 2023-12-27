@@ -1,8 +1,9 @@
+﻿// Copyright ❤️ 2023-2024, Sergei Belov
+
 #pragma once
 #include <fmt/format.h>
 
 namespace Debug {
-
 	// This template struct is designed to be embedded as a member in other classes
 	// in order to track the number of copy and move operations for tests.
 	template <typename ValueType>
@@ -11,10 +12,9 @@ namespace Debug {
 		~CopyMoveData() = default;
 
 		template <typename... ArgumentTypes>
-		requires std::is_constructible_v<ValueType, ArgumentTypes...>
+			requires std::is_constructible_v<ValueType, ArgumentTypes...>
 		CopyMoveData(ArgumentTypes... arguments)
-			: value(std::forward<ArgumentTypes>(arguments)...) {
-		}
+			: value(std::forward<ArgumentTypes>(arguments)...) { }
 
 		CopyMoveData(const CopyMoveData& other) {
 			this->value = other.value;
