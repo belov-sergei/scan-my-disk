@@ -1,10 +1,10 @@
 cmake_minimum_required(VERSION 3.16)
 
 project(
-	DiskUsage
-	VERSION 0.1.0
-	DESCRIPTION "Tool that uses a chart to display disk usage information."
-	HOMEPAGE_URL "https://github.com/sergei-belov-personal/disk-usage"
+	ScanMyDisk
+	VERSION 0.9
+	DESCRIPTION "Interactive pie chart visualization of disk space usage."
+	HOMEPAGE_URL "https://github.com/belov-sergei/scan-my-disk"
 	LANGUAGES CXX
 )
 
@@ -31,6 +31,7 @@ function(CreateProject PROJECT_NAME PROJECT_SOURCE_PATH PLATFORM)
 	if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
 		target_compile_definitions(${PROJECT_NAME} PUBLIC "WINDOWS")
 	endif()
+
 	if (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
 		target_compile_definitions(${PROJECT_NAME} PUBLIC "MACOS")
 	endif()
@@ -85,13 +86,7 @@ set(PUGIXML_PATH ${PROJECT_SOURCE_DIR}/ThirdParty/pugixml-1.14)
 set(FMT_PATH ${PROJECT_SOURCE_DIR}/ThirdParty/fmt-10.1.1)
 
 # Create main project.
-CreateProject(${PROJECT_NAME} ${PROJECT_SOURCE_PATH} "" "DiskUsage.rc")
-
-# Edit & Continue
-if (MSVC)
-	target_compile_options(${PROJECT_NAME} PUBLIC "/ZI")
-	target_link_options(${PROJECT_NAME} PUBLIC "/INCREMENTAL")
-endif()
+CreateProject(${PROJECT_NAME} ${PROJECT_SOURCE_PATH} "" "Resource.rc")
 
 # Startup project and debugger directory.
 set_property(DIRECTORY ${PROJECT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT ${PROJECT_NAME})

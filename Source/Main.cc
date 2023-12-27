@@ -532,7 +532,7 @@ void Draw() {
 
 	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2());
 
-	ImGui::Begin("Demo", nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoSavedSettings);
+	ImGui::Begin("Scan My Disk", nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoSavedSettings);
 
 	// Window Background.
 	{
@@ -599,7 +599,7 @@ void Draw() {
 
 		ImGui::PushStyleColor(ImGuiCol_Text, Settings<Color>::Text);
 		{
-			const auto* windowTitle = "Disk Chart";
+			const auto* windowTitle = "Scan My Disk";
 			ImGui::SetCursorPos({ImGui::GetWindowWidth() / 2 - ImGui::CalcTextSize(windowTitle).x / 2, 15 - ImGui::CalcTextSize(windowTitle).y / 2});
 			ImGui::Text(windowTitle);
 		}
@@ -726,7 +726,7 @@ int main(int argc, char* argv[]) {
 
 	SDL_Init(SDL_INIT_VIDEO);
 
-	window = SDL_CreateWindow("Sample", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, w, h, SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE);
+	window = SDL_CreateWindow("Scan My Disk", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, w, h, SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE);
 	auto* context = SDL_GL_CreateContext(window);
 
 #if defined(WINDOWS)
