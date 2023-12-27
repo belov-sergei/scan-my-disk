@@ -104,7 +104,7 @@ TEST(Log, Level) {
 
 	Log::CreateLogger<TestLogger>();
 
-	constexpr auto levels = {
+	constexpr std::array levels = {
 		Log::Level::Error::Level,
 		Log::Level::Warning::Level,
 		Log::Level::Message::Level,
