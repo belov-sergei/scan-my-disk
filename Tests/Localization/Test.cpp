@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include <Localization.cc>
+#include <Localization.cpp>
 
 decltype(auto) Text(std::string_view textId) {
 	return static_cast<const std::string&>(Localization::Text(textId));

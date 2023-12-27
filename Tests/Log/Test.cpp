@@ -1,4 +1,4 @@
-#include <Log.cc>
+#include <Log.cpp>
 #include <gtest/gtest.h>
 
 namespace Log {

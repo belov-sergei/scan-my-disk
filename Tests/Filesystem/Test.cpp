@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include <Filesystem.cc>
+#include <Filesystem.cpp>
 
 TEST(Filesystem, BuildTree) {
 	std::atomic<size_t> progress;
