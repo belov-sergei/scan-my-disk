@@ -1,9 +1,8 @@
-# Scan My Disk
+# ![](./Documentation/Icon.png) Scan My Disk
 
 Welcome to Scan My Disk — the user-friendly, open-source utility that simplifies your storage management. See at a glance which files and folders are using your disk space with our interactive pie chart. It's designed for easy use and supports multiple languages, including Chinese, Japanese, and Korean. Suitable for both Windows and macOS, Scan My Disk helps keep your computer organized and your storage well-managed.  Start your digital cleanup today!
 
-![](./Documentation/ScanMyDisk_JhO3ptudTP.png)
-![](./Documentation/ScanMyDisk_RYkUqj86lq.png)
+![](./Documentation/Preview.png)
 
 ## Goals
 I've always been a fan of the [Scanner utility by Steffen Gerlach](http://steffengerlach.de/freeware/index.html), but unfortunately, as the size of my disk grew, it became slower and slower, and it seems the Scanner project has ceased development.
