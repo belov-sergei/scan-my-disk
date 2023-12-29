@@ -22,7 +22,7 @@
 
 using SliceDrawData = std::vector<std::tuple<float, float, float, float, const Tree::Node<Filesystem::Entry>*>>;
 
-int w = 512, h = 544;
+int w = 440, h = 540;
 
 enum Icons {
 	Close,
@@ -421,7 +421,7 @@ void ChartState() {
 
 	auto [x, y] = ImGui::GetWindowSize();
 	x *= 0.5f;
-	y = y * 0.5f + 18;
+	y = y * 0.5f + 30;
 
 	const auto mx = ImGui::GetMousePos().x - x;
 	const auto my = ImGui::GetMousePos().y - y;
@@ -429,12 +429,14 @@ void ChartState() {
 	const float length = std::sqrt(mx * mx + my * my);
 	float angle = ((int)(std::atan2(-my, -mx) * 180 / 3.14) + 180) / 360.0f;
 
+	const float scale = std::min(w, h - 120);
+
 	Chart::Pie::Begin({x, y});
 	for (const auto& [radius, start, end, hue, node] : drawData | std::views::reverse) {
 		auto* top = history.top();
 
 		if (!ImGui::IsPopupOpen("Menu")) {
-			if (length <= (radius * w / 512) && length >= ((radius - 32) * w / 512) && angle >= start && angle <= end) {
+			if (length <= (radius * scale / 512) && length >= ((radius - 32) * scale / 512) && angle >= start && angle <= end) {
 				if (ImGui::IsMouseClicked(ImGuiMouseButton_Left)) {
 					if (node == top) {
 						if (history.size() > 1) {
@@ -488,7 +490,7 @@ void ChartState() {
 			}
 		}
 
-		Chart::Pie::Slice(radius * w / 512, start, end);
+		Chart::Pie::Slice(radius * scale / 512, start, end);
 	}
 	Chart::Pie::End();
 
@@ -522,6 +524,7 @@ void ChartState() {
 	ImGui::SetCursorPos({x - 6, y - 6});
 	ImGui::Image((void*)icons[Icons::Back], {12, 12});
 
+	ImGui::GetWindowDrawList()->AddRectFilled({0, ImGui::GetWindowHeight() - 30}, {ImGui::GetWindowWidth(), ImGui::GetWindowHeight()}, IM_COL32(55, 57, 62, 255));
 	ImGui::GetWindowDrawList()->AddLine({0, ImGui::GetWindowHeight() - 30}, {ImGui::GetWindowWidth(), ImGui::GetWindowHeight() - 30}, IM_COL32(43, 45, 48, 255));
 
 	ImGui::SetCursorPos({0 + 9, ImGui::GetWindowHeight() - 21});
@@ -556,7 +559,6 @@ void Draw() {
 	// Window Background.
 	{
 		ImGui::GetWindowDrawList()->AddRectFilled({}, ImGui::GetWindowSize(), IM_COL32(55, 57, 62, 255));
-		ImGui::GetWindowDrawList()->AddRectFilled({}, {ImGui::GetWindowWidth(), 30}, IM_COL32(43, 45, 48, 255));
 	}
 
 	const auto close = []() {
@@ -571,8 +573,27 @@ void Draw() {
 		SDL_PushEvent(&quit);
 	};
 
+	ImGui::SetCursorPos({0, 60});
+
+	switch (state) {
+		case State::Started:
+			StartedState();
+			break;
+		case State::Loading:
+			LoadingState();
+			break;
+		case State::Chart:
+			ChartState();
+			break;
+		default:;
+	}
+
 	// Window Title.
 	{
+		ImGui::SetCursorPos({});
+
+		ImGui::GetWindowDrawList()->AddRectFilled({}, {ImGui::GetWindowWidth(), 30}, IM_COL32(43, 45, 48, 255));
+
 		ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(18, 9));
 
 		ImGui::PushStyleColor(ImGuiCol_Button, IM_COL32(0, 0, 0, 0));
@@ -678,19 +699,6 @@ void Draw() {
 
 	ImGui::PopStyleColor(3);
 	ImGui::PopStyleVar(3);
-
-	switch (state) {
-		case State::Started:
-			StartedState();
-			break;
-		case State::Loading:
-			LoadingState();
-			break;
-		case State::Chart:
-			ChartState();
-			break;
-		default: ;
-	}
 
 	ImGui::End();
 
