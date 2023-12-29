@@ -108,8 +108,7 @@ namespace Filesystem {
 		#endif
 
 		#if defined(MACOS)
-		std::string command = "open " + std::string(path);
-		system(command.c_str());
+		system(fmt::format("open \"{}\"", path).c_str());
 		#endif
 	}
 
