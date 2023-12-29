@@ -602,19 +602,19 @@ void Draw() {
 		}
 
 		#if defined(WINDOWS)
-		ImGui::SameLine(ImGui::GetWindowWidth() - 48 * 3);
+		ImGui::SetCursorPos({ImGui::GetWindowWidth() - 48 * 3, 0});
 		if (ImGui::ImageButton("#Minimize", (void*)icons[Icons::Minimize], {12, 12})) {
 			SDL_MinimizeWindow(window);
 		}
 
 		if (SDL_GetWindowFlags(window) & SDL_WINDOW_MAXIMIZED) {
-			ImGui::SameLine(ImGui::GetWindowWidth() - 48 * 2);
+			ImGui::SetCursorPos({ImGui::GetWindowWidth() - 48 * 2, 0});
 			if (ImGui::ImageButton("#Restore", (void*)icons[Icons::Restore], {12, 12})) {
 				SDL_RestoreWindow(window);
 			}
 		}
 		else {
-			ImGui::SameLine(ImGui::GetWindowWidth() - 48 * 2);
+			ImGui::SetCursorPos({ImGui::GetWindowWidth() - 48 * 2, 0});
 			if (ImGui::ImageButton("#Maximize", (void*)icons[Icons::Maximize], {12, 12})) {
 				SDL_MaximizeWindow(window);
 			}
@@ -624,7 +624,7 @@ void Draw() {
 			ImGui::PushStyleColor(ImGuiCol_ButtonHovered, IM_COL32(196, 43, 23, 255));
 			ImGui::PushStyleColor(ImGuiCol_ButtonActive, IM_COL32(196, 43, 23, 255));
 
-			ImGui::SameLine(ImGui::GetWindowWidth() - 48);
+			ImGui::SetCursorPos({ImGui::GetWindowWidth() - 48, 0});
 			if (ImGui::ImageButton("#Close", (void*)icons[Icons::Close], {12, 12})) {
 				close();
 			}
