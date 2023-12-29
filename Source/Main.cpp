@@ -286,10 +286,23 @@ void StartedState() {
 		ImGui::GetWindowDrawList()->AddLine({x, y}, {x + ImGui::GetWindowWidth() - 60, y + 1}, IM_COL32(190, 190, 190, 255));
 	}
 
+	float buttonWidth = 165.0f;
+
+	const auto drives = Filesystem::GetLogicalDrives();
+	for (const auto& drive : drives) {
+		const auto [bytesTotal, bytesFree] = Filesystem::GetDriveSpace(drive);
+
+		const auto bytesFreeText = BytesToString(bytesFree);
+		const auto bytesTotalText = BytesToString(bytesTotal);
+
+		const auto textSize = ImGui::CalcTextSize(fmt::vformat((std::string_view)Localization::Text("StartedState_FreeSpace_Text"), fmt::make_format_args(bytesFreeText, bytesTotalText)).c_str());
+		buttonWidth = std::max(buttonWidth, textSize.x + 3.0f);
+	}
+
 	int buttonsInRow = 0;
 
 	ImGui::NewLine();
-	for (const auto& drive : Filesystem::GetLogicalDrives()) {
+	for (const auto& drive : drives) {
 		const auto [bytesTotal, bytesFree] = Filesystem::GetDriveSpace(drive);
 
 		ImGui::BeginGroup();
@@ -300,7 +313,7 @@ void StartedState() {
 
 			const auto [x, y] = ImGui::GetCursorPos();
 
-			if (ImRect(x - 5, y - 25, x + 165, y + 35).Contains(ImGui::GetMousePos())) {
+			if (ImRect(x - 5, y - 25, x + buttonWidth, y + 35).Contains(ImGui::GetMousePos())) {
 				if (ImGui::IsMouseClicked(ImGuiMouseButton_Left)) {
 					space = Filesystem::GetDriveSpace(drive);
 
@@ -317,21 +330,21 @@ void StartedState() {
 					state = State::Loading;
 				}
 
-				ImGui::GetWindowDrawList()->AddRectFilled({x - 5, y - 25}, {x + 165, y + 35}, IM_COL32(190, 190, 190, 32), 8);
+				ImGui::GetWindowDrawList()->AddRectFilled({x - 5, y - 25}, {x + buttonWidth, y + 35}, IM_COL32(190, 190, 190, 32), 8);
 			}
 
-			ImGui::ItemSize({x, y, x + 170, y + 8});
+			ImGui::ItemSize({x, y, x + (buttonWidth + 5.0f), y + 8});
 
-			ImGui::GetWindowDrawList()->AddRectFilled({x, y}, {x + 160, y + 8}, IM_COL32(190, 190, 190, 127));
-			ImGui::GetWindowDrawList()->AddRectFilled({x, y}, {x + 160 * scale, y + 8}, IM_COL32(190, 190, 190, 255));
+			ImGui::GetWindowDrawList()->AddRectFilled({x, y}, {x + (buttonWidth - 5.0f), y + 8}, IM_COL32(190, 190, 190, 127));
+			ImGui::GetWindowDrawList()->AddRectFilled({x, y}, {x + (buttonWidth - 5.0f) * scale, y + 8}, IM_COL32(190, 190, 190, 255));
 
-			const auto arg1 = BytesToString(bytesFree);
-			const auto arg2 = BytesToString(bytesTotal);
-			ImGui::Text("%s", fmt::vformat((std::string_view)Localization::Text("StartedState_FreeSpace_Text"), fmt::make_format_args(arg1, arg2)).c_str());
+			const auto bytesFreeText = BytesToString(bytesFree);
+			const auto bytesTotalText = BytesToString(bytesTotal);
+			ImGui::Text("%s", fmt::vformat((std::string_view)Localization::Text("StartedState_FreeSpace_Text"), fmt::make_format_args(bytesFreeText, bytesTotalText)).c_str());
 		}
 		ImGui::EndGroup();
 
-		if (++buttonsInRow * 170 + 170 +60 < ImGui::GetWindowWidth()) {
+		if (++buttonsInRow * (buttonWidth + 5.0f) + (buttonWidth + 5.0f) + 60 < ImGui::GetWindowWidth()) {
 			ImGui::SameLine();
 		}
 		else {
