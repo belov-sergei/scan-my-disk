@@ -15,9 +15,6 @@ High-performance scanning and display for quick and effective processing of larg
 ### User-Friendly and Accessible:
 An intuitive and accessible application with a user-friendly interface, supporting multiple languages and platforms, including mobile platforms.
 
-### Enhanced File Operations:
-The ability to perform direct file operations from the application, such as deleting, moving, or archiving files.
-
 ## How to Use
 You can download the pre-built versions of the application from the Releases section for your Windows or macOS. Alternatively, you can build the application yourself. All necessary libraries and dependencies are already in the repository, so you'll just need to clone it.
 
