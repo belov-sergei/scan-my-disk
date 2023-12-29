@@ -435,7 +435,7 @@ void ChartState() {
 	for (const auto& [radius, start, end, hue, node] : drawData | std::views::reverse) {
 		auto* top = history.top();
 
-		if (!ImGui::IsPopupOpen("Menu")) {
+		if (!ImGui::IsPopupOpen("Menu") && !ImGui::IsPopupOpen("File")) {
 			if (length <= (radius * scale / 512) && length >= ((radius - 32) * scale / 512) && angle >= start && angle <= end) {
 				if (ImGui::IsMouseClicked(ImGuiMouseButton_Left)) {
 					if (node == top) {
