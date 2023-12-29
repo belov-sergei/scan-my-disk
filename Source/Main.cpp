@@ -286,6 +286,8 @@ void StartedState() {
 		ImGui::GetWindowDrawList()->AddLine({x, y}, {x + ImGui::GetWindowWidth() - 60, y + 1}, IM_COL32(190, 190, 190, 255));
 	}
 
+	int buttonsInRow = 0;
+
 	ImGui::NewLine();
 	for (const auto& drive : Filesystem::GetLogicalDrives()) {
 		const auto [bytesTotal, bytesFree] = Filesystem::GetDriveSpace(drive);
@@ -329,7 +331,12 @@ void StartedState() {
 		}
 		ImGui::EndGroup();
 
-		ImGui::SameLine();
+		if (++buttonsInRow * 170 + 170 +60 < ImGui::GetWindowWidth()) {
+			ImGui::SameLine();
+		}
+		else {
+			buttonsInRow = 0;
+		}
 	}
 
 	ImGui::PopStyleColor();
