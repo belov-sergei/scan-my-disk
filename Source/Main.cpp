@@ -805,6 +805,9 @@ int main(int argc, char* argv[]) {
 
 	ImGui::CreateContext();
 
+	ImGui::GetIO().IniFilename = nullptr;
+	ImGui::GetIO().LogFilename = nullptr;
+
 	ImGui_ImplSDL2_InitForOpenGL(window, context);
 	ImGui_ImplOpenGL3_Init("#version 120");
 
