@@ -573,7 +573,7 @@ void Draw() {
 		SDL_PushEvent(&quit);
 	};
 
-	ImGui::SetCursorPos({0, 60});
+	ImGui::SetCursorPos({0, 50});
 
 	switch (state) {
 		case State::Started:
@@ -592,7 +592,9 @@ void Draw() {
 	{
 		ImGui::SetCursorPos({});
 
+		#if defined(WINDOWS)
 		ImGui::GetWindowDrawList()->AddRectFilled({}, {ImGui::GetWindowWidth(), 30}, IM_COL32(43, 45, 48, 255));
+		#endif
 
 		ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(18, 9));
 
@@ -604,6 +606,7 @@ void Draw() {
 			ImGui::OpenPopup("File");
 		}
 
+		#if defined(WINDOWS)
 		ImGui::SameLine(ImGui::GetWindowWidth() - 48 * 3);
 		if (ImGui::ImageButton("#Minimize", (void*)icons[Icons::Minimize], {12, 12})) {
 			SDL_MinimizeWindow(window);
@@ -633,10 +636,12 @@ void Draw() {
 
 			ImGui::PopStyleColor(2);
 		}
+		#endif
 
 		ImGui::PopStyleColor(3);
 		ImGui::PopStyleVar();
 
+		#if defined(WINDOWS)
 		ImGui::PushStyleColor(ImGuiCol_Text, Settings<Color>::Text);
 		{
 			const auto* windowTitle = "Scan My Disk";
@@ -644,6 +649,7 @@ void Draw() {
 			ImGui::Text(windowTitle);
 		}
 		ImGui::PopStyleColor();
+		#endif
 	}
 
 	ImGui::SetCursorPos({0, 50});
@@ -777,6 +783,7 @@ int main(int argc, char* argv[]) {
 		},
 		window);
 
+	#if defined(WINDOWS)
 	SDL_SetWindowHitTest(
 		window,
 		[](auto* window, const auto* area, auto*) {
@@ -799,6 +806,7 @@ int main(int argc, char* argv[]) {
 			return SDL_HITTEST_NORMAL;
 		},
 		nullptr);
+	#endif
 
 	ImGui::CreateContext();
 
