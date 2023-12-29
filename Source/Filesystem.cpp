@@ -106,6 +106,11 @@ namespace Filesystem {
 		#if defined(WINDOWS)
 		ShellExecute(nullptr, nullptr, path.data(), nullptr, nullptr, SW_NORMAL);
 		#endif
+
+		#if defined(MACOS)
+		std::string command = "open " + std::string(path);
+		system(command.c_str());
+		#endif
 	}
 
 	Tree::Node<Entry> BuildTree(const std::filesystem::path& path, std::atomic<size_t>& progress) {
