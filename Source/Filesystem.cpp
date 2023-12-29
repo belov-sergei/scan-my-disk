@@ -4,7 +4,8 @@
 #include <fmt/format.h>
 
 #if defined(WINDOWS)
-#include <Windows.h>
+	#include <Windows.h>
+	#include <shlobj_core.h>
 #endif
 
 #if defined(MACOS)
@@ -55,7 +56,7 @@ namespace Filesystem {
 	std::vector<std::string> GetLogicalDrives() {
 		std::vector<std::string> logicalDrives;
 
-		#if defined(WINDOWS)
+#if defined(WINDOWS)
 		DWORD availableDrivesBitmask = ::GetLogicalDrives();
 		for (auto driveLetter = 'A'; driveLetter <= 'Z'; driveLetter++) {
 			if (availableDrivesBitmask & 1) {
@@ -64,7 +65,7 @@ namespace Filesystem {
 
 			availableDrivesBitmask >>= 1;
 		}
-		#else
+#else
 		DIR* volumes = opendir("/Volumes");
 		dirent* entry;
 
@@ -77,18 +78,18 @@ namespace Filesystem {
 		}
 
 		closedir(volumes);
-		#endif
+#endif
 
 		return logicalDrives;
 	}
 
 	std::pair<size_t, size_t> GetDriveSpace(std::string_view driveLetter) {
-		#if defined(WINDOWS)
+#if defined(WINDOWS)
 		ULARGE_INTEGER bytesTotal, bytesFree;
 		::GetDiskFreeSpaceEx(driveLetter.data(), nullptr, &bytesTotal, &bytesFree);
 
 		return std::make_pair(bytesTotal.QuadPart, bytesFree.QuadPart);
-		#else
+#else
 		struct statfs stats;
 		size_t totalBytes = 0;
 		size_t freeBytes = 0;
@@ -99,17 +100,30 @@ namespace Filesystem {
 		}
 
 		return std::make_pair(totalBytes, freeBytes);
-		#endif
+#endif
 	}
 
 	void Explore(std::string_view path) {
-		#if defined(WINDOWS)
+#if defined(WINDOWS)
 		ShellExecute(nullptr, nullptr, path.data(), nullptr, nullptr, SW_NORMAL);
-		#endif
+#endif
 
-		#if defined(MACOS)
+#if defined(MACOS)
 		system(fmt::format("open \"{}\"", path).c_str());
-		#endif
+#endif
+	}
+
+	std::string GetLocalSettingsPath() {
+#if defined(WINDOWS)
+		char path[MAX_PATH];
+		SHGetFolderPath(NULL, CSIDL_LOCAL_APPDATA, NULL, SHGFP_TYPE_CURRENT, path);
+
+		return fmt::format("{}\\Scan My Disk\\Settings.xml", path);
+#endif
+
+#if defined(MACOS)
+		return fmt::format("{}/{}", getenv("HOME"), "Library/Application Support/Scan My Disk/Settings.xml");
+#endif
 	}
 
 	Tree::Node<Entry> BuildTree(const std::filesystem::path& path, std::atomic<size_t>& progress) {

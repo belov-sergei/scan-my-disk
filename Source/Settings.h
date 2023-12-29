@@ -3,6 +3,7 @@
 #pragma once
 #include <imgui.h>
 #include <Localization.h>
+#include <Filesystem.h>
 #include <pugixml.hpp>
 
 template <typename = void>
@@ -40,22 +41,28 @@ struct Settings<Color> {
 template <>
 struct Settings<void> {
 	static void Load() {
-		if (!std::filesystem::exists("Settings.xml")) {
+		const auto settings = Filesystem::GetLocalSettingsPath();
+		if (!std::filesystem::exists(settings)) {
+			std::filesystem::path path = settings;
+			path.remove_filename();
+
+			std::filesystem::create_directories(path);
 			Save();
 		}
 
 		pugi::xml_document xml;
-		xml.load_file("Settings.xml");
+		xml.load_file(settings.c_str());
 
 		Settings<User>::Load(xml.document_element());
 	}
 
 	static void Save() {
+		const auto settings = Filesystem::GetLocalSettingsPath();
+
 		pugi::xml_document xml;
 		const auto xmlRoot = xml.append_child("Settings");
 
 		Settings<User>::Save(xmlRoot);
-
-		std::ignore = xml.save_file("Settings.xml");
+		std::ignore = xml.save_file(settings.c_str());
 	}
 };
