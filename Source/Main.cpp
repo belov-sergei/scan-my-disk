@@ -562,11 +562,6 @@ void Draw() {
 	}
 
 	const auto close = []() {
-		if (state == State::Loading) {
-			Filesystem::CancelBuildTree();
-			std::ignore = future.get();
-		}
-
 		SDL_Event quit;
 		quit.type = SDL_QUIT;
 
@@ -838,6 +833,11 @@ int main(int argc, char* argv[]) {
 			ImGui_ImplSDL2_ProcessEvent(&sdlEvent);
 
 			if (sdlEvent.type == SDL_QUIT) {
+				if (state == State::Loading) {
+					Filesystem::CancelBuildTree();
+					std::ignore = future.get();
+				}
+
 				exit = true;
 			}
 		}
