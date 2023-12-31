@@ -86,7 +86,14 @@ set(PUGIXML_PATH ${PROJECT_SOURCE_DIR}/ThirdParty/pugixml-1.14)
 set(FMT_PATH ${PROJECT_SOURCE_DIR}/ThirdParty/fmt-10.1.1)
 
 # Create main project.
-CreateProject(${PROJECT_NAME} ${PROJECT_SOURCE_PATH} "" "Resource.rc")
+if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
+	CreateProject(${PROJECT_NAME} ${PROJECT_SOURCE_PATH} WIN32 "Resource.rc")
+	set_target_properties(${PROJECT_NAME} PROPERTIES MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+endif()
+
+if (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
+	CreateProject(${PROJECT_NAME} ${PROJECT_SOURCE_PATH} MACOSX_BUNDLE)
+endif()
 
 # Startup project and debugger directory.
 set_property(DIRECTORY ${PROJECT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT ${PROJECT_NAME})
@@ -105,6 +112,7 @@ set_target_properties(
 	gtest
 	gtest_main
 	PROPERTIES FOLDER "Third Party"
+	MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>"
 )
 
 # Include SDL.
@@ -123,6 +131,7 @@ set_target_properties(
 	SDL2-static
 	sdl_headers_copy
 	PROPERTIES FOLDER "Third Party"
+	MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>"
 )
 
 target_link_libraries(${PROJECT_NAME}
@@ -174,6 +183,7 @@ target_include_directories(imgui PRIVATE
 set_target_properties(
 	imgui
 	PROPERTIES FOLDER "Third Party"
+	MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>"
 )
 
 target_link_libraries(${PROJECT_NAME}
@@ -194,6 +204,7 @@ add_subdirectory(${PUGIXML_PATH})
 set_target_properties(
 	pugixml-static
 	PROPERTIES FOLDER "Third Party"
+	MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>"
 )
 
 target_link_libraries(${PROJECT_NAME}
@@ -206,6 +217,7 @@ add_subdirectory(${FMT_PATH})
 set_target_properties(
 	fmt
 	PROPERTIES FOLDER "Third Party"
+	MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>"
 )
 
 # Include test projects.
