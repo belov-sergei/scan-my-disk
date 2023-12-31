@@ -469,7 +469,8 @@ void ChartState() {
 					Chart::Pie::Color(ImColor::HSV(hue, 0.15f, 0.9f));
 				}
 
-				path = (*node)->path.string();
+				auto tmp = (*node)->path.u8string();
+				path = std::string(tmp.cbegin(), tmp.cend());
 				size = BytesToString((*node)->size);
 			}
 			else {
