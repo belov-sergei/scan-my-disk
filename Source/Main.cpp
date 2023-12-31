@@ -748,6 +748,10 @@ LRESULT CALLBACK MyWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 #endif
 
 int main(int argc, char* argv[]) {
+	if (!std::filesystem::exists("README.md")) {
+		std::filesystem::current_path(SDL_GetBasePath());
+	}
+
 	Settings<>::Load();
 
 	LocalizationInitialization();
