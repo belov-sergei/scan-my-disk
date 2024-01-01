@@ -1,7 +1,7 @@
 // Copyright ❤️ 2023-2024, Sergei Belov
 
 #include <Filesystem.h>
-#include <fmt/format.h>
+#include "fmt/xchar.h"
 
 #if defined(WINDOWS)
 	#include <Windows.h>
@@ -103,9 +103,10 @@ namespace Filesystem {
 #endif
 	}
 
-	void Explore(std::string_view path) {
+	void OpenPath(const std::filesystem::path& value) {
 #if defined(WINDOWS)
-		ShellExecute(nullptr, nullptr, path.data(), nullptr, nullptr, SW_NORMAL);
+		const std::wstring string = fmt::format(L"\"{}\"", value.c_str());
+		ShellExecuteW(nullptr, nullptr, string.c_str(), nullptr, nullptr, SW_NORMAL);
 #endif
 
 #if defined(MACOS)

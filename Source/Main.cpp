@@ -272,7 +272,7 @@ Tree::Node<Filesystem::Entry> tree;
 
 std::stack<const Tree::Node<Filesystem::Entry>*> history;
 
-std::string path;
+std::filesystem::path path;
 std::string size;
 
 void StartedState() {
@@ -409,7 +409,13 @@ void ChartState() {
 	ImGui::Indent(30);
 
 	ImGui::PushTextWrapPos(ImGui::GetWindowWidth() - 60);
-	ImGui::TextWrapped("%s", fmt::vformat((std::string_view)Localization::Text("ChartState_Path_Text"), fmt::make_format_args(path)).c_str());
+
+	std::u8string string = path.u8string();
+	std::string text = std::string(string.begin(), string.end());
+
+	text = fmt::vformat((const std::string&)Localization::Text("ChartState_Path_Text"), fmt::make_format_args(text));
+
+	ImGui::TextWrapped("%s", text.c_str());
 	ImGui::PopTextWrapPos();
 
 	ImGui::Text("%s", fmt::vformat((std::string_view)Localization::Text("ChartState_Size_Text"), fmt::make_format_args(size)).c_str());
@@ -469,8 +475,7 @@ void ChartState() {
 					Chart::Pie::Color(ImColor::HSV(hue, 0.15f, 0.9f));
 				}
 
-				auto tmp = (*node)->path.u8string();
-				path = std::string(tmp.cbegin(), tmp.cend());
+				path = (*node)->path;
 				size = BytesToString((*node)->size);
 			}
 			else {
@@ -512,7 +517,7 @@ void ChartState() {
 		ImGui::SameLine(18.0f);
 
 		if (ImGui::MenuItem(Localization::Text("ChartState_Explore_Button"))) {
-			Filesystem::Explore(path);
+			Filesystem::OpenPath(path);
 		}
 
 		ImGui::EndPopup();
@@ -534,7 +539,11 @@ void ChartState() {
 	ImGui::SameLine();
 
 	ImGui::SetCursorPosY(ImGui::GetWindowHeight() - 24);
-	ImGui::Text("%s", root.string().c_str());
+
+	string = root.u8string();
+	text = std::string(string.begin(), string.end());
+
+	ImGui::Text("%s", text.c_str());
 
 	ImGui::PopStyleColor(1);
 }

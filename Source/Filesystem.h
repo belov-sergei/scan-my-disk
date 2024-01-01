@@ -18,9 +18,11 @@ namespace Filesystem {
 		std::filesystem::path path;
 	};
 
+	// Opens a file or URL in the default application based on the operating system.
+	void OpenPath(const std::filesystem::path& value);
+
 	std::vector<std::string> GetLogicalDrives();
 	std::pair<size_t, size_t> GetDriveSpace(std::string_view driveLetter);
-	void Explore(std::string_view path);
 
 	std::string GetLocalSettingsPath();
 
