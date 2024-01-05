@@ -61,7 +61,7 @@ namespace Localization {
 		}
 
 		const auto& language = Details::Languages[Details::Language];
-		if (language.contains(_id)) {
+		if (language.count(_id) != 0) {
 			return language.at(_id);
 		}
 

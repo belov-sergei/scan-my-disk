@@ -10,8 +10,7 @@ namespace Tree {
 		Node() = default;
 
 		// Creates a new node, with the condition that the value can be constructed from the provided arguments.
-		template <typename... ArgumentTypes>
-			requires std::is_constructible_v<ValueType, ArgumentTypes...>
+		template <typename... ArgumentTypes, std::enable_if_t<std::is_constructible_v<ValueType, ArgumentTypes...>, bool> = true>
 		Node(ArgumentTypes&&... arguments)
 			: _value(std::forward<ArgumentTypes>(arguments)...) {}
 
@@ -156,7 +155,7 @@ namespace Tree {
 
 template <typename ValueType>
 struct fmt::formatter<Tree::Node<ValueType>> : fmt::formatter<std::string_view> {
-	auto format(const auto& value, auto& context) const {
+	auto format(const Tree::Node<ValueType>& value, fmt::format_context& context) const {
 		std::stack<decltype(&value)> pending;
 		pending.emplace(&value);
 
@@ -192,18 +191,15 @@ struct fmt::formatter<Tree::Node<ValueType>> : fmt::formatter<std::string_view> 
 	}
 };
 
-template <template <typename> typename NodeType, typename DataType>
-	requires std::is_same_v<NodeType<DataType>, Tree::Node<DataType>>
+template <template <typename> typename NodeType, typename DataType, std::enable_if_t<std::is_same_v<NodeType<DataType>, Tree::Node<DataType>>, bool> = true>
 bool IsEqual(const NodeType<DataType>& node, std::string xmlString) {
 	std::string xmlNodeString = fmt::format("{}", node);
 
-	std::erase_if(xmlNodeString, [](const auto& character) {
-		return std::isspace(character);
-	});
+	auto& string = xmlNodeString;
+	string.erase(std::remove_if(string.begin(), string.end(), ::isspace), string.end());
 
-	std::erase_if(xmlString, [](const auto& character) {
-		return std::isspace(character);
-	});
+	string = xmlString;
+	string.erase(std::remove_if(string.begin(), string.end(), ::isspace), string.end());
 
 	return xmlNodeString == xmlString;
 }

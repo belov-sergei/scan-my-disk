@@ -54,7 +54,7 @@ BreakStringLiterals: false
 ColumnLimit: 0
 UseTab: ForContinuationAndIndentation
 TabWidth: 4
-Standard: c++20
+Standard: c++17
 CompactNamespaces: false
 ConstructorInitializerIndentWidth: 4
 ContinuationIndentWidth: 4

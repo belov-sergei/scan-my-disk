@@ -11,8 +11,7 @@ namespace Debug {
 		CopyMoveData() = default;
 		~CopyMoveData() = default;
 
-		template <typename... ArgumentTypes>
-			requires std::is_constructible_v<ValueType, ArgumentTypes...>
+		template <typename... ArgumentTypes, std::enable_if_t<std::is_constructible_v<ValueType, ArgumentTypes...>, bool> = true>
 		CopyMoveData(ArgumentTypes... arguments)
 			: value(std::forward<ArgumentTypes>(arguments)...) { }
 
@@ -57,7 +56,7 @@ namespace Debug {
 
 template <typename ValueType>
 struct fmt::formatter<Debug::CopyMoveData<ValueType>> : fmt::formatter<std::string_view> {
-	auto format(const auto& value, auto& context) const {
+	auto format(const Debug::CopyMoveData<ValueType>& value, fmt::format_context& context) const {
 		std::string result;
 
 		fmt::format_to(std::back_inserter(result), "Moved= \"{}\" ", value.moved);

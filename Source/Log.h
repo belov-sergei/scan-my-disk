@@ -28,9 +28,9 @@ namespace Log {
 	//
 	// Debug("Some text here.");
 	template <typename LevelType>
-	auto Log = []<typename Message, typename... Value>(Message&& message, Value&&... values) {
+	auto Log = [](auto&& message, auto&&... values) {
 		if (LevelType::Level >= Details::Level) {
-			const auto output = fmt::vformat(std::forward<Message>(message), fmt::make_format_args(std::forward<Value>(values)...));
+			const auto output = fmt::vformat(std::forward<decltype(message)>(message), fmt::make_format_args(std::forward<decltype(values)>(values)...));
 			for (const auto& logger : Details::Loggers) {
 				logger(fmt::format("[{}] {}\n", LevelType::Name, output));
 			}

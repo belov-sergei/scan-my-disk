@@ -39,7 +39,7 @@ TEST(Localization, LanguagesEnumeration) {
 	EXPECT_EQ(std::size(languages), std::size(Localization::Languages()));
 
 	for (uint32_t languageId : Localization::Languages()) {
-		std::erase(languages, languageId);
+		languages.erase(std::find(languages.begin(), languages.end(), languageId));
 	}
 
 	EXPECT_EQ(languages.empty(), true);

@@ -76,31 +76,29 @@ namespace ImGui {
 		} // namespace Details
 
 		void Begin() {
-			using namespace Details;
-
-			if (State.empty()) {
-				DrawList = ImGui::GetWindowDrawList();
+			if (Details::State.empty()) {
+				Details::DrawList = ImGui::GetWindowDrawList();
 			}
 
-			auto& [index, position, size] = State.emplace();
+			auto& [index, position, size] = Details::State.emplace();
 
-			Index = &index;
-			Position = &position;
-			Size = &size;
+			Details::Index = &index;
+			Details::Position = &position;
+			Details::Size = &size;
 
-			*Index = DrawList->VtxBuffer.Size;
+			*Details::Index = Details::DrawList->VtxBuffer.Size;
 
-			AddImage(UV[0], UV[0], UV[1], UV[1]);
-			AddImage(UV[1], UV[0], UV[2], UV[1]);
-			AddImage(UV[2], UV[0], UV[3], UV[1]);
+			Details::AddImage(Details::UV[0], Details::UV[0], Details::UV[1], Details::UV[1]);
+			Details::AddImage(Details::UV[1], Details::UV[0], Details::UV[2], Details::UV[1]);
+			Details::AddImage(Details::UV[2], Details::UV[0], Details::UV[3], Details::UV[1]);
 
-			AddImage(UV[0], UV[1], UV[1], UV[2]);
-			AddImage(UV[1], UV[1], UV[2], UV[2]);
-			AddImage(UV[2], UV[1], UV[3], UV[2]);
+			Details::AddImage(Details::UV[0], Details::UV[1], Details::UV[1], Details::UV[2]);
+			Details::AddImage(Details::UV[1], Details::UV[1], Details::UV[2], Details::UV[2]);
+			Details::AddImage(Details::UV[2], Details::UV[1], Details::UV[3], Details::UV[2]);
 
-			AddImage(UV[0], UV[2], UV[1], UV[3]);
-			AddImage(UV[1], UV[2], UV[2], UV[3]);
-			AddImage(UV[2], UV[2], UV[3], UV[3]);
+			Details::AddImage(Details::UV[0], Details::UV[2], Details::UV[1], Details::UV[3]);
+			Details::AddImage(Details::UV[1], Details::UV[2], Details::UV[2], Details::UV[3]);
+			Details::AddImage(Details::UV[2], Details::UV[2], Details::UV[3], Details::UV[3]);
 		}
 
 		void Position(ImVec2 position) {
@@ -410,7 +408,7 @@ void ChartState() {
 
 	ImGui::PushTextWrapPos(ImGui::GetWindowWidth() - 60);
 
-	std::u8string string = path.u8string();
+	std::string string = path.u8string();
 	std::string text = std::string(string.begin(), string.end());
 
 	text = fmt::vformat((const std::string&)Localization::Text("ChartState_Path_Text"), fmt::make_format_args(text));
@@ -436,9 +434,10 @@ void ChartState() {
 	float angle = ((int)(std::atan2(-my, -mx) * 180 / 3.14) + 180) / 360.0f;
 
 	const float scale = std::min(w, h - 120);
-
+	
 	Chart::Pie::Begin({x, y});
-	for (const auto& [radius, start, end, hue, node] : drawData | std::views::reverse) {
+	for (auto it = drawData.rbegin(); it != drawData.rend(); ++it) {
+		const auto& [radius, start, end, hue, node] = *it;
 		auto* top = history.top();
 
 		if (!ImGui::IsPopupOpen("Menu") && !ImGui::IsPopupOpen("File")) {

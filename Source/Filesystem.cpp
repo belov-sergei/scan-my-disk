@@ -179,54 +179,47 @@ namespace Filesystem {
 
 		Tree::Node<Entry> root = {0, 0, path};
 
-		// Stack of pending tasks shared among threads.
+		// Shared stack of tasks for all threads to work on.
 		std::stack<Tree::Node<Entry>*> pending;
 		pending.emplace(&root);
 
-		// Mutex to guard access to the shared task list.
+		// Mutex and condition variable for thread synchronization.
 		std::mutex mutex;
+		std::condition_variable condition;
 
-		// Semaphore becomes available when a new task is added to the shared list.
-		std::binary_semaphore semaphore(1);
-
-		// Number of threads that have tasks.
+		// Active worker thread count.
 		size_t workers = 0;
 
+		// Worker lambda function to process tasks.
 		const auto worker = [&] {
+			// For capturing filesystem errors.
 			std::error_code error;
 
-			// List of tasks for the current thread.
+			// Local stack of tasks for this thread.
 			std::stack<Tree::Node<Entry>*> jobs;
 
 			while (true) {
-				// Wait for a new task.
-				semaphore.acquire();
-
 				{
-					std::lock_guard lock(mutex);
-					const size_t size = pending.size();
+					std::unique_lock lock(mutex);
 
-					// If there are no pending tasks and threads are idle, wake them up for termination.
-					if (size == 0) {
-						if (workers == 0) {
-							semaphore.release();
-							break;
-						}
-					}
-					// Take one task and wake up a next thread if there are more tasks.
-					else {
-						jobs.emplace(pending.top());
-						pending.pop();
+					// Wait until there are tasks available or all work is done.
+					condition.wait(lock, [&] {
+						return !pending.empty() || workers == 0;
+					});
 
-						if (size > 1) {
-							semaphore.release();
-						}
+					// Exit loop if no tasks are pending and all workers are idle.
+					if (pending.empty() && workers == 0) {
+						break;
 					}
 
-					// Signal that the thread is busy.
+					// Fetch next task from the shared stack.
+					jobs.emplace(pending.top());
+					pending.pop();
+
 					++workers;
 				}
 
+				// Process each job until the local stack is empty or cancellation is signaled.
 				while (!jobs.empty() && !Details::CancelFlag) {
 					auto& node = *jobs.top();
 					jobs.pop();
@@ -259,8 +252,11 @@ namespace Filesystem {
 
 					progress += total;
 
+					 // If multiple jobs are created, share them with other threads.
 					if (jobs.size() > 1) {
 						std::lock_guard lock(mutex);
+
+						// Swap stacks if more jobs are created.
 						if (jobs.size() > pending.size()) {
 							std::swap(jobs, pending);
 						}
@@ -274,17 +270,17 @@ namespace Filesystem {
 							--size;
 						}
 
-						// Wake up the next thread.
-						semaphore.release();
+						// Notify other threads that new tasks are available.
+						condition.notify_all();
 					}
 				}
 
 				{
 					std::lock_guard lock(mutex);
 
-					// Signal that the thread is idle, and if there are no tasks, wake up a next thread as it might be time to exit.
+					// If this thread is idle and no more tasks are pending, notify others.
 					if (--workers == 0 && pending.empty()) {
-						semaphore.release();
+						condition.notify_all();
 					}
 				}
 			}

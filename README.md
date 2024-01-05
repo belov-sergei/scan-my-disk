@@ -19,7 +19,7 @@ An intuitive and accessible application with a user-friendly interface, supporti
 You can download the pre-built versions of the application from the Releases section for your Windows or macOS. Alternatively, you can build the application yourself. All necessary libraries and dependencies are already in the repository, so you'll just need to clone it.
 
 ## Building
-To build the application, you will need the latest versions Xcode for macOS or Visual Studio 2022 for Windows, with support for C++20.
+To build the application, you will need the latest versions Xcode for macOS or Visual Studio 2022 for Windows, with support for C++17.
 
 ### Clone the Repository
 ```

@@ -34,7 +34,7 @@ namespace Filesystem {
 
 template <>
 struct fmt::formatter<Filesystem::Entry> : fmt::formatter<std::string_view> {
-	auto format(const auto& value, auto& context) const {
+	auto format(const Filesystem::Entry& value, fmt::format_context& context) const {
 		std::string result;
 
 		fmt::format_to(std::back_inserter(result), "Path= \"{}\" ", value.path.stem().string());

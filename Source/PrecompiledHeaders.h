@@ -2,17 +2,10 @@
 
 #pragma once
 
-// Concepts library.
-#include <concepts>
-
-// Coroutines library.
-#include <coroutine>
-
 // Utilities library.
 #include <any>
 #include <bitset>
 #include <chrono>
-#include <compare>
 #include <csetjmp>
 #include <csignal>
 #include <cstdarg>
@@ -67,7 +60,6 @@
 #include <map>
 #include <queue>
 #include <set>
-#include <span>
 #include <stack>
 #include <unordered_map>
 #include <unordered_set>
@@ -76,19 +68,14 @@
 // Iterators library.
 #include <iterator>
 
-// Ranges library.
-#include <ranges>
-
 // Algorithms library.
 #include <algorithm>
 #include <execution>
 
 // Numerics library.
-#include <bit>
 #include <cfenv>
 #include <cmath>
 #include <complex>
-#include <numbers>
 #include <numeric>
 #include <random>
 #include <ratio>
@@ -122,11 +109,8 @@
 #include <atomic>
 
 // Thread support library.
-#include <barrier>
 #include <condition_variable>
 #include <future>
-#include <latch>
 #include <mutex>
-#include <semaphore>
 #include <shared_mutex>
 #include <thread>
