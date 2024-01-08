@@ -195,11 +195,15 @@ template <template <typename> typename NodeType, typename DataType, std::enable_
 bool IsEqual(const NodeType<DataType>& node, std::string xmlString) {
 	std::string xmlNodeString = fmt::format("{}", node);
 
-	auto& string = xmlNodeString;
-	string.erase(std::remove_if(string.begin(), string.end(), ::isspace), string.end());
+	{
+		auto& string = xmlNodeString;
+		string.erase(std::remove_if(string.begin(), string.end(), ::isspace), string.end());
+	}
 
-	string = xmlString;
-	string.erase(std::remove_if(string.begin(), string.end(), ::isspace), string.end());
+	{
+		auto& string = xmlString;
+		string.erase(std::remove_if(string.begin(), string.end(), ::isspace), string.end());
+	}
 
 	return xmlNodeString == xmlString;
 }
