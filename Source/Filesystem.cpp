@@ -179,6 +179,21 @@ namespace Filesystem {
 
 		Tree::Node<Entry> root = {0, 0, path};
 
+#if defined(MACOS)
+		std::unordered_set<std::filesystem::path::string_type> links;
+
+		std::ifstream stream("/usr/share/firmlinks");
+		if (stream.is_open()) {
+			std::string line;
+			while (std::getline(stream, line)) {
+				if (const size_t delimiter = line.find('\t'); delimiter != std::string::npos) {
+					std::filesystem::path::string_type value = {line.begin(), line.begin() + delimiter};
+					links.emplace(path.native() + value);
+				}
+			}
+		}
+#endif
+
 		// Shared stack of tasks for all threads to work on.
 		std::stack<Tree::Node<Entry>*> pending;
 		pending.emplace(&root);
@@ -231,6 +246,12 @@ namespace Filesystem {
 					size_t total = 0;
 					while (iterator != end) {
 						if (!error) {
+#if defined(MACOS)
+							if (links.count(iterator->path().native())) {
+								iterator.increment(error);
+								continue;
+							}
+#endif
 							if (iterator->is_symlink(error) || error) {
 								iterator.increment(error);
 								continue;
