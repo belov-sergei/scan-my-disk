@@ -1,12 +1,12 @@
 ﻿// Copyright ❤️ 2023-2024, Sergei Belov
 
 #pragma once
-#include <Utilities.h>
+#include <Common/Checksum.h>
 
 namespace Localization {
 	// Calculates the CRC32 of a string, which is considered the numeric ID of the text.
 	constexpr uint32_t Id(std::string_view textId) {
-		return Utilities::CRC32(textId);
+		return Common::Checksum(textId);
 	}
 
 	// Sets the current language using a numerical ID.
@@ -35,9 +35,9 @@ namespace Localization {
 		constexpr Text(uint32_t textId)
 			: _id(textId) {}
 
-		operator const std::string &() const;
+		operator const std::string&() const;
 		operator std::string_view() const;
-		operator const char *() const;
+		operator const char*() const;
 		operator uint32_t() const;
 
 	private:
