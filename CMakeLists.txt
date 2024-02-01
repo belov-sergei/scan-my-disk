@@ -237,7 +237,7 @@ foreach(TEST_PROJECT ${TEST_PROJECTS})
 	my_add_source(${TEST_PROJECT} ${TEST_PROJECT_SOURCE_PATH})
 
 	# Links the test project with the Google Test framework.
-	target_link_libraries(${TEST_PROJECT} gtest)
+	target_link_libraries(${TEST_PROJECT} ${KERNEL_LIBRARY_NAME} gtest)
 
 	# Organizes the test projects into a "Tests" folder in supported IDEs.
 	set_target_properties(${TEST_PROJECT} PROPERTIES FOLDER "Tests")

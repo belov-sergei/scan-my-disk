@@ -1,7 +1,7 @@
 // Copyright ❤️ 2023-2024, Sergei Belov
 
 #include <gtest/gtest.h>
-#include <Localization.cpp>
+#include <Localization.h>
 
 decltype(auto) Text(std::string_view textId) {
 	return static_cast<const std::string&>(Localization::Text(textId));

@@ -1,7 +1,7 @@
 ﻿// Copyright ❤️ 2023-2024, Sergei Belov
 
-#include <Log.cpp>
 #include <gtest/gtest.h>
+#include <Log.h>
 
 namespace Log {
 	namespace Level {
