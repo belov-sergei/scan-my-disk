@@ -44,7 +44,7 @@ if(MSVC)
 endif()
 
 # Define key paths for the project structure.
-set(PROJECT_SOURCE_PATH "${PROJECT_SOURCE_DIR}/Source")
+set(PROJECT_SOURCE_PATH "${PROJECT_SOURCE_DIR}/Source/Library")
 set(TEST_PROJECTS_PATH "${PROJECT_SOURCE_DIR}/Tests")
 set(PRECOMPILED_HEADERS_PATH "${PROJECT_SOURCE_PATH}/PrecompiledHeaders.h")
 
@@ -77,9 +77,9 @@ endfunction()
 
 # Create the project executable.
 if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
-	add_executable(${PROJECT_NAME} WIN32 "Resource.rc")
+	add_executable(${PROJECT_NAME} WIN32 "Resource.rc" "${PROJECT_SOURCE_DIR}/Source/Main.cpp")
 elseif(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
-	add_executable(${PROJECT_NAME} MACOSX_BUNDLE)
+	add_executable(${PROJECT_NAME} MACOSX_BUNDLE "${PROJECT_SOURCE_DIR}/Source/Main.cpp")
 else()
 	add_executable(${PROJECT_NAME})
 endif()
