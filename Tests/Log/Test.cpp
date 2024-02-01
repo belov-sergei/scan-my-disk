@@ -1,110 +1,107 @@
 ﻿// Copyright ❤️ 2023-2024, Sergei Belov
 
 #include <gtest/gtest.h>
-#include <Log.h>
+#include <Common/Log.h>
 
 namespace Log {
-	namespace Level {
-		struct Debug {
-			constexpr static auto Level = 1;
-			constexpr static auto Name = "Debug";
-		};
+	auto Debug = Log::Logger<Level::Debug>();
+	auto Message = Log::Logger<Level::Message>();
+	auto Warning = Log::Logger<Level::Warning>();
+	auto Error = Log::Logger<Level::Error>();
+}
 
-		struct Message {
-			constexpr static auto Level = 2;
-			constexpr static auto Name = "Message";
-		};
+namespace Detail {
+	std::string TestLogHandlerBuffer;
+}
 
-		struct Warning {
-			constexpr static auto Level = 3;
-			constexpr static auto Name = "Warning";
-		};
-
-		struct Error {
-			constexpr static auto Level = 4;
-			constexpr static auto Name = "Error";
-		};
-	} // namespace Level
-
-	auto Debug = Log::Log<Level::Debug>;
-	auto Message = Log::Log<Level::Message>;
-	auto Warning = Log::Log<Level::Warning>;
-	auto Error = Log::Log<Level::Error>;
-} // namespace Log
-
-std::string TestLoggerBuffer;
 constexpr auto Message = "Some text here";
+constexpr auto Time = "00:00:00";
 
-struct TestLogger {
-	TestLogger() {
-		TestLoggerBuffer = {};
+struct TestLogHandler {
+	TestLogHandler() {
+		Detail::TestLogHandlerBuffer = {};
 	}
 
 	void operator()(std::string_view string) const {
-		TestLoggerBuffer += string;
+		Detail::TestLogHandlerBuffer += string;
 	}
 };
 
 TEST(Log, Basic) {
-	Log::Reset();
+	Log::Handler::Reset();
+	Log::Time::Set([] {
+		return Time;
+	});
 
-	Log::CreateLogger<TestLogger>();
-	Log::SetLevel(Log::Level::Debug::Level);
+	Log::Handler::Register<TestLogHandler>();
+	Log::Level::Set(Log::Level::Debug::Level);
 
 	Log::Debug(Message);
-	EXPECT_EQ(TestLoggerBuffer, fmt::format("[{}] {}\n", Log::Level::Debug::Name, Message));
+	EXPECT_EQ(Detail::TestLogHandlerBuffer, fmt::format("{} <{}> {}\n", Time, Log::Level::Debug::Name, Message));
 }
 
 TEST(Log, Reset) {
-	Log::Reset();
+	Log::Handler::Reset();
+	Log::Time::Set([] {
+		return Time;
+	});
 
-	Log::CreateLogger<TestLogger>();
-	Log::SetLevel(Log::Level::Debug::Level);
+	Log::Handler::Register<TestLogHandler>();
+	Log::Level::Set(Log::Level::Debug::Level);
 
 	Log::Debug(Message);
-	EXPECT_EQ(TestLoggerBuffer, fmt::format("[{}] {}\n", Log::Level::Debug::Name, Message));
+	EXPECT_EQ(Detail::TestLogHandlerBuffer, fmt::format("{} <{}> {}\n", Time, Log::Level::Debug::Name, Message));
 
-	TestLoggerBuffer = {};
+	Detail::TestLogHandlerBuffer = {};
 
-	Log::Reset();
+	Log::Handler::Reset();
 	Log::Debug(Message);
 
-	EXPECT_EQ(TestLoggerBuffer, "");
+	EXPECT_EQ(Detail::TestLogHandlerBuffer, "");
 }
 
 TEST(Log, Consistency) {
-	Log::Reset();
+	Log::Handler::Reset();
+	Log::Time::Set([] {
+		return Time;
+	});
 
-	Log::CreateLogger<TestLogger>();
-	Log::SetLevel(Log::Level::Debug::Level);
-
-	Log::Debug(Message);
-
-	const std::string first = TestLoggerBuffer;
-	TestLoggerBuffer = {};
+	Log::Handler::Register<TestLogHandler>();
+	Log::Level::Set(Log::Level::Debug::Level);
 
 	Log::Debug(Message);
 
-	const std::string second = TestLoggerBuffer;
-	TestLoggerBuffer = {};
+	const std::string first = Detail::TestLogHandlerBuffer;
+	Detail::TestLogHandlerBuffer = {};
+
+	Log::Debug(Message);
+
+	const std::string second = Detail::TestLogHandlerBuffer;
+	Detail::TestLogHandlerBuffer = {};
 
 	EXPECT_EQ(first, second);
 }
 
 TEST(Log, Formatting) {
-	Log::Reset();
+	Log::Handler::Reset();
+	Log::Time::Set([] {
+		return Time;
+	});
 
-	Log::CreateLogger<TestLogger>();
-	Log::SetLevel(Log::Level::Debug::Level);
+	Log::Handler::Register<TestLogHandler>();
+	Log::Level::Set(Log::Level::Debug::Level);
 
 	Log::Debug("{} {} {}.", "Some", "text", "here");
-	EXPECT_EQ(TestLoggerBuffer, "[Debug] Some text here.\n");
+	EXPECT_EQ(Detail::TestLogHandlerBuffer, "00:00:00 <Debug> Some text here.\n");
 }
 
 TEST(Log, Level) {
-	Log::Reset();
+	Log::Handler::Reset();
+	Log::Time::Set([] {
+		return Time;
+	});
 
-	Log::CreateLogger<TestLogger>();
+	Log::Handler::Register<TestLogHandler>();
 
 	constexpr std::array levels = {
 		Log::Level::Error::Level,
@@ -121,7 +118,7 @@ TEST(Log, Level) {
 	};
 
 	for (const auto level : levels) {
-		Log::SetLevel(level);
+		Log::Level::Set(level);
 
 		Log::Error(Message);
 		Log::Warning(Message);
@@ -130,11 +127,11 @@ TEST(Log, Level) {
 
 		std::string expected;
 		for (size_t index = 0; index <= levels.size() - level; index++) {
-			expected += fmt::format("[{}] {}\n", names[index], Message);
+			expected += fmt::format("{} <{}> {}\n", Time, names[index], Message);
 		}
 
-		EXPECT_EQ(TestLoggerBuffer, expected);
-		TestLoggerBuffer = {};
+		EXPECT_EQ(Detail::TestLogHandlerBuffer, expected);
+		Detail::TestLogHandlerBuffer = {};
 	}
 }
 
@@ -149,10 +146,13 @@ TEST(Log, FileOutput) {
 		std::filesystem::remove(file);
 	}
 
-	Log::Reset();
+	Log::Handler::Reset();
+	Log::Time::Set([] {
+		return Time;
+	});
 
-	Log::CreateLogger<Log::FileStreamLogger>(file);
-	Log::SetLevel(Log::Level::Debug::Level);
+	Log::Handler::Register<Log::Handler::FileStream>(file);
+	Log::Level::Set(Log::Level::Debug::Level);
 
 	Log::Debug(Message);
 
@@ -161,7 +161,7 @@ TEST(Log, FileOutput) {
 	const std::stringstream buffer;
 	while (input >> buffer.rdbuf()) {}
 
-	EXPECT_EQ(buffer.str(), fmt::format("[{}] {}\n", Log::Level::Debug::Name, Message));
+	EXPECT_EQ(buffer.str(), fmt::format("{} <{}> {}\n", Time, Log::Level::Debug::Name, Message));
 }
 
 int main(int argc, char* argv[]) {
