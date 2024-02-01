@@ -6,12 +6,15 @@ if(NOT CMAKE_GENERATOR MATCHES "Xcode|Visual Studio")
 endif()
 
 project(
-	ScanMyDisk
+	"Scan My Disk"
 	VERSION 1.0
 	DESCRIPTION "Interactive pie chart visualization of disk space usage."
 	HOMEPAGE_URL "https://github.com/belov-sergei/scan-my-disk"
 	LANGUAGES CXX
 )
+
+set(APPLICATION_NAME "Application")
+set(KERNEL_LIBRARY_NAME "Kernel")
 
 # Set C++ standard and disable extensions.
 set(CMAKE_CXX_STANDARD 17)
@@ -68,33 +71,39 @@ function (my_add_source TARGET_NAME TARGET_SOURCE_PATH)
 	target_sources(${TARGET_NAME} PRIVATE ${TARGET_SOURCE_FILES})
 
 	# Set include directories and precompiled headers.
-	target_include_directories(${TARGET_NAME} PRIVATE ${PROJECT_SOURCE_PATH})
-	target_precompile_headers(${TARGET_NAME} PRIVATE ${PRECOMPILED_HEADERS_PATH})
+	target_include_directories(${TARGET_NAME} PUBLIC ${PROJECT_SOURCE_PATH})
+	target_precompile_headers(${TARGET_NAME} PUBLIC ${PRECOMPILED_HEADERS_PATH})
 
 	# FIXME: Temporary dependency for tests until the main code is moved to a library.
 	target_link_libraries(${TARGET_NAME} fmt)
 endfunction()
 
+# Create the main library.
+add_library(${KERNEL_LIBRARY_NAME} STATIC)
+my_add_source(${KERNEL_LIBRARY_NAME} ${PROJECT_SOURCE_PATH})
+
 # Create the project executable.
 if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
-	add_executable(${PROJECT_NAME} WIN32 "Resource.rc" "${PROJECT_SOURCE_DIR}/Source/Main.cpp")
+	add_executable(${APPLICATION_NAME} WIN32 "Resource.rc" "${PROJECT_SOURCE_DIR}/Source/Main.cpp")
 elseif(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
-	add_executable(${PROJECT_NAME} MACOSX_BUNDLE "${PROJECT_SOURCE_DIR}/Source/Main.cpp")
+	add_executable(${APPLICATION_NAME} MACOSX_BUNDLE "${PROJECT_SOURCE_DIR}/Source/Main.cpp")
 else()
-	add_executable(${PROJECT_NAME})
+	add_executable(${APPLICATION_NAME})
 endif()
 
-my_add_source(${PROJECT_NAME} ${PROJECT_SOURCE_PATH})
+target_link_libraries(${APPLICATION_NAME}
+	${KERNEL_LIBRARY_NAME}
+)
 
 # Configure startup project and debugger working directory.
 if(CMAKE_GENERATOR MATCHES "Visual Studio")
-	set_property(DIRECTORY ${PROJECT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT ${PROJECT_NAME})
-	set_target_properties(${PROJECT_NAME} PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY ${PROJECT_SOURCE_DIR})
+	set_property(DIRECTORY ${PROJECT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT ${APPLICATION_NAME})
+	set_target_properties(${APPLICATION_NAME} PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY ${PROJECT_SOURCE_DIR})
 endif()
 
 if(CMAKE_GENERATOR MATCHES "Xcode")
-	set_target_properties(${PROJECT_NAME} PROPERTIES XCODE_GENERATE_SCHEME TRUE)
-	set_target_properties(${PROJECT_NAME} PROPERTIES XCODE_SCHEME_WORKING_DIRECTORY ${PROJECT_SOURCE_DIR})
+	set_target_properties(${APPLICATION_NAME} PROPERTIES XCODE_GENERATE_SCHEME TRUE)
+	set_target_properties(${APPLICATION_NAME} PROPERTIES XCODE_SCHEME_WORKING_DIRECTORY ${PROJECT_SOURCE_DIR})
 endif()
 
 # Include Google Test.
@@ -128,13 +137,13 @@ set_target_properties(
 	PROPERTIES FOLDER "Third Party"
 )
 
-target_link_libraries(${PROJECT_NAME}
+target_link_libraries(${KERNEL_LIBRARY_NAME}
 	SDL2main
 	SDL2-static
 )
 
 if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
-	target_link_libraries(${PROJECT_NAME}
+	target_link_libraries(${KERNEL_LIBRARY_NAME}
 		gdi32
 		opengl32
 		imm32
@@ -143,12 +152,12 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
 endif()
 
 if(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
-	target_link_libraries(${PROJECT_NAME}
+	target_link_libraries(${KERNEL_LIBRARY_NAME}
 	 	"-framework OpenGL"
 	)
 endif()
 
-target_include_directories(${PROJECT_NAME} PRIVATE ${SDL_PATH}/include)
+target_include_directories(${KERNEL_LIBRARY_NAME} PUBLIC ${SDL_PATH}/include)
 
 # Include IMGUI.
 set(IMGUI_SOURCE_FILES
@@ -181,17 +190,17 @@ set_target_properties(
 	PROPERTIES FOLDER "Third Party"
 )
 
-target_link_libraries(${PROJECT_NAME}
+target_link_libraries(${KERNEL_LIBRARY_NAME}
 	imgui
 )
 
-target_include_directories(${PROJECT_NAME} PRIVATE
+target_include_directories(${KERNEL_LIBRARY_NAME} PUBLIC
 	${IMGUI_PATH}
 	${IMGUI_PATH}/backends
 )
 
 # Include STB.
-target_include_directories(${PROJECT_NAME} PRIVATE ${STB_PATH})
+target_include_directories(${KERNEL_LIBRARY_NAME} PUBLIC ${STB_PATH})
 
 # Include Pugixml.
 add_subdirectory(${PUGIXML_PATH})
@@ -201,7 +210,7 @@ set_target_properties(
 	PROPERTIES FOLDER "Third Party"
 )
 
-target_link_libraries(${PROJECT_NAME}
+target_link_libraries(${KERNEL_LIBRARY_NAME}
 	pugixml-static
 )
 
