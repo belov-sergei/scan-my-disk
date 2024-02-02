@@ -9,16 +9,13 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 
-#if defined(WINDOWS)
-#include <dwmapi.h>
-#endif
-
 #include <Chart.h>
 #include <Filesystem.h>
 #include <imgui_internal.h>
 #include <Localization.h>
 
 #include "Settings.h"
+#include "Window.h"
 
 using SliceDrawData = std::vector<std::tuple<float, float, float, float, const Tree::Node<Filesystem::Entry>*>>;
 
@@ -596,9 +593,9 @@ void Draw() {
 	{
 		ImGui::SetCursorPos({});
 
-		#if defined(WINDOWS)
-		ImGui::GetWindowDrawList()->AddRectFilled({}, {ImGui::GetWindowWidth(), 30}, IM_COL32(43, 45, 48, 255));
-		#endif
+		if (CustomWindowTitleEnabled()) {
+			ImGui::GetWindowDrawList()->AddRectFilled({}, {ImGui::GetWindowWidth(), 30}, IM_COL32(43, 45, 48, 255));
+		}
 
 		ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(18, 9));
 
@@ -610,50 +607,50 @@ void Draw() {
 			ImGui::OpenPopup("File");
 		}
 
-		#if defined(WINDOWS)
-		ImGui::SetCursorPos({ImGui::GetWindowWidth() - 48 * 3, 0});
-		if (ImGui::ImageButton("#Minimize", (void*)icons[Icons::Minimize], {12, 12})) {
-			SDL_MinimizeWindow(window);
-		}
-
-		if (SDL_GetWindowFlags(window) & SDL_WINDOW_MAXIMIZED) {
-			ImGui::SetCursorPos({ImGui::GetWindowWidth() - 48 * 2, 0});
-			if (ImGui::ImageButton("#Restore", (void*)icons[Icons::Restore], {12, 12})) {
-				SDL_RestoreWindow(window);
-			}
-		}
-		else {
-			ImGui::SetCursorPos({ImGui::GetWindowWidth() - 48 * 2, 0});
-			if (ImGui::ImageButton("#Maximize", (void*)icons[Icons::Maximize], {12, 12})) {
-				SDL_MaximizeWindow(window);
-			}
-		}
-
-		{
-			ImGui::PushStyleColor(ImGuiCol_ButtonHovered, IM_COL32(196, 43, 23, 255));
-			ImGui::PushStyleColor(ImGuiCol_ButtonActive, IM_COL32(196, 43, 23, 255));
-
-			ImGui::SetCursorPos({ImGui::GetWindowWidth() - 48, 0});
-			if (ImGui::ImageButton("#Close", (void*)icons[Icons::Close], {12, 12})) {
-				close();
+		if (CustomWindowTitleEnabled()) {
+			ImGui::SetCursorPos({ImGui::GetWindowWidth() - 48 * 3, 0});
+			if (ImGui::ImageButton("#Minimize", (void*)icons[Icons::Minimize], {12, 12})) {
+				SDL_MinimizeWindow(window);
 			}
 
-			ImGui::PopStyleColor(2);
+			if (SDL_GetWindowFlags(window) & SDL_WINDOW_MAXIMIZED) {
+				ImGui::SetCursorPos({ImGui::GetWindowWidth() - 48 * 2, 0});
+				if (ImGui::ImageButton("#Restore", (void*)icons[Icons::Restore], {12, 12})) {
+					SDL_RestoreWindow(window);
+				}
+			}
+			else {
+				ImGui::SetCursorPos({ImGui::GetWindowWidth() - 48 * 2, 0});
+				if (ImGui::ImageButton("#Maximize", (void*)icons[Icons::Maximize], {12, 12})) {
+					SDL_MaximizeWindow(window);
+				}
+			}
+
+			{
+				ImGui::PushStyleColor(ImGuiCol_ButtonHovered, IM_COL32(196, 43, 23, 255));
+				ImGui::PushStyleColor(ImGuiCol_ButtonActive, IM_COL32(196, 43, 23, 255));
+
+				ImGui::SetCursorPos({ImGui::GetWindowWidth() - 48, 0});
+				if (ImGui::ImageButton("#Close", (void*)icons[Icons::Close], {12, 12})) {
+					close();
+				}
+
+				ImGui::PopStyleColor(2);
+			}
 		}
-		#endif
 
 		ImGui::PopStyleColor(3);
 		ImGui::PopStyleVar();
 
-		#if defined(WINDOWS)
-		ImGui::PushStyleColor(ImGuiCol_Text, Settings<Color>::Text);
-		{
-			const auto* windowTitle = "Scan My Disk";
-			ImGui::SetCursorPos({ImGui::GetWindowWidth() / 2 - ImGui::CalcTextSize(windowTitle).x / 2, 15 - ImGui::CalcTextSize(windowTitle).y / 2});
-			ImGui::Text(windowTitle);
+		if (CustomWindowTitleEnabled()) {
+			ImGui::PushStyleColor(ImGuiCol_Text, Settings<Color>::Text);
+			{
+				const auto* windowTitle = "Scan My Disk";
+				ImGui::SetCursorPos({ImGui::GetWindowWidth() / 2 - ImGui::CalcTextSize(windowTitle).x / 2, 15 - ImGui::CalcTextSize(windowTitle).y / 2});
+				ImGui::Text(windowTitle);
+			}
+			ImGui::PopStyleColor();
 		}
-		ImGui::PopStyleColor();
-		#endif
 	}
 
 	ImGui::SetCursorPos({0, 50});
@@ -740,22 +737,6 @@ void LocalizationInitialization() {
 	Localization::Language(Settings<User>::Language);
 }
 
-#if defined(WINDOWS)
-WNDPROC SDLWndProc;
-
-LRESULT CALLBACK MyWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
-	switch (msg) {
-		case WM_NCCALCSIZE:
-			if (wParam == TRUE) {
-				return 0;
-			}
-			break;
-	}
-
-	return CallWindowProc(SDLWndProc, hwnd, msg, wParam, lParam);
-}
-#endif
-
 int main(int argc, char* argv[]) {
 	if (!std::filesystem::exists("README.md")) {
 		std::filesystem::current_path(SDL_GetBasePath());
@@ -770,13 +751,7 @@ int main(int argc, char* argv[]) {
 	window = SDL_CreateWindow("Scan My Disk", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, w, h, SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE);
 	auto* context = SDL_GL_CreateContext(window);
 
-	#if defined(WINDOWS)
-	MARGINS margins = {-1};
-	DwmExtendFrameIntoClientArea(GetActiveWindow(), &margins);
-
-	SDLWndProc = (WNDPROC)SetWindowLongPtr(GetActiveWindow(), GWLP_WNDPROC, (LONG_PTR)MyWndProc);
-	SetWindowPos(GetActiveWindow(), NULL, 0, 0, w, h, SWP_FRAMECHANGED | SWP_NOMOVE);
-	#endif
+	SetWindowProc(w, h);
 
 	SDL_AddEventWatch([](void* data, SDL_Event* event) {
 			if (event->type == SDL_WINDOWEVENT) {
@@ -791,30 +766,30 @@ int main(int argc, char* argv[]) {
 		},
 		window);
 
-	#if defined(WINDOWS)
-	SDL_SetWindowHitTest(
-		window,
-		[](auto* window, const auto* area, auto*) {
-			int w, h;
-			SDL_GetWindowSize(window, &w, &h);
+	if (CustomWindowTitleEnabled()) {
+		SDL_SetWindowHitTest(
+			window,
+			[](auto* window, const auto* area, auto*) {
+				int w, h;
+				SDL_GetWindowSize(window, &w, &h);
 
-			SDL_Rect draggable;
-			draggable.x = 48;
-			draggable.y = 0;
-			draggable.w = w - 48 * 4;
-			draggable.h = 30;
+				SDL_Rect draggable;
+				draggable.x = 48;
+				draggable.y = 0;
+				draggable.w = w - 48 * 4;
+				draggable.h = 30;
 
-			if (SDL_PointInRect(area, &draggable) == SDL_TRUE) {
-				return SDL_HITTEST_DRAGGABLE;
-			}
-			else if (area->x > w - 10 && area->y > h - 10) {
-				return SDL_HITTEST_RESIZE_BOTTOMRIGHT;
-			}
+				if (SDL_PointInRect(area, &draggable) == SDL_TRUE) {
+					return SDL_HITTEST_DRAGGABLE;
+				}
+				else if (area->x > w - 10 && area->y > h - 10) {
+					return SDL_HITTEST_RESIZE_BOTTOMRIGHT;
+				}
 
-			return SDL_HITTEST_NORMAL;
-		},
-		nullptr);
-	#endif
+				return SDL_HITTEST_NORMAL;
+			},
+			nullptr);
+	}
 
 	ImGui::CreateContext();
 

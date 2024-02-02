@@ -3,19 +3,8 @@
 #include <Filesystem.h>
 #include "fmt/xchar.h"
 
-#if defined(WINDOWS)
-	#include <Windows.h>
-	#include <shlobj_core.h>
-#endif
-
-#if defined(MACOS)
-	#include <dirent.h>
-	#include <sys/param.h>
-	#include <sys/mount.h>
-#endif
-
 namespace Filesystem {
-	namespace Details {
+	namespace Detail {
 		// Calculate the size of directories based on the size of their contents.
 		void CalculateDirectorySizes(Tree::Node<Entry>& rootNode) {
 			using NodeType = std::remove_reference_t<decltype(rootNode)>;
@@ -51,84 +40,10 @@ namespace Filesystem {
 		}
 
 		bool CancelFlag = false;
-	} // namespace Details
-
-	std::vector<std::string> GetLogicalDrives() {
-		std::vector<std::string> logicalDrives;
-
-#if defined(WINDOWS)
-		DWORD availableDrivesBitmask = ::GetLogicalDrives();
-		for (auto driveLetter = 'A'; driveLetter <= 'Z'; driveLetter++) {
-			if (availableDrivesBitmask & 1) {
-				logicalDrives.emplace_back(fmt::format("{}:\\", driveLetter));
-			}
-
-			availableDrivesBitmask >>= 1;
-		}
-#else
-		DIR* volumes = opendir("/Volumes");
-		dirent* entry;
-
-		while ((entry = readdir(volumes)) != nullptr) {
-			if (entry->d_name[0] == '.') {
-				continue;
-			}
-
-			logicalDrives.emplace_back(entry->d_name);
-		}
-
-		closedir(volumes);
-#endif
-
-		return logicalDrives;
-	}
-
-	std::pair<size_t, size_t> GetDriveSpace(std::string_view driveLetter) {
-#if defined(WINDOWS)
-		ULARGE_INTEGER bytesTotal, bytesFree;
-		::GetDiskFreeSpaceEx(driveLetter.data(), nullptr, &bytesTotal, &bytesFree);
-
-		return std::make_pair(bytesTotal.QuadPart, bytesFree.QuadPart);
-#else
-		struct statfs stats;
-		size_t totalBytes = 0;
-		size_t freeBytes = 0;
-
-		if (statfs(("/Volumes/" + std::string(driveLetter)).c_str(), &stats) == 0) {
-			totalBytes = stats.f_blocks * stats.f_bsize;
-			freeBytes = stats.f_bfree * stats.f_bsize;
-		}
-
-		return std::make_pair(totalBytes, freeBytes);
-#endif
-	}
-
-	void OpenPath(const std::filesystem::path& value) {
-#if defined(WINDOWS)
-		const std::wstring string = fmt::format(L"\"{}\"", value.c_str());
-		ShellExecuteW(nullptr, nullptr, string.c_str(), nullptr, nullptr, SW_NORMAL);
-#endif
-
-#if defined(MACOS)
-		system(fmt::format("open \"{}\"", path).c_str());
-#endif
-	}
-
-	std::string GetLocalSettingsPath() {
-#if defined(WINDOWS)
-		char path[MAX_PATH];
-		SHGetFolderPath(NULL, CSIDL_LOCAL_APPDATA, NULL, SHGFP_TYPE_CURRENT, path);
-
-		return fmt::format("{}\\Scan My Disk\\Settings.xml", path);
-#endif
-
-#if defined(MACOS)
-		return fmt::format("{}/{}", getenv("HOME"), "Library/Application Support/Scan My Disk/Settings.xml");
-#endif
 	}
 
 	Tree::Node<Entry> BuildTree(const std::filesystem::path& path, std::atomic<size_t>& progress) {
-		Details::CancelFlag = false;
+		Detail::CancelFlag = false;
 
 		Tree::Node<Entry> root = {0, 0, path};
 
@@ -136,7 +51,7 @@ namespace Filesystem {
 		pending.emplace(&root);
 
 		std::error_code error;
-		while (!pending.empty() && !Details::CancelFlag) {
+		while (!pending.empty() && !Detail::CancelFlag) {
 			auto& node = *pending.top();
 			pending.pop();
 
@@ -147,7 +62,7 @@ namespace Filesystem {
 			size_t total = 0;
 			while (iterator != end) {
 				if (!error) {
-					if (iterator->is_symlink(error) || error) {
+					if (IsSymlink(iterator, error) || error) {
 						iterator.increment(error);
 						continue;
 					}
@@ -169,31 +84,16 @@ namespace Filesystem {
 			progress += total;
 		}
 
-		Details::CalculateDirectorySizes(root);
+		Detail::CalculateDirectorySizes(root);
 
 		return root;
 	}
 
 	Tree::Node<Entry> ParallelBuildTree(const std::filesystem::path& path, std::atomic<size_t>& progress) {
-		Details::CancelFlag = false;
+		Detail::CancelFlag = false;
 
 		Tree::Node<Entry> root = {0, 0, path};
-
-#if defined(MACOS)
-		std::unordered_set<std::filesystem::path::string_type> links;
-
-		std::ifstream stream("/usr/share/firmlinks");
-		if (stream.is_open()) {
-			std::string line;
-			while (std::getline(stream, line)) {
-				if (const size_t delimiter = line.find('\t'); delimiter != std::string::npos) {
-					std::filesystem::path::string_type value = {line.begin(), line.begin() + delimiter};
-					links.emplace(path.native() + value);
-				}
-			}
-		}
-#endif
-
+		
 		// Shared stack of tasks for all threads to work on.
 		std::stack<Tree::Node<Entry>*> pending;
 		pending.emplace(&root);
@@ -235,7 +135,7 @@ namespace Filesystem {
 				}
 
 				// Process each job until the local stack is empty or cancellation is signaled.
-				while (!jobs.empty() && !Details::CancelFlag) {
+				while (!jobs.empty() && !Detail::CancelFlag) {
 					auto& node = *jobs.top();
 					jobs.pop();
 
@@ -246,13 +146,7 @@ namespace Filesystem {
 					size_t total = 0;
 					while (iterator != end) {
 						if (!error) {
-#if defined(MACOS)
-							if (links.count(iterator->path().native())) {
-								iterator.increment(error);
-								continue;
-							}
-#endif
-							if (iterator->is_symlink(error) || error) {
+							if (IsSymlink(iterator, error) || error) {
 								iterator.increment(error);
 								continue;
 							}
@@ -317,12 +211,12 @@ namespace Filesystem {
 			thread.join();
 		}
 
-		Details::CalculateDirectorySizes(root);
+		Detail::CalculateDirectorySizes(root);
 
 		return root;
 	}
 
 	void CancelBuildTree() {
-		Details::CancelFlag = true;
+		Detail::CancelFlag = true;
 	}
-} // namespace Filesystem
+}

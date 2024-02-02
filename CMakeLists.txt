@@ -34,13 +34,6 @@ set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 # Set the folder name for predefined targets such as ALL_BUILD, ZERO_CHECK, etc.
 set_property(GLOBAL PROPERTY PREDEFINED_TARGETS_FOLDER "Build")
 
-# Check the platform and add global compile definitions.
-if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
-	add_compile_definitions("WINDOWS")
-elseif(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
-	add_compile_definitions("MACOS")
-endif()
-
 # Set the MSVC runtime library globally.
 if(MSVC)
 	set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
@@ -48,6 +41,7 @@ endif()
 
 # Define key paths for the project structure.
 set(PROJECT_SOURCE_PATH "${PROJECT_SOURCE_DIR}/Source/Library")
+set(PROJECT_PLATFORMS_PATH "${PROJECT_SOURCE_DIR}/Source/Platforms")
 set(TEST_PROJECTS_PATH "${PROJECT_SOURCE_DIR}/Tests")
 set(PRECOMPILED_HEADERS_PATH "${PROJECT_SOURCE_PATH}/PrecompiledHeaders.h")
 
@@ -78,6 +72,7 @@ endfunction()
 # Create the main library.
 add_library(${KERNEL_LIBRARY_NAME} STATIC)
 my_add_source(${KERNEL_LIBRARY_NAME} ${PROJECT_SOURCE_PATH})
+my_add_source(${KERNEL_LIBRARY_NAME} "${PROJECT_PLATFORMS_PATH}/${CMAKE_SYSTEM_NAME}")
 
 # Create the project executable.
 if(CMAKE_SYSTEM_NAME STREQUAL "Windows")

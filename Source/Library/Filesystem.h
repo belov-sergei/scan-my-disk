@@ -24,6 +24,8 @@ namespace Filesystem {
 	std::vector<std::string> GetLogicalDrives();
 	std::pair<size_t, size_t> GetDriveSpace(std::string_view driveLetter);
 
+	bool IsSymlink(const std::filesystem::directory_iterator& iterator, std::error_code& error);
+	
 	std::string GetLocalSettingsPath();
 
 	Tree::Node<Entry> BuildTree(const std::filesystem::path& path, std::atomic<size_t>& progress);

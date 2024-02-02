@@ -2,10 +2,6 @@
 
 #include "Handler.h"
 
-#if defined(WINDOWS)
-#include <Windows.h>
-#endif
-
 namespace Log::Handler {
 	namespace Detail {
 		std::vector<std::function<void(std::string_view)>> Handlers;
@@ -17,12 +13,6 @@ namespace Log::Handler {
 
 	void Reset() {
 		Detail::Handlers = {};
-	}
-
-	void WindowsDebugOutput::operator()(std::string_view value) const {
-		#if defined(WINDOWS)
-		OutputDebugString(value.data());
-		#endif
 	}
 
 	void OutputStream::operator()(std::string_view value) const {
