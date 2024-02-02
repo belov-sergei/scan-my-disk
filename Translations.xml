@@ -7,6 +7,8 @@
 		<Text Id="ChartState_Path_Text" Value="Path: {}" />
 		<Text Id="ChartState_Size_Text" Value="Size: {}" />
 		<Text Id="ChartState_Explore_Button" Value="Browse" />
+		<Text Id="ChartState_Open_Button" Value="Open" />
+		<Text Id="ChartState_Back_Button" Value="Back" />
 		<Text Id="Menu_Language_Button" Value="Language" />
 		<Text Id="Menu_Exit_Button" Value="Exit" />
 
@@ -29,6 +31,8 @@
 		<Text Id="ChartState_Path_Text" Value="Chemin : {}" />
 		<Text Id="ChartState_Size_Text" Value="Taille : {}" />
 		<Text Id="ChartState_Explore_Button" Value="Explorer" />
+		<Text Id="ChartState_Open_Button" Value="Ouvrir" />
+		<Text Id="ChartState_Back_Button" Value="Retour" />
 		<Text Id="Menu_Language_Button" Value="Langue" />
 		<Text Id="Menu_Exit_Button" Value="Quitter" />
 	</French>
@@ -39,6 +43,8 @@
 		<Text Id="ChartState_Path_Text" Value="Ruta: {}" />
 		<Text Id="ChartState_Size_Text" Value="Tamaño: {}" />
 		<Text Id="ChartState_Explore_Button" Value="Explorar" />
+		<Text Id="ChartState_Open_Button" Value="Abrir" />
+		<Text Id="ChartState_Back_Button" Value="Atrás" />
 		<Text Id="Menu_Language_Button" Value="Idioma" />
 		<Text Id="Menu_Exit_Button" Value="Salir" />
 	</Spanish>
@@ -49,6 +55,8 @@
 		<Text Id="ChartState_Path_Text" Value="路径：{}" />
 		<Text Id="ChartState_Size_Text" Value="大小：{}" />
 		<Text Id="ChartState_Explore_Button" Value="浏览" />
+		<Text Id="ChartState_Open_Button" Value="打开" />
+		<Text Id="ChartState_Back_Button" Value="返回" />
 		<Text Id="Menu_Language_Button" Value="语言" />
 		<Text Id="Menu_Exit_Button" Value="退出" />
 	</SimplifiedChinese>
@@ -59,6 +67,8 @@
 		<Text Id="ChartState_Path_Text" Value="Путь: {}" />
 		<Text Id="ChartState_Size_Text" Value="Размер: {}" />
 		<Text Id="ChartState_Explore_Button" Value="Обзор" />
+		<Text Id="ChartState_Open_Button" Value="Открыть" />
+		<Text Id="ChartState_Back_Button" Value="Назад" />
 		<Text Id="Menu_Language_Button" Value="Язык" />
 		<Text Id="Menu_Exit_Button" Value="Выход" />
 	</Russian>
@@ -69,6 +79,8 @@
 		<Text Id="ChartState_Path_Text" Value="Pfad: {}" />
 		<Text Id="ChartState_Size_Text" Value="Größe: {}" />
 		<Text Id="ChartState_Explore_Button" Value="Erkunden" />
+		<Text Id="ChartState_Open_Button" Value="Öffnen" />
+		<Text Id="ChartState_Back_Button" Value="Zurück" />
 		<Text Id="Menu_Language_Button" Value="Sprache" />
 		<Text Id="Menu_Exit_Button" Value="Beenden" />
 	</German>
@@ -79,6 +91,8 @@
 		<Text Id="ChartState_Path_Text" Value="Caminho: {}" />
 		<Text Id="ChartState_Size_Text" Value="Tamanho: {}" />
 		<Text Id="ChartState_Explore_Button" Value="Explorar" />
+		<Text Id="ChartState_Open_Button" Value="Abrir" />
+		<Text Id="ChartState_Back_Button" Value="Voltar" />
 		<Text Id="Menu_Language_Button" Value="Idioma" />
 		<Text Id="Menu_Exit_Button" Value="Sair" />
 	</Portuguese>
@@ -89,6 +103,8 @@
 		<Text Id="ChartState_Path_Text" Value="パス：{}" />
 		<Text Id="ChartState_Size_Text" Value="サイズ：{}" />
 		<Text Id="ChartState_Explore_Button" Value="探索" />
+		<Text Id="ChartState_Open_Button" Value="開く" />
+		<Text Id="ChartState_Back_Button" Value="戻る" />
 		<Text Id="Menu_Language_Button" Value="言語" />
 		<Text Id="Menu_Exit_Button" Value="終了" />
 	</Japanese>
@@ -99,6 +115,8 @@
 		<Text Id="ChartState_Path_Text" Value="경로: {}" />
 		<Text Id="ChartState_Size_Text" Value="크기: {}" />
 		<Text Id="ChartState_Explore_Button" Value="탐색" />
+		<Text Id="ChartState_Open_Button" Value="열기" />
+		<Text Id="ChartState_Back_Button" Value="뒤로" />
 		<Text Id="Menu_Language_Button" Value="언어" />
 		<Text Id="Menu_Exit_Button" Value="종료" />
 	</Korean>
@@ -109,6 +127,8 @@
 		<Text Id="ChartState_Path_Text" Value="Percorso: {}" />
 		<Text Id="ChartState_Size_Text" Value="Dimensione: {}" />
 		<Text Id="ChartState_Explore_Button" Value="Esplora" />
+		<Text Id="ChartState_Open_Button" Value="Apri" />
+		<Text Id="ChartState_Back_Button" Value="Indietro" />
 		<Text Id="Menu_Language_Button" Value="Lingua" />
 		<Text Id="Menu_Exit_Button" Value="Esci" />
 	</Italian>
@@ -119,6 +139,8 @@
 		<Text Id="ChartState_Path_Text" Value="Pad: {}" />
 		<Text Id="ChartState_Size_Text" Value="Grootte: {}" />
 		<Text Id="ChartState_Explore_Button" Value="Verkennen" />
+		<Text Id="ChartState_Open_Button" Value="Openen" />
+		<Text Id="ChartState_Back_Button" Value="Terug" />
 		<Text Id="Menu_Language_Button" Value="Taal" />
 		<Text Id="Menu_Exit_Button" Value="Afsluiten" />
 	</Dutch>
