@@ -73,9 +73,6 @@ function (my_add_source TARGET_NAME TARGET_SOURCE_PATH)
 	# Set include directories and precompiled headers.
 	target_include_directories(${TARGET_NAME} PUBLIC ${PROJECT_SOURCE_PATH})
 	target_precompile_headers(${TARGET_NAME} PUBLIC ${PRECOMPILED_HEADERS_PATH})
-
-	# FIXME: Temporary dependency for tests until the main code is moved to a library.
-	target_link_libraries(${TARGET_NAME} fmt)
 endfunction()
 
 # Create the main library.
@@ -200,7 +197,9 @@ target_include_directories(${KERNEL_LIBRARY_NAME} PUBLIC
 )
 
 # Include STB.
-target_include_directories(${KERNEL_LIBRARY_NAME} PUBLIC ${STB_PATH})
+target_include_directories(${KERNEL_LIBRARY_NAME} PUBLIC 
+	${STB_PATH}
+)
 
 # Include Pugixml.
 add_subdirectory(${PUGIXML_PATH})
@@ -220,6 +219,10 @@ add_subdirectory(${FMT_PATH})
 set_target_properties(
 	fmt
 	PROPERTIES FOLDER "Third Party"
+)
+
+target_link_libraries(${KERNEL_LIBRARY_NAME}
+	fmt
 )
 
 # Adds existing test projects. To create a new test project, make a copy of the Tests/Sample project.
