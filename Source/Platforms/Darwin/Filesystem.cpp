@@ -9,7 +9,7 @@
 
 namespace Filesystem {
 	namespace Detail {
-		std::unordered_set<std::filesystem::path::string_type> Firmlinks= [](){
+		std::unordered_set<std::filesystem::path::string_type> Firmlinks = [](){
 			std::unordered_set<std::filesystem::path::string_type> links;
 
 			std::ifstream stream("/usr/share/firmlinks");
@@ -18,13 +18,13 @@ namespace Filesystem {
 				while (std::getline(stream, line)) {
 					if (const size_t delimiter = line.find('\t'); delimiter != std::string::npos) {
 						std::filesystem::path::string_type value = {line.begin(), line.begin() + delimiter};
-						links.emplace(path.native() + value);
+						links.emplace(value);
 					}
 				}
 			}
 
 			return links;
-		}}();
+		}();
 	}
 
 	std::vector<std::string> GetLogicalDrives() {
@@ -60,30 +60,15 @@ namespace Filesystem {
 	}
 
 	void OpenPath(const std::filesystem::path& value) {
-		system(fmt::format("open \"{}\"", path).c_str());
+		system(fmt::format("open \"{}\"", value.native()).c_str());
 	}
 
 	std::string GetLocalSettingsPath() {
 		return fmt::format("{}/{}", getenv("HOME"), "Library/Application Support/Scan My Disk/Settings.xml");
 	}
 
-	bool IsSymlink(const std::filesystem::directory_iterator& iterator) {
+	bool IsSymlink(const std::filesystem::directory_iterator& iterator, std::error_code& error) {
 		auto& links = Detail::Firmlinks;
 		return iterator->is_symlink(error) || links.count(iterator->path().native());
-	}
-
-	std::unordered_set<std::filesystem::path::string_type> GetFirmlinks() {
-		std::unordered_set<std::filesystem::path::string_type> links;
-
-		std::ifstream stream("/usr/share/firmlinks");
-		if (stream.is_open()) {
-			std::string line;
-			while (std::getline(stream, line)) {
-				if (const size_t delimiter = line.find('\t'); delimiter != std::string::npos) {
-					std::filesystem::path::string_type value = {line.begin(), line.begin() + delimiter};
-					links.emplace(path.native() + value);
-				}
-			}
-		}
 	}
 }

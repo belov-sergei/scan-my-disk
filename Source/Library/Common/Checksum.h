@@ -3,10 +3,7 @@
 #pragma once
 
 namespace Common {
-	struct Crc32Kernel final {
-		constexpr Crc32Kernel() noexcept
-			: Crc32Kernel(std::make_index_sequence<8>()) {}
-
+	class Crc32Kernel final {
 		template <auto ... Index>
 		constexpr Crc32Kernel(std::index_sequence<Index...>) noexcept {
 			for (auto& value : _table) {
@@ -14,6 +11,10 @@ namespace Common {
 				((std::ignore = Index, value = value & 1 ? value >> 1 ^ 0xedb88320 : value >> 1), ...);
 			}
 		}
+
+	public:
+		constexpr Crc32Kernel() noexcept
+			: Crc32Kernel(std::make_index_sequence<8>()) {}
 
 		constexpr uint32_t operator()(std::string_view string) const {
 			uint32_t result = ~0;
