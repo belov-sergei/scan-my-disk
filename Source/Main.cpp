@@ -270,6 +270,8 @@ std::stack<const Tree::Node<Filesystem::Entry>*> history;
 std::filesystem::path path;
 std::string size;
 
+std::vector<Filesystem::VolumeData> volumes;
+
 void StartedState() {
 	ImGui::PushStyleColor(ImGuiCol_Text, Settings<Color>::Text);
 
@@ -283,12 +285,9 @@ void StartedState() {
 
 	float buttonWidth = 165.0f;
 
-	const auto drives = Filesystem::GetLogicalDrives();
-	for (const auto& drive : drives) {
-		const auto [bytesTotal, bytesFree] = Filesystem::GetDriveSpace(drive);
-
-		const auto bytesFreeText = BytesToString(bytesFree);
-		const auto bytesTotalText = BytesToString(bytesTotal);
+	for (const auto& volume : volumes) {
+		const auto bytesFreeText = BytesToString(volume.bytesFree);
+		const auto bytesTotalText = BytesToString(volume.bytesTotal);
 
 		const auto textSize = ImGui::CalcTextSize(fmt::vformat((std::string_view)Localization::Text("StartedState_FreeSpace_Text"), fmt::make_format_args(bytesFreeText, bytesTotalText)).c_str());
 		buttonWidth = std::max(buttonWidth, textSize.x + 3.0f);
@@ -297,29 +296,27 @@ void StartedState() {
 	int buttonsInRow = 0;
 
 	ImGui::NewLine();
-	for (const auto& drive : drives) {
-		const auto [bytesTotal, bytesFree] = Filesystem::GetDriveSpace(drive);
-
+	for (const auto& volume : volumes) {
 		ImGui::BeginGroup();
 		{
-			ImGui::Text(drive.c_str());
+			if (volume.name.empty()) {
+				ImGui::Text(volume.rootPath.c_str());
+			}
+			else {
+				ImGui::Text(volume.name.c_str());
+			}
 
-			const float scale = 1.0f - bytesFree / (float)bytesTotal;
+			const float scale = 1.0f - volume.bytesFree / (float)volume.bytesTotal;
 
 			const auto [x, y] = ImGui::GetCursorPos();
 
 			if (ImRect(x - 5, y - 25, x + buttonWidth, y + 35).Contains(ImGui::GetMousePos())) {
 				if (ImGui::IsMouseClicked(ImGuiMouseButton_Left)) {
-					space = Filesystem::GetDriveSpace(drive);
-
+					space = std::make_pair(volume.bytesTotal, volume.bytesFree);
+					
 					progress = 0;
-					future = std::async(std::launch::async, [drive] {
-						return Filesystem::ParallelBuildTree(
-							#if defined(MACOS)
-							"/Volumes/" + 
-							#endif
-							drive, progress
-							);
+					future = std::async(std::launch::async, [volume] {
+						return Filesystem::ParallelBuildTree(volume.rootPath, progress);
 					});
 
 					state = State::Loading;
@@ -333,8 +330,8 @@ void StartedState() {
 			ImGui::GetWindowDrawList()->AddRectFilled({x, y}, {x + (buttonWidth - 5.0f), y + 8}, IM_COL32(190, 190, 190, 127));
 			ImGui::GetWindowDrawList()->AddRectFilled({x, y}, {x + (buttonWidth - 5.0f) * scale, y + 8}, IM_COL32(190, 190, 190, 255));
 
-			const auto bytesFreeText = BytesToString(bytesFree);
-			const auto bytesTotalText = BytesToString(bytesTotal);
+			const auto bytesFreeText = BytesToString(volume.bytesFree);
+			const auto bytesTotalText = BytesToString(volume.bytesTotal);
 			ImGui::Text("%s", fmt::vformat((std::string_view)Localization::Text("StartedState_FreeSpace_Text"), fmt::make_format_args(bytesFreeText, bytesTotalText)).c_str());
 		}
 		ImGui::EndGroup();
@@ -513,7 +510,7 @@ void ChartState() {
 		ImGui::SameLine(18.0f);
 
 		if (ImGui::MenuItem(Localization::Text("ChartState_Explore_Button"))) {
-			Filesystem::OpenPath(path);
+			Filesystem::OpenSystemPath(path);
 		}
 
 		ImGui::EndPopup();
@@ -816,6 +813,8 @@ int main(int argc, char* argv[]) {
 	LoadTexture("Icons/Shadow.png", icons[Icons::Shadow]);
 	LoadTexture("Icons/Back.png", icons[Icons::Back]);
 	LoadTexture("Icons/Folder.png", icons[Icons::Folder]);
+
+	volumes = Filesystem::GetVolumesData();
 
 	bool exit = false;
 	while (!exit) {

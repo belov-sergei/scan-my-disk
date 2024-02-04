@@ -7,38 +7,126 @@
 #include <shlobj_core.h>
 
 namespace Filesystem {
-	std::vector<std::string> GetLogicalDrives() {
-		std::vector<std::string> logicalDrives;
+	namespace Detail {
+		// Converts a multi-byte string to a wide character string.
+		std::wstring MultiByteToWideChar(std::string_view value) {
+			const int bufferSize = ::MultiByteToWideChar(CP_UTF8, 0, value.data(),
+				static_cast<int>(value.size()),
+				nullptr,
+				0
+			);
+
+			std::wstring result(bufferSize, 0);
+
+			::MultiByteToWideChar(CP_UTF8, 0, value.data(),
+				static_cast<int>(value.size()),
+				result.data(),
+				static_cast<int>(result.size())
+			);
+
+			return result;
+		}
+
+		// Converts a wide character string to a multibyte string using UTF-8 encoding.
+		std::string WideCharToMultiByte(std::wstring_view value) {
+			const int bufferSize = ::WideCharToMultiByte(CP_UTF8, 0, value.data(),
+				static_cast<int>(value.size()),
+				nullptr,
+				0,
+				nullptr,
+				nullptr
+			);
+
+			std::string result(bufferSize, 0);
+
+			::WideCharToMultiByte(CP_UTF8, 0, value.data(),
+				static_cast<int>(value.size()),
+				result.data(),
+				static_cast<int>(result.size()),
+				nullptr,
+				nullptr
+			);
+
+			return result;
+		}
+
+		// Retrieves the name of a volume based on the specified volume path.
+		std::string GetVolumeName(std::string_view volume) {
+			const std::wstring rootPath = MultiByteToWideChar(volume);
+
+			WCHAR buffer[MAX_PATH + 1];
+			::GetVolumeInformationW(rootPath.c_str(), buffer, MAX_PATH + 1,
+				nullptr,\
+				nullptr,
+				nullptr,
+				nullptr, 0);
+
+			return WideCharToMultiByte(buffer);
+		}
+
+		// Retrieves the total and free capacity of a given volume.
+		std::tuple<std::size_t, std::size_t> GetVolumeCapacity(std::string_view volume) {
+			const std::wstring rootPath = MultiByteToWideChar(volume);
+
+			ULARGE_INTEGER bytesTotal, bytesFree;
+			::GetDiskFreeSpaceExW(rootPath.data(), nullptr, &bytesTotal, &bytesFree);
+
+			return {bytesTotal.QuadPart, bytesFree.QuadPart};
+		}
+
+		// Creates a VolumeData object for the specified drive letter.
+		VolumeData MakeVolumeData(char driveLetter) {
+			VolumeData result;
+			result.rootPath = fmt::format("{}:\\", driveLetter);
+			result.name = GetVolumeName(result.rootPath);
+
+			const auto& [bytesTotal, bytesFree] = GetVolumeCapacity(result.rootPath);
+			result.bytesTotal = bytesTotal;
+			result.bytesFree = bytesFree;
+
+			return result;
+		}
+	}
+
+	// Retrieves information about the available volumes on the system.
+	std::vector<VolumeData> GetVolumesData() {
+		std::vector<VolumeData> result;
 
 		DWORD availableDrivesBitmask = ::GetLogicalDrives();
-		for (auto driveLetter = 'A'; driveLetter <= 'Z'; driveLetter++) {
+		for (char driveLetter = 'A'; driveLetter <= 'Z'; driveLetter++) {
 			if (availableDrivesBitmask & 1) {
-				logicalDrives.emplace_back(fmt::format("{}:\\", driveLetter));
+				result.emplace_back(
+					Detail::MakeVolumeData(driveLetter)
+				);
 			}
 
 			availableDrivesBitmask >>= 1;
 		}
 
-		return logicalDrives;
+		return result;
 	}
 
-	std::pair<size_t, size_t> GetDriveSpace(std::string_view driveLetter) {
-		ULARGE_INTEGER bytesTotal, bytesFree;
-		::GetDiskFreeSpaceEx(driveLetter.data(), nullptr, &bytesTotal, &bytesFree);
-
-		return std::make_pair(bytesTotal.QuadPart, bytesFree.QuadPart);
+	// Opens the system path specified by the given value.
+	void OpenSystemPath(const std::filesystem::path& value) {
+		const std::wstring& nativeFormat = value.native();
+		
+		ShellExecuteW(nullptr, nullptr,
+			fmt::format(L"\"{}\"", nativeFormat).c_str(),
+			nullptr,
+			nullptr,
+			SW_NORMAL
+		);
 	}
 
-	void OpenPath(const std::filesystem::path& value) {
-		const std::wstring string = fmt::format(L"\"{}\"", value.c_str());
-		ShellExecuteW(nullptr, nullptr, string.c_str(), nullptr, nullptr, SW_NORMAL);
-	}
+	// Retrieves the local settings path.
+	std::string GetLocalSettingsPath() { 
+		WCHAR pathBuffer[MAX_PATH + 1];
+		SHGetFolderPathW(nullptr, CSIDL_LOCAL_APPDATA, nullptr, SHGFP_TYPE_CURRENT, pathBuffer);
 
-	std::string GetLocalSettingsPath() {
-		char path[MAX_PATH];
-		SHGetFolderPath(NULL, CSIDL_LOCAL_APPDATA, NULL, SHGFP_TYPE_CURRENT, path);
-
-		return fmt::format("{}\\Scan My Disk\\Settings.xml", path);
+		std::wstring result(pathBuffer);
+		result += L"\\Scan My Disk\\Settings.xml";
+		
+		return Detail::WideCharToMultiByte(result);
 	}
 
 	bool IsSymlink(const std::filesystem::directory_iterator& iterator, std::error_code& error) {

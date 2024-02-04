@@ -18,11 +18,18 @@ namespace Filesystem {
 		std::filesystem::path path;
 	};
 
-	// Opens a file or URL in the default application based on the operating system.
-	void OpenPath(const std::filesystem::path& value);
+	// Represents information about a volume containing filesystem data.
+	struct VolumeData {
+		std::string name;
+		std::string rootPath;
+		size_t bytesTotal;
+		size_t bytesFree;
+	};
 
-	std::vector<std::string> GetLogicalDrives();
-	std::pair<size_t, size_t> GetDriveSpace(std::string_view driveLetter);
+	std::vector<VolumeData> GetVolumesData();
+
+	// Opens a file or URL in the default application based on the operating system.
+	void OpenSystemPath(const std::filesystem::path& value);
 
 	bool IsSymlink(const std::filesystem::directory_iterator& iterator, std::error_code& error);
 	
