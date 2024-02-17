@@ -1,7 +1,7 @@
 // Copyright ❤️ 2023-2024, Sergei Belov
 
 #include <Filesystem.h>
-#include "fmt/xchar.h"
+#include "Parallel.h"
 
 namespace Filesystem {
 	namespace Detail {
@@ -47,41 +47,23 @@ namespace Filesystem {
 
 		Tree::Node<Entry> root = {0, 0, path};
 
-		std::stack<decltype(&root)> pending;
-		pending.emplace(&root);
+		std::queue<NodeWrapper> pending;
+		pending.emplace(root);
 
-		std::error_code error;
 		while (!pending.empty() && !Detail::CancelFlag) {
-			auto& node = *pending.top();
+			NodeWrapper node = pending.front();
 			pending.pop();
 
-			auto iterator = std::filesystem::directory_iterator(node->path, error);
-			const auto end = std::filesystem::end(iterator);
+			std::queue<NodeWrapper> queue = EnumerateDirectory(node, progress);
 
-			const auto depth = node->depth + 1;
-			size_t total = 0;
-			while (iterator != end) {
-				if (!error) {
-					if (IsSymlink(iterator, error) || error) {
-						iterator.increment(error);
-						continue;
-					}
-
-					auto& child = node.emplace(0, depth, iterator->path());
-
-					if (iterator->is_directory(error) && !error) {
-						pending.emplace(&child);
-					}
-					else if (iterator->file_size(error) && !error) {
-						child->size = iterator->file_size(error);
-						total += child->size;
-					}
-				}
-
-				iterator.increment(error);
+			if (queue.size() > pending.size()) {
+				std::swap(queue, pending);
 			}
 
-			progress += total;
+			while (!queue.empty()) {
+				pending.emplace(queue.front());
+				queue.pop();
+			}
 		}
 
 		Detail::CalculateDirectorySizes(root);
@@ -93,123 +75,7 @@ namespace Filesystem {
 		Detail::CancelFlag = false;
 
 		Tree::Node<Entry> root = {0, 0, path};
-		
-		// Shared stack of tasks for all threads to work on.
-		std::stack<Tree::Node<Entry>*> pending;
-		pending.emplace(&root);
-
-		// Mutex and condition variable for thread synchronization.
-		std::mutex mutex;
-		std::condition_variable condition;
-
-		// Active worker thread count.
-		size_t workers = 0;
-
-		// Worker lambda function to process tasks.
-		const auto worker = [&] {
-			// For capturing filesystem errors.
-			std::error_code error;
-
-			// Local stack of tasks for this thread.
-			std::stack<Tree::Node<Entry>*> jobs;
-
-			while (true) {
-				{
-					std::unique_lock lock(mutex);
-
-					// Wait until there are tasks available or all work is done.
-					condition.wait(lock, [&] {
-						return !pending.empty() || workers == 0;
-					});
-
-					// Exit loop if no tasks are pending and all workers are idle.
-					if (pending.empty() && workers == 0) {
-						break;
-					}
-
-					// Fetch next task from the shared stack.
-					jobs.emplace(pending.top());
-					pending.pop();
-
-					++workers;
-				}
-
-				// Process each job until the local stack is empty or cancellation is signaled.
-				while (!jobs.empty() && !Detail::CancelFlag) {
-					auto& node = *jobs.top();
-					jobs.pop();
-
-					auto iterator = std::filesystem::directory_iterator(node->path, error);
-					const auto end = std::filesystem::end(iterator);
-
-					const auto depth = node->depth + 1;
-					size_t total = 0;
-					while (iterator != end) {
-						if (!error) {
-							if (IsSymlink(iterator, error) || error) {
-								iterator.increment(error);
-								continue;
-							}
-
-							auto& child = node.emplace(0, depth, iterator->path());
-
-							if (iterator->is_directory(error) && !error) {
-								jobs.emplace(&child);
-							}
-							else if (iterator->file_size(error) && !error) {
-								child->size = iterator->file_size(error);
-								total += child->size;
-							}
-						}
-
-						iterator.increment(error);
-					}
-
-					progress += total;
-
-					 // If multiple jobs are created, share them with other threads.
-					if (jobs.size() > 1) {
-						std::lock_guard lock(mutex);
-
-						// Swap stacks if more jobs are created.
-						if (jobs.size() > pending.size()) {
-							std::swap(jobs, pending);
-						}
-
-						// Keep one task and give the rest to other threads.
-						size_t size = jobs.size();
-						while (size > 1) {
-							pending.emplace(jobs.top());
-							jobs.pop();
-
-							--size;
-						}
-
-						// Notify other threads that new tasks are available.
-						condition.notify_all();
-					}
-				}
-
-				{
-					std::lock_guard lock(mutex);
-
-					// If this thread is idle and no more tasks are pending, notify others.
-					if (--workers == 0 && pending.empty()) {
-						condition.notify_all();
-					}
-				}
-			}
-		};
-
-		std::vector<std::thread> threads(std::thread::hardware_concurrency());
-
-		for (auto& thread : threads) {
-			thread = std::thread(worker);
-		}
-
-		for (auto& thread : threads) {
-			thread.join();
-		}
+		Parallel::Execute(&EnumerateDirectory, std::ref(root), Detail::CancelFlag, progress);
 
 		Detail::CalculateDirectorySizes(root);
 

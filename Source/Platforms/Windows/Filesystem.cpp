@@ -88,7 +88,6 @@ namespace Filesystem {
 		}
 	}
 
-	// Retrieves information about the available volumes on the system.
 	std::vector<VolumeData> GetVolumesData() {
 		std::vector<VolumeData> result;
 
@@ -106,10 +105,9 @@ namespace Filesystem {
 		return result;
 	}
 
-	// Opens the system path specified by the given value.
 	void OpenSystemPath(const std::filesystem::path& value) {
 		const std::wstring& nativeFormat = value.native();
-		
+
 		ShellExecuteW(nullptr, nullptr,
 			fmt::format(L"\"{}\"", nativeFormat).c_str(),
 			nullptr,
@@ -118,18 +116,49 @@ namespace Filesystem {
 		);
 	}
 
-	// Retrieves the local settings path.
-	std::string GetLocalSettingsPath() { 
+	std::string GetLocalSettingsPath() {
 		WCHAR pathBuffer[MAX_PATH + 1];
 		SHGetFolderPathW(nullptr, CSIDL_LOCAL_APPDATA, nullptr, SHGFP_TYPE_CURRENT, pathBuffer);
 
 		std::wstring result(pathBuffer);
 		result += L"\\Scan My Disk\\Settings.xml";
-		
+
 		return Detail::WideCharToMultiByte(result);
 	}
 
-	bool IsSymlink(const std::filesystem::directory_iterator& iterator, std::error_code& error) {
-		return iterator->is_symlink(error);
+	std::queue<NodeWrapper> EnumerateDirectory(Tree::Node<Entry>& node, std::atomic<size_t>& progress) {
+		std::error_code error;
+		std::queue<NodeWrapper> result;
+
+		auto iterator = std::filesystem::directory_iterator(node->path, error);
+		const auto end = std::filesystem::end(iterator);
+
+		const auto depth = node->depth + 1;
+
+		size_t total = 0;
+		while (iterator != end) {
+			if (!error) {
+				if (iterator->is_symlink(error) || error) {
+					iterator.increment(error);
+					continue;
+				}
+
+				auto& child = node.emplace(0, depth, iterator->path());
+
+				if (iterator->is_directory(error) && !error) {
+					result.emplace(std::ref(child));
+				}
+				else if (iterator->file_size(error) && !error) {
+					child->size = iterator->file_size(error);
+					total += child->size;
+				}
+			}
+
+			iterator.increment(error);
+		}
+
+		progress += total;
+		
+		return result;
 	}
 }

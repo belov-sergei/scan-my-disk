@@ -5,6 +5,7 @@
 #include <Tree/Node.h>
 
 namespace Filesystem {
+	// Struct representing an entry in the filesystem.
 	struct Entry {
 		Entry() = default;
 
@@ -18,7 +19,7 @@ namespace Filesystem {
 		std::filesystem::path path;
 	};
 
-	// Represents information about a volume containing filesystem data.
+	// Struct representing volume data.
 	struct VolumeData {
 		std::string name;
 		std::string rootPath;
@@ -26,18 +27,27 @@ namespace Filesystem {
 		size_t bytesFree;
 	};
 
+	using NodeWrapper = std::reference_wrapper<Tree::Node<Entry>>;
+
+	// Retrieves the data of all available volumes.
 	std::vector<VolumeData> GetVolumesData();
 
-	// Opens a file or URL in the default application based on the operating system.
+	// Opens the system path using the native format.
 	void OpenSystemPath(const std::filesystem::path& value);
 
-	bool IsSymlink(const std::filesystem::directory_iterator& iterator, std::error_code& error);
-	
+	// Retrieves the local path for the settings file.
 	std::string GetLocalSettingsPath();
 
+	// Build a tree structure representing the file system hierarchy starting from the given path.
 	Tree::Node<Entry> BuildTree(const std::filesystem::path& path, std::atomic<size_t>& progress);
+
+	// Build a tree representing the file system structure in parallel.
 	Tree::Node<Entry> ParallelBuildTree(const std::filesystem::path& path, std::atomic<size_t>& progress);
 
+	// Enumerates the contents of a directory.
+	std::queue<NodeWrapper> EnumerateDirectory(Tree::Node<Entry>& node, std::atomic<size_t>& progress);
+
+	// Cancels the build tree operation.
 	void CancelBuildTree();
 } // namespace Filesystem
 

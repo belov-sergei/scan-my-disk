@@ -25,6 +25,11 @@ namespace Filesystem {
 
 			return links;
 		}();
+
+		bool IsSymlink(const std::filesystem::directory_iterator& iterator, std::error_code& error) {
+			auto& links = Detail::Firmlinks;
+			return iterator->is_symlink(error) || links.count(iterator->path().native());
+		}
 	}
 
 	std::vector<std::string> GetLogicalDrives() {
@@ -65,10 +70,41 @@ namespace Filesystem {
 
 	std::string GetLocalSettingsPath() {
 		return fmt::format("{}/{}", getenv("HOME"), "Library/Application Support/Scan My Disk/Settings.xml");
-	}
+	}	
 
-	bool IsSymlink(const std::filesystem::directory_iterator& iterator, std::error_code& error) {
-		auto& links = Detail::Firmlinks;
-		return iterator->is_symlink(error) || links.count(iterator->path().native());
+	std::queue<NodeWrapper> EnumerateDirectory(Tree::Node<Entry>& node, std::atomic<size_t>& progress) {
+		std::error_code error;
+		std::queue<NodeWrapper> result;
+
+		auto iterator = std::filesystem::directory_iterator(node->path, error);
+		const auto end = std::filesystem::end(iterator);
+
+		const auto depth = node->depth + 1;
+
+		size_t total = 0;
+		while (iterator != end) {
+			if (!error) {
+				if (iterator->is_symlink(error) || error) {
+					iterator.increment(error);
+					continue;
+				}
+
+				auto& child = node.emplace(0, depth, iterator->path());
+
+				if (iterator->is_directory(error) && !error) {
+					result.emplace(std::ref(child));
+				}
+				else if (iterator->file_size(error) && !error) {
+					child->size = iterator->file_size(error);
+					total += child->size;
+				}
+			}
+
+			iterator.increment(error);
+		}
+
+		progress += total;
+		
+		return result;
 	}
 }
