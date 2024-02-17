@@ -7,6 +7,8 @@
 #include <sys/param.h>
 #include <sys/mount.h>
 
+#import <Foundation/Foundation.h>
+
 namespace Filesystem {
 	namespace Detail {
 		std::unordered_set<std::filesystem::path::string_type> Firmlinks = [](){
@@ -32,23 +34,34 @@ namespace Filesystem {
 		}
 	}
 
-	std::vector<std::string> GetLogicalDrives() {
-		std::vector<std::string> logicalDrives;
-
-		DIR* volumes = opendir("/Volumes");
-		dirent* entry;
-
-		while ((entry = readdir(volumes)) != nullptr) {
-			if (entry->d_name[0] == '.') {
-				continue;
-			}
-
-			logicalDrives.emplace_back(entry->d_name);
+	std::vector<VolumeData> GetVolumesData() {
+		std::vector<VolumeData> result;
+		
+		auto* keys = [NSArray arrayWithObjects:
+		    NSURLVolumeNameKey,
+		    NSURLVolumeTotalCapacityKey,
+		    NSURLVolumeAvailableCapacityKey,
+		    nil
+		];
+		
+		auto* urls = [
+		    [NSFileManager defaultManager]
+		    mountedVolumeURLsIncludingResourceValuesForKeys:keys
+		    options:NSVolumeEnumerationSkipHiddenVolumes
+		];
+		
+		for(NSURL* url : urls) {
+		    auto* values = [url resourceValuesForKeys:keys error:NULL];
+		    
+		    auto& volume = result.emplace_back();
+		    volume.rootPath = [url.path UTF8String];
+		    volume.name = [values[NSURLVolumeNameKey] UTF8String];
+		    
+		    volume.bytesFree = [values[NSURLVolumeAvailableCapacityKey] unsignedLongLongValue];
+		    volume.bytesTotal = [values[NSURLVolumeTotalCapacityKey] unsignedLongLongValue];
 		}
-
-		closedir(volumes);
-
-		return logicalDrives;
+		
+		return result;
 	}
 
 	std::pair<size_t, size_t> GetDriveSpace(std::string_view driveLetter) {
@@ -64,7 +77,7 @@ namespace Filesystem {
 		return std::make_pair(totalBytes, freeBytes);
 	}
 
-	void OpenPath(const std::filesystem::path& value) {
+	void OpenSystemPath(const std::filesystem::path& value) {
 		system(fmt::format("open \"{}\"", value.native()).c_str());
 	}
 
