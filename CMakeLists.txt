@@ -58,7 +58,7 @@ set(FMT_PATH "${THIRD_PARTY_PATH}/fmt-10.1.1")
 
 # Function to add source files to a target.
 function (my_add_source TARGET_NAME TARGET_SOURCE_PATH)
-	file(GLOB_RECURSE TARGET_SOURCE_FILES "${TARGET_SOURCE_PATH}/*.cpp" "${TARGET_SOURCE_PATH}/*.h")
+	file(GLOB_RECURSE TARGET_SOURCE_FILES "${TARGET_SOURCE_PATH}/*.cpp" "${TARGET_SOURCE_PATH}/*.mm" "${TARGET_SOURCE_PATH}/*.h")
 	source_group(TREE ${TARGET_SOURCE_PATH} FILES ${TARGET_SOURCE_FILES})
 
 	# Add the collected source files to the target.
