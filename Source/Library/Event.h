@@ -17,7 +17,7 @@ public:
 	using EventForwardingEnabled = std::enable_if_t<std::is_same_v<std::decay_t<ValueType>, EventType>, bool>;
 
 	template <typename ValueType, EventForwardingEnabled<ValueType>  = true>
-	static void Send(ValueType& event) {
+	static void Send(ValueType&& event) {
 		Storage<Event>::Read([&](const DataType& storage) {
 			for (const auto& [receiver, callback] : storage) {
 				callback(event);
