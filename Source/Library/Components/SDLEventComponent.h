@@ -2,20 +2,23 @@
 
 #pragma once
 #include "Application.h"
-
 #include <SDL.h>
 
-struct PollEventComponent final {
-	PollEventComponent() {
+struct SDLEventComponent final {
+	struct Process {
+		SDL_Event& data;
+	};
+
+	SDLEventComponent() {
 		Event<Application::Update>::Receive(this, [](const auto&) {
-			SDL_Event sdlEvent;
-			while (SDL_PollEvent(&sdlEvent)) {
-				switch (sdlEvent.type) {
+			SDL_Event event;
+			while (SDL_PollEvent(&event)) {
+				switch (event.type) {
 					case SDL_QUIT:
 						Event<Application::Terminate>::Send();
 						break;
 					default:
-						break;
+						Event<Process>::Send(event);
 				}
 			}
 		});

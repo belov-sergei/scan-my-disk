@@ -5,7 +5,7 @@
 
 #include <SDL.h>
 
-struct WindowComponent final {
+struct SDLWindowComponent final {
 	struct Create {
 		SDL_Window* window = nullptr;
 		SDL_GLContext context = nullptr;
@@ -13,7 +13,7 @@ struct WindowComponent final {
 
 	struct Destroy {};
 
-	WindowComponent() {
+	SDLWindowComponent() {
 		Event<Application::Initialize>::Receive(this, [this](const auto&) {
 			SDL_Init(SDL_INIT_VIDEO);
 
