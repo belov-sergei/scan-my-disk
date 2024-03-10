@@ -11,18 +11,43 @@ public:
 	~Storage() = delete;
 	
 	template <typename HandlerType>
-	static void Read(HandlerType& handler) {
-		std::shared_lock lock(mutex);
-		handler(storage);
+	static void Read(HandlerType handler) {
+		if (++readCount == 1 && writeCount == 0) {
+			mutex.lock_shared();
+		}
+		
+		handler(std::as_const(storage));
+
+		if (--readCount == 0 && writeCount == 0) {
+			mutex.unlock_shared();
+		}
 	}
 
 	template <typename HandlerType>
-	static void Write(HandlerType& handler) {
-		std::unique_lock lock(mutex);
+	static void Write(HandlerType handler) {
+		if (readCount != 0 && writeCount == 0) {
+			mutex.unlock_shared();
+		}
+		
+		if (++writeCount == 1) {
+			mutex.lock();
+		}
+		
 		handler(storage);
+
+		if (--writeCount == 0) {
+			mutex.unlock();
+		}
+
+		if (readCount != 0 && writeCount == 0) {
+			mutex.lock_shared();
+		}
 	}
 
 private:
 	inline static MutexType mutex;
 	inline static DataType storage;
+
+	inline static thread_local size_t readCount = 0;
+	inline static thread_local size_t writeCount = 0;
 };
