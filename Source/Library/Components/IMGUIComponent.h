@@ -20,6 +20,14 @@ struct IMGUIComponent final {
 
 			ImGui_ImplSDL2_InitForOpenGL(event.window, event.context);
 			ImGui_ImplOpenGL3_Init("#version 120");
+			
+			ImFontConfig config;
+			ImGui::GetIO().Fonts->AddFontFromFileTTF("Fonts/NotoSans-Regular.ttf", 18.0f, &config, ImGui::GetIO().Fonts->GetGlyphRangesCyrillic());
+
+			config.MergeMode = true;
+			ImGui::GetIO().Fonts->AddFontFromFileTTF("Fonts/NotoSansSC-Regular.ttf", 18.0f, &config, ImGui::GetIO().Fonts->GetGlyphRangesChineseSimplifiedCommon());
+			ImGui::GetIO().Fonts->AddFontFromFileTTF("Fonts/NotoSansJP-Regular.ttf", 18.0f, &config, ImGui::GetIO().Fonts->GetGlyphRangesJapanese());
+			ImGui::GetIO().Fonts->AddFontFromFileTTF("Fonts/NotoSansKR-Regular.ttf", 18.0f, &config, ImGui::GetIO().Fonts->GetGlyphRangesKorean());
 
 			window = event.window;
 		});
