@@ -9,6 +9,7 @@
 #include "Components/LocalizationComponent.h"
 #include "Components/ViewComponent.h"
 #include "Components/WindowTitleComponent.h"
+#include "Components/FrameRateComponent.h"
 
 int main(int argc, char* argv[]) {
 	if (!std::filesystem::exists("README.md")) {
@@ -23,7 +24,8 @@ int main(int argc, char* argv[]) {
 		SettingsComponent,
 		LocalizationComponent,
 		ViewComponent,
-		WindowTitleComponent
+		WindowTitleComponent,
+		FrameRateComponent
 	>();
 
 	Event<Application::Initialize>::Send();
