@@ -305,6 +305,45 @@ TEST(Storage, MultithreadedRecirsion) {
 	}
 }
 
+TEST(Storage, ConcurrentReadWrite) {
+	using namespace std::chrono_literals;
+
+	Storage<TestStorage>::Write([](TestStorage::DataType& storage) {
+		storage.clear();
+		EXPECT_TRUE(storage.empty());
+	});
+
+	std::thread reader;
+	
+	const auto readerWorker = []() {
+		Storage<TestStorage>::Read([](const TestStorage::DataType& storage) {
+			const size_t size = storage.size();
+
+			for (int number : {1, 2, 3, 4, 5}) {
+				std::this_thread::sleep_for(5ms);
+				EXPECT_EQ(storage.size(), size);
+			}
+		});
+	};
+
+	const auto writerWorker = [&] {
+		reader = std::thread(readerWorker);
+		
+		Storage<TestStorage>::Write([](TestStorage::DataType& storage) {
+			for (int number : {1, 2, 3, 4, 5}) {
+				storage.emplace_back(number);
+
+				std::this_thread::sleep_for(10ms);
+			}
+		});
+	};
+
+	std::thread writer = std::thread(writerWorker);
+
+	writer.join();
+	reader.join();
+}
+
 int main(int argc, char* argv[]) {
 	::testing::InitGoogleTest(&argc, argv);
 	return RUN_ALL_TESTS();
