@@ -17,7 +17,7 @@ struct SDLWindowComponent final {
 		Event<Application::Initialize>::Receive(this, [this](const auto&) {
 			SDL_Init(SDL_INIT_VIDEO);
 
-			window = SDL_CreateWindow("Scan My Disk", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 800, 600, SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE);
+			window = SDL_CreateWindow("Scan My Disk", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 440, 540, SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE);
 			context = SDL_GL_CreateContext(window);
 
 			Event<Create>::Send(window, context);
