@@ -364,6 +364,19 @@ void LoadingState() {
 }
 
 void ChartState() {
+	static float scale = 1.0f;
+	static float offsetX = 0.0f, offsetY = 0.0f;
+
+	scale += ImGui::GetIO().MouseWheel * scale * 0.25f;
+	scale = std::max(scale, 0.5f);
+
+	if (ImGui::IsMouseDragging(ImGuiMouseButton_Middle)) {
+		offsetX += ImGui::GetMouseDragDelta(ImGuiMouseButton_Middle).x / scale;
+		offsetY += ImGui::GetMouseDragDelta(ImGuiMouseButton_Middle).y / scale;
+
+		ImGui::ResetMouseDragDelta(ImGuiMouseButton_Middle);
+	}
+
 	ImGui::PushStyleColor(ImGuiCol_Text, Settings<Color>::Text);
 
 	ImGui::Indent(30);
@@ -389,21 +402,25 @@ void ChartState() {
 	x *= 0.5f;
 	y = y * 0.5f + 30;
 
-	const auto mx = ImGui::GetMousePos().x - x;
-	const auto my = ImGui::GetMousePos().y - y;
+	const auto mx = ImGui::GetMousePos().x - x - offsetX * scale;
+	const auto my = ImGui::GetMousePos().y - y - offsetY * scale;
 
 	const float length = std::sqrt(mx * mx + my * my);
 	float angle = ((int)(std::atan2(-my, -mx) * 180 / 3.14) + 180) / 360.0f;
 
-	const float scale = std::min(w, h - 120);
+	const float sliceScale = std::min(w, h - 120) * scale;
 
-	Chart::Pie::Begin({x, y});
+	const auto cx = x + offsetX * scale;
+	const auto cy = y + offsetY * scale;
+
+	Chart::Pie::Begin({cx, cy});
+
 	for (auto it = drawData.rbegin(); it != drawData.rend(); ++it) {
 		const auto& [radius, start, end, hue, node] = *it;
 		auto* top = history.top();
 
 		if (!ImGui::IsPopupOpen("Menu") && !ImGui::IsPopupOpen("File")) {
-			if (length <= (radius * scale / 512) && length >= ((radius - 32) * scale / 512) && angle >= start && angle <= end) {
+			if (length <= (radius * sliceScale / 512) && length >= ((radius - 32) * sliceScale / 512) && angle >= start && angle <= end) {
 				if (ImGui::IsMouseClicked(ImGuiMouseButton_Left)) {
 					if (node == top) {
 						if (history.size() > 1) {
@@ -457,7 +474,7 @@ void ChartState() {
 			}
 		}
 
-		Chart::Pie::Slice(radius * scale / 512, start, end);
+		Chart::Pie::Slice(radius * sliceScale / 512, start, end);
 	}
 	Chart::Pie::End();
 
@@ -488,8 +505,8 @@ void ChartState() {
 	ImGui::PopStyleColor(3);
 	ImGui::PopStyleVar(3);
 
-	ImGui::SetCursorPos({x - 6, y - 6});
-	ImGui::Image((void*)icons[Icons::Back], {12, 12});
+	ImGui::SetCursorPos({cx - 6 * scale, cy - 6 * scale});
+	ImGui::Image((void*)icons[Icons::Back], {12 * scale, 12 * scale});
 
 	ImGui::GetWindowDrawList()->AddRectFilled({0, ImGui::GetWindowHeight() - 30}, {ImGui::GetWindowWidth(), ImGui::GetWindowHeight()}, IM_COL32(55, 57, 62, 255));
 	ImGui::GetWindowDrawList()->AddLine({0, ImGui::GetWindowHeight() - 30}, {ImGui::GetWindowWidth(), ImGui::GetWindowHeight() - 30}, IM_COL32(43, 45, 48, 255));
