@@ -468,6 +468,17 @@ void ChartState() {
 	}
 	Chart::Pie::End();
 
+	if (ImGui::IsMouseClicked(3)) {
+		if (history.size() > 1) {
+			history.pop();
+			drawData = BuildDrawData(*history.top());
+		}
+		else {
+			history = {};
+			state = State::Started;
+		}
+	}
+
 	ImGui::PushStyleColor(ImGuiCol_PopupBg, IM_COL32(55, 57, 62, 255));
 	ImGui::PushStyleColor(ImGuiCol_Border, IM_COL32(67, 69, 74, 255));
 	ImGui::PushStyleColor(ImGuiCol_Text, Settings<Color>::Text);
