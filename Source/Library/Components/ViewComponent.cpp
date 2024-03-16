@@ -354,7 +354,11 @@ void LoadingState() {
 
 	if (future.valid() && future.wait_for(0s) == std::future_status::ready) {
 		tree = future.get();
-		tree->size = space.first;
+
+		// The size of the root is replaced with the size of the disk. If the size is 0, then it is the folder selected by the user.
+		if (space.first > 0) {
+			tree->size = space.first;
+		}
 
 		drawData = BuildDrawData(tree);
 
@@ -642,6 +646,24 @@ void Draw() {
 	if (ImGui::BeginPopup("File")) {
 		ImGui::Shadow::Position(ImGui::GetWindowPos());
 		ImGui::Shadow::Size(ImGui::GetWindowSize());
+
+		ImGui::NewLine();
+		ImGui::SameLine(18.0f);
+		if (ImGui::MenuItem(Localization::Text("Menu_OpenFolder_Button"))) {
+			const auto path = Filesystem::OpenSelectFolderDialog();
+			if (!path.empty() && std::filesystem::exists(path)) {
+				space = std::make_pair(0, 0);
+
+				progress = 0;
+				future = std::async(std::launch::async, [path] {
+					return Filesystem::ParallelBuildTree(path, progress);
+				});
+
+				state = State::Loading;
+			}
+		}
+
+		ImGui::Separator();
 
 		ImGui::NewLine();
 		ImGui::SameLine(18.0f);

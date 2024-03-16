@@ -11,6 +11,7 @@
 		<Text Id="ChartState_Back_Button" Value="Back" />
 		<Text Id="Menu_Language_Button" Value="Language" />
 		<Text Id="Menu_Exit_Button" Value="Exit" />
+		<Text Id="Menu_OpenFolder_Button" Value="Open folder" />
 
 		<Text Id="English" Value="English" />
 		<Text Id="French" Value="Français" />
@@ -35,6 +36,7 @@
 		<Text Id="ChartState_Back_Button" Value="Retour" />
 		<Text Id="Menu_Language_Button" Value="Langue" />
 		<Text Id="Menu_Exit_Button" Value="Quitter" />
+		<Text Id="Menu_OpenFolder_Button" Value="Ouvrir le dossier" />
 	</French>
 	<Spanish>
 		<Text Id="StartedState_SelectDisk_Text" Value="Seleccione un disco:" />
@@ -47,6 +49,7 @@
 		<Text Id="ChartState_Back_Button" Value="Atrás" />
 		<Text Id="Menu_Language_Button" Value="Idioma" />
 		<Text Id="Menu_Exit_Button" Value="Salir" />
+		<Text Id="Menu_OpenFolder_Button" Value="Abrir carpeta" />
 	</Spanish>
 	<SimplifiedChinese>
 		<Text Id="StartedState_SelectDisk_Text" Value="选择一个磁盘：" />
@@ -59,6 +62,7 @@
 		<Text Id="ChartState_Back_Button" Value="返回" />
 		<Text Id="Menu_Language_Button" Value="语言" />
 		<Text Id="Menu_Exit_Button" Value="退出" />
+		<Text Id="Menu_OpenFolder_Button" Value="打开文件夹" />
 	</SimplifiedChinese>
 	<Russian>
 		<Text Id="StartedState_SelectDisk_Text" Value="Выберите диск:" />
@@ -71,6 +75,7 @@
 		<Text Id="ChartState_Back_Button" Value="Назад" />
 		<Text Id="Menu_Language_Button" Value="Язык" />
 		<Text Id="Menu_Exit_Button" Value="Выход" />
+		<Text Id="Menu_OpenFolder_Button" Value="Открыть папку" />
 	</Russian>
 	<German>
 		<Text Id="StartedState_SelectDisk_Text" Value="Wählen Sie ein Laufwerk:" />
@@ -83,6 +88,7 @@
 		<Text Id="ChartState_Back_Button" Value="Zurück" />
 		<Text Id="Menu_Language_Button" Value="Sprache" />
 		<Text Id="Menu_Exit_Button" Value="Beenden" />
+		<Text Id="Menu_OpenFolder_Button" Value="Ordner öffnen" />
 	</German>
 	<Portuguese>
 		<Text Id="StartedState_SelectDisk_Text" Value="Selecione um disco:" />
@@ -95,6 +101,7 @@
 		<Text Id="ChartState_Back_Button" Value="Voltar" />
 		<Text Id="Menu_Language_Button" Value="Idioma" />
 		<Text Id="Menu_Exit_Button" Value="Sair" />
+		<Text Id="Menu_OpenFolder_Button" Value="Abrir pasta" />
 	</Portuguese>
 	<Japanese>
 		<Text Id="StartedState_SelectDisk_Text" Value="ディスクを選択：" />
@@ -107,6 +114,7 @@
 		<Text Id="ChartState_Back_Button" Value="戻る" />
 		<Text Id="Menu_Language_Button" Value="言語" />
 		<Text Id="Menu_Exit_Button" Value="終了" />
+		<Text Id="Menu_OpenFolder_Button" Value="フォルダを開く" />
 	</Japanese>
 	<Korean>
 		<Text Id="StartedState_SelectDisk_Text" Value="디스크 선택:" />
@@ -119,6 +127,7 @@
 		<Text Id="ChartState_Back_Button" Value="뒤로" />
 		<Text Id="Menu_Language_Button" Value="언어" />
 		<Text Id="Menu_Exit_Button" Value="종료" />
+		<Text Id="Menu_OpenFolder_Button" Value="폴더 열기" />
 	</Korean>
 	<Italian>
 		<Text Id="StartedState_SelectDisk_Text" Value="Seleziona un disco:" />
@@ -131,6 +140,7 @@
 		<Text Id="ChartState_Back_Button" Value="Indietro" />
 		<Text Id="Menu_Language_Button" Value="Lingua" />
 		<Text Id="Menu_Exit_Button" Value="Esci" />
+		<Text Id="Menu_OpenFolder_Button" Value="Apri cartella" />
 	</Italian>
 	<Dutch>
 		<Text Id="StartedState_SelectDisk_Text" Value="Selecteer een schijf:" />
@@ -143,5 +153,6 @@
 		<Text Id="ChartState_Back_Button" Value="Terug" />
 		<Text Id="Menu_Language_Button" Value="Taal" />
 		<Text Id="Menu_Exit_Button" Value="Afsluiten" />
+		<Text Id="Menu_OpenFolder_Button" Value="Open Map" />
 	</Dutch>
 </Translations>

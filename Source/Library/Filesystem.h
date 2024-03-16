@@ -35,6 +35,8 @@ namespace Filesystem {
 	// Opens the system path using the native format.
 	void OpenSystemPath(const std::filesystem::path& value);
 
+	std::filesystem::path OpenSelectFolderDialog();
+
 	// Retrieves the local path for the settings file.
 	std::string GetLocalSettingsPath();
 

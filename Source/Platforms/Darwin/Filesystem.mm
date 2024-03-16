@@ -1,6 +1,7 @@
 // Copyright ❤️ 2023-2024, Sergei Belov
 
 #include <Filesystem.h>
+#import <Cocoa/Cocoa.h>
 #import <Foundation/Foundation.h>
 
 namespace Filesystem {
@@ -97,6 +98,22 @@ namespace Filesystem {
 		}
 
 		progress += total;
+		
+		return result;
+	}
+
+	std::filesystem::path OpenSelectFolderDialog() {
+		std::filesystem::path result;
+		
+		NSOpenPanel* openPanel = [NSOpenPanel openPanel];
+		[openPanel setCanChooseFiles:NO];
+		[openPanel setCanChooseDirectories:YES];
+
+		if ([openPanel runModal] == NSModalResponseOK)
+		{
+			NSString* path = [[openPanel URL] path];
+			result = [path cStringUsingEncoding:NSUTF8StringEncoding];
+		}
 		
 		return result;
 	}

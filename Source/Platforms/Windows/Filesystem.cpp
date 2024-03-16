@@ -161,4 +161,35 @@ namespace Filesystem {
 		
 		return result;
 	}
-}
+
+	std::filesystem::path OpenSelectFolderDialog() {
+		std::filesystem::path result;
+
+		HRESULT hr = CoInitializeEx(NULL, COINIT_APARTMENTTHREADED | COINIT_DISABLE_OLE1DDE);
+		if (SUCCEEDED(hr)) {
+			IFileDialog* pfd;
+			if (SUCCEEDED(CoCreateInstance(CLSID_FileOpenDialog, NULL, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&pfd)))) {
+				DWORD dwOptions;
+				if (SUCCEEDED(pfd->GetOptions(&dwOptions))) {
+					if (SUCCEEDED(pfd->SetOptions(dwOptions | FOS_PICKFOLDERS))) {
+						if (SUCCEEDED(pfd->Show(NULL))) {
+							IShellItem* psi;
+							if (SUCCEEDED(pfd->GetResult(&psi))) {
+								PWSTR pszPath;
+								if (SUCCEEDED(psi->GetDisplayName(SIGDN_FILESYSPATH, &pszPath))) {
+									result = pszPath;
+									CoTaskMemFree(pszPath);
+								}
+								psi->Release();
+							}
+						}
+					}
+				}
+				pfd->Release();
+			}
+			CoUninitialize();
+		}
+
+		return result;
+	}
+} // namespace Filesystem
