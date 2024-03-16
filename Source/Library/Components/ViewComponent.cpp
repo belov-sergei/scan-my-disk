@@ -226,20 +226,6 @@ namespace ImGui {
 	}
 }
 
-std::string BytesToString(size_t value) {
-	constexpr std::array units = {"B", "KB", "MB", "GB", "TB", "PB"};
-
-	auto size = static_cast<double>(value);
-
-	size_t unit = 0;
-	while (size >= 1024 && unit < units.size()) {
-		size /= 1024;
-		unit++;
-	}
-
-	return fmt::format("{:.2f} {}", size, units[unit]);
-}
-
 void StartedState() {
 	ImGui::PushStyleColor(ImGuiCol_Text, Settings<Color>::Text);
 
@@ -254,8 +240,8 @@ void StartedState() {
 	float buttonWidth = 165.0f;
 
 	for (const auto& volume : volumes) {
-		const auto bytesFreeText = BytesToString(volume.bytesFree);
-		const auto bytesTotalText = BytesToString(volume.bytesTotal);
+		const auto bytesFreeText = Filesystem::BytesToString(volume.bytesFree);
+		const auto bytesTotalText = Filesystem::BytesToString(volume.bytesTotal);
 
 		const auto textSize = ImGui::CalcTextSize(fmt::vformat((std::string_view)Localization::Text("StartedState_FreeSpace_Text"), fmt::make_format_args(bytesFreeText, bytesTotalText)).c_str());
 		buttonWidth = std::max(buttonWidth, textSize.x + 3.0f);
@@ -298,8 +284,8 @@ void StartedState() {
 			ImGui::GetWindowDrawList()->AddRectFilled({x, y}, {x + (buttonWidth - 5.0f), y + 8}, IM_COL32(190, 190, 190, 127));
 			ImGui::GetWindowDrawList()->AddRectFilled({x, y}, {x + (buttonWidth - 5.0f) * scale, y + 8}, IM_COL32(190, 190, 190, 255));
 
-			const auto bytesFreeText = BytesToString(volume.bytesFree);
-			const auto bytesTotalText = BytesToString(volume.bytesTotal);
+			const auto bytesFreeText = Filesystem::BytesToString(volume.bytesFree);
+			const auto bytesTotalText = Filesystem::BytesToString(volume.bytesTotal);
 			ImGui::Text("%s", fmt::vformat((std::string_view)Localization::Text("StartedState_FreeSpace_Text"), fmt::make_format_args(bytesFreeText, bytesTotalText)).c_str());
 		}
 		ImGui::EndGroup();
@@ -458,7 +444,7 @@ void ChartState() {
 				}
 
 				path = (*node)->path;
-				size = BytesToString((*node)->size);
+				size = Filesystem::BytesToString((*node)->size);
 			}
 			else {
 				if (node == top) {

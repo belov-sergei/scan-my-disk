@@ -192,4 +192,18 @@ namespace Filesystem {
 
 		return result;
 	}
+
+	std::string BytesToString(size_t value) {
+		constexpr std::array units = {"B", "KB", "MB", "GB", "TB", "PB"};
+
+		auto size = static_cast<double>(value);
+
+		size_t unit = 0;
+		while (size >= 1024 && unit < units.size()) {
+			size /= 1024;
+			unit++;
+		}
+
+		return fmt::format("{:.2f} {}", size, units[unit]);
+	}
 } // namespace Filesystem

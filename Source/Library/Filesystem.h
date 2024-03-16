@@ -37,6 +37,8 @@ namespace Filesystem {
 
 	std::filesystem::path OpenSelectFolderDialog();
 
+	std::string BytesToString(size_t value);
+
 	// Retrieves the local path for the settings file.
 	std::string GetLocalSettingsPath();
 
