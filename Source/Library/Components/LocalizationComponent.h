@@ -9,7 +9,7 @@
 
 struct LocalizationComponent final {
 	LocalizationComponent() {
-		Event<Application::Initialize>::Receive(this, [](const auto&) {
+		Event<Application::Launch>::Receive(this, [](const auto&) {
 			pugi::xml_document xml;
 			xml.load_file("Translations.xml");
 
