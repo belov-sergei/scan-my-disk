@@ -1,7 +1,8 @@
 // Copyright ❤️ 2023-2024, Sergei Belov
 
-#include <Filesystem.h>
 #include "Parallel.h"
+
+#include <Filesystem.h>
 
 namespace Filesystem {
 	namespace Detail {
@@ -15,8 +16,7 @@ namespace Filesystem {
 			rootNode.depthTraversal([&](NodeType& currentNode) {
 				if (!currentNode.isLeaf()) {
 					parentStack.emplace(currentNode, currentNode.getChildCount());
-				}
-				else if (!parentStack.empty()) {
+				} else if (!parentStack.empty()) {
 					auto accumulatedSize = parentStack.top().first.get()->size += currentNode->size;
 					auto childrenLeft = parentStack.top().second -= 1;
 
@@ -40,12 +40,12 @@ namespace Filesystem {
 		}
 
 		bool CancelFlag = false;
-	}
+	} // namespace Detail
 
 	Tree::Node<Entry> BuildTree(const std::filesystem::path& path, std::atomic<size_t>& progress) {
 		Detail::CancelFlag = false;
 
-		Tree::Node<Entry> root = {0, 0, path};
+		Tree::Node<Entry> root = { 0, 0, path };
 
 		std::queue<NodeWrapper> pending;
 		pending.emplace(root);
@@ -74,7 +74,7 @@ namespace Filesystem {
 	Tree::Node<Entry> ParallelBuildTree(const std::filesystem::path& path, std::atomic<size_t>& progress) {
 		Detail::CancelFlag = false;
 
-		Tree::Node<Entry> root = {0, 0, path};
+		Tree::Node<Entry> root = { 0, 0, path };
 		Parallel::Execute(&EnumerateDirectory, std::ref(root), Detail::CancelFlag, progress);
 
 		Detail::CalculateDirectorySizes(root);
@@ -85,4 +85,4 @@ namespace Filesystem {
 	void CancelBuildTree() {
 		Detail::CancelFlag = true;
 	}
-}
+} // namespace Filesystem

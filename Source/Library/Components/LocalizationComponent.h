@@ -1,11 +1,11 @@
 ﻿// Copyright ❤️ 2023-2024, Sergei Belov
 
 #pragma once
-#include <pugixml.hpp>
-
 #include "Application.h"
 #include "Localization.h"
 #include "Settings.h"
+
+#include <pugixml.hpp>
 
 struct LocalizationComponent final {
 	LocalizationComponent() {
@@ -20,7 +20,7 @@ struct LocalizationComponent final {
 
 				for (const auto text : language) {
 					const auto textId = text.attribute("Id").as_string();
-					const auto value = text.attribute("Value").as_string();
+					const auto value  = text.attribute("Value").as_string();
 
 					Localization::Text::Add(textId, value);
 				}

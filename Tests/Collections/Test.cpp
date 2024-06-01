@@ -1,8 +1,7 @@
 ﻿// Copyright ❤️ 2023-2024, Sergei Belov
 
-#include <gtest/gtest.h>
-
 #include <Debug/CopyMoveData.h>
+#include <gtest/gtest.h>
 #include <Tree/Node.h>
 
 using DataType = Debug::CopyMoveData<int>;
@@ -59,12 +58,12 @@ TEST(TreeNode, NodeEmplacement) {
 TEST(TreeNode, ChildNodesEmplacement) {
 	Tree::Node<DataType> rootNode;
 
-	for (const auto& x : {1, 2, 3}) {
+	for (const auto& x : { 1, 2, 3 }) {
 		auto& first = rootNode.emplace(x);
 
-		for (const auto& y : {4, 5}) {
+		for (const auto& y : { 4, 5 }) {
 			auto& second = first.emplace(y);
-			for (const auto& z : {6, 7, 8}) {
+			for (const auto& z : { 6, 7, 8 }) {
 				second.emplace(z);
 			}
 		}
@@ -123,8 +122,8 @@ TEST(TreeNode, DepthFirstTraversal) {
 
 	int next = 0;
 	rootNode.depthTraversal([&next](Tree::Node<DataType>& value) {
-		value->value = next;
-		next += 1;
+		value->value  = next;
+		next         += 1;
 
 		return false;
 	});
@@ -161,8 +160,8 @@ TEST(TreeNode, BreadthFirstTraversal) {
 
 	int next = 0;
 	rootNode.breadthTraversal([&next](Tree::Node<DataType>& value) {
-		value->value = next;
-		next += 1;
+		value->value  = next;
+		next         += 1;
 
 		return false;
 	});

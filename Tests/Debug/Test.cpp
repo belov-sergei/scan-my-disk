@@ -1,8 +1,7 @@
 ﻿// Copyright ❤️ 2023-2024, Sergei Belov
 
-#include <gtest/gtest.h>
-
 #include <Debug/CopyMoveData.h>
+#include <gtest/gtest.h>
 
 TEST(CopyMoveCounter, InitializingCounters) {
 	Debug::CopyMoveData<int> defaultInitialized;
@@ -23,7 +22,7 @@ TEST(CopyMoveCounter, CopyingObject) {
 
 	auto first = counter;
 
-	auto second = first;
+	auto second  = first;
 	second.value = 2;
 
 	EXPECT_EQ(first.moved, 0);
@@ -35,8 +34,8 @@ TEST(CopyMoveCounter, CopyingObject) {
 	EXPECT_EQ(second.value, 2);
 
 	auto copied = counter;
-	for (const auto& value : {2, 3, 4, 5}) {
-		copied = copied;
+	for (const auto& value : { 2, 3, 4, 5 }) {
+		copied        = copied;
 		copied.value += 1;
 
 		EXPECT_EQ(copied.moved, 0);
@@ -51,7 +50,7 @@ TEST(CopyMoveCounter, MovingObject) {
 
 	auto first = std::move(counter);
 
-	auto second = std::move(first);
+	auto second  = std::move(first);
 	second.value = 2;
 
 	EXPECT_EQ(first.moved, 1);
@@ -63,8 +62,8 @@ TEST(CopyMoveCounter, MovingObject) {
 	EXPECT_EQ(second.value, 2);
 
 	auto moved = std::move(counter);
-	for (const auto& value : {2, 3, 4, 5}) {
-		moved = std::move(moved);
+	for (const auto& value : { 2, 3, 4, 5 }) {
+		moved        = std::move(moved);
 		moved.value += 1;
 
 		EXPECT_EQ(moved.moved, value);
@@ -78,10 +77,10 @@ TEST(CopyMoveCounter, CopyingAndMoving) {
 	counter.value = 1;
 
 	auto copied = counter;
-	auto moved = std::move(copied);
+	auto moved  = std::move(copied);
 
 	copied = moved;
-	moved = std::move(copied);
+	moved  = std::move(copied);
 
 	EXPECT_EQ(moved.moved, 2);
 	EXPECT_EQ(moved.copied, 2);

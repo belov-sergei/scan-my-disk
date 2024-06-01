@@ -1,12 +1,12 @@
 ﻿// Copyright ❤️ 2023-2024, Sergei Belov
 
 #pragma once
-#include "SDLWindowComponent.h"
 #include "SDLEventComponent.h"
+#include "SDLWindowComponent.h"
 
 #include <imgui.h>
-#include <imgui_impl_sdl2.h>
 #include <imgui_impl_opengl3.h>
+#include <imgui_impl_sdl2.h>
 
 struct IMGUIComponent final {
 	struct Draw {};
@@ -20,7 +20,7 @@ struct IMGUIComponent final {
 
 			ImGui_ImplSDL2_InitForOpenGL(event.window, event.context);
 			ImGui_ImplOpenGL3_Init("#version 120");
-			
+
 			ImFontConfig config;
 			ImGui::GetIO().Fonts->AddFontFromFileTTF("Fonts/NotoSans-Regular.ttf", 18.0f, &config, ImGui::GetIO().Fonts->GetGlyphRangesCyrillic());
 

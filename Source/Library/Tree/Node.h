@@ -12,7 +12,7 @@ namespace Tree {
 		// Creates a new node, with the condition that the value can be constructed from the provided arguments.
 		template <typename... ArgumentTypes, std::enable_if_t<std::is_constructible_v<ValueType, ArgumentTypes...>, bool> = true>
 		Node(ArgumentTypes&&... arguments)
-			: _value(std::forward<ArgumentTypes>(arguments)...) {}
+		    : _value(std::forward<ArgumentTypes>(arguments)...) {}
 
 		// Provide direct access to the underlying value.
 		ValueType* operator->() {
@@ -177,8 +177,7 @@ struct fmt::formatter<Tree::Node<ValueType>> : fmt::formatter<std::string_view> 
 			if (!current.isLeaf()) {
 				// Close node later, after all children have been processed.
 				pending.emplace(nullptr);
-			}
-			else {
+			} else {
 				result += "</Node>";
 			}
 

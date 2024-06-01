@@ -2,6 +2,7 @@
 
 #pragma once
 #include "Application.h"
+
 #include <SDL.h>
 
 struct SDLEventComponent final {

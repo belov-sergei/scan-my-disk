@@ -1,51 +1,31 @@
 // Copyright ❤️ 2023-2024, Sergei Belov
 
-#include <Filesystem.h>
 #include "fmt/xchar.h"
 
-#include <Windows.h>
+#include <Filesystem.h>
 #include <shlobj_core.h>
+#include <Windows.h>
 
 namespace Filesystem {
 	namespace Detail {
 		// Converts a multi-byte string to a wide character string.
 		std::wstring MultiByteToWideChar(std::string_view value) {
-			const int bufferSize = ::MultiByteToWideChar(CP_UTF8, 0, value.data(),
-				static_cast<int>(value.size()),
-				nullptr,
-				0
-			);
+			const int bufferSize = ::MultiByteToWideChar(CP_UTF8, 0, value.data(), static_cast<int>(value.size()), nullptr, 0);
 
 			std::wstring result(bufferSize, 0);
 
-			::MultiByteToWideChar(CP_UTF8, 0, value.data(),
-				static_cast<int>(value.size()),
-				result.data(),
-				static_cast<int>(result.size())
-			);
+			::MultiByteToWideChar(CP_UTF8, 0, value.data(), static_cast<int>(value.size()), result.data(), static_cast<int>(result.size()));
 
 			return result;
 		}
 
 		// Converts a wide character string to a multibyte string using UTF-8 encoding.
 		std::string WideCharToMultiByte(std::wstring_view value) {
-			const int bufferSize = ::WideCharToMultiByte(CP_UTF8, 0, value.data(),
-				static_cast<int>(value.size()),
-				nullptr,
-				0,
-				nullptr,
-				nullptr
-			);
+			const int bufferSize = ::WideCharToMultiByte(CP_UTF8, 0, value.data(), static_cast<int>(value.size()), nullptr, 0, nullptr, nullptr);
 
 			std::string result(bufferSize, 0);
 
-			::WideCharToMultiByte(CP_UTF8, 0, value.data(),
-				static_cast<int>(value.size()),
-				result.data(),
-				static_cast<int>(result.size()),
-				nullptr,
-				nullptr
-			);
+			::WideCharToMultiByte(CP_UTF8, 0, value.data(), static_cast<int>(value.size()), result.data(), static_cast<int>(result.size()), nullptr, nullptr);
 
 			return result;
 		}
@@ -55,11 +35,7 @@ namespace Filesystem {
 			const std::wstring rootPath = MultiByteToWideChar(volume);
 
 			WCHAR buffer[MAX_PATH + 1];
-			::GetVolumeInformationW(rootPath.c_str(), buffer, MAX_PATH + 1,
-				nullptr,\
-				nullptr,
-				nullptr,
-				nullptr, 0);
+			::GetVolumeInformationW(rootPath.c_str(), buffer, MAX_PATH + 1, nullptr, nullptr, nullptr, nullptr, 0);
 
 			return WideCharToMultiByte(buffer);
 		}
@@ -71,22 +47,22 @@ namespace Filesystem {
 			ULARGE_INTEGER bytesTotal, bytesFree;
 			::GetDiskFreeSpaceExW(rootPath.data(), nullptr, &bytesTotal, &bytesFree);
 
-			return {bytesTotal.QuadPart, bytesFree.QuadPart};
+			return { bytesTotal.QuadPart, bytesFree.QuadPart };
 		}
 
 		// Creates a VolumeData object for the specified drive letter.
 		VolumeData MakeVolumeData(char driveLetter) {
 			VolumeData result;
 			result.rootPath = fmt::format("{}:\\", driveLetter);
-			result.name = GetVolumeName(result.rootPath);
+			result.name     = GetVolumeName(result.rootPath);
 
 			const auto& [bytesTotal, bytesFree] = GetVolumeCapacity(result.rootPath);
-			result.bytesTotal = bytesTotal;
-			result.bytesFree = bytesFree;
+			result.bytesTotal                   = bytesTotal;
+			result.bytesFree                    = bytesFree;
 
 			return result;
 		}
-	}
+	} // namespace Detail
 
 	std::vector<VolumeData> GetVolumesData() {
 		std::vector<VolumeData> result;
@@ -94,9 +70,7 @@ namespace Filesystem {
 		DWORD availableDrivesBitmask = ::GetLogicalDrives();
 		for (char driveLetter = 'A'; driveLetter <= 'Z'; driveLetter++) {
 			if (availableDrivesBitmask & 1) {
-				result.emplace_back(
-					Detail::MakeVolumeData(driveLetter)
-				);
+				result.emplace_back(Detail::MakeVolumeData(driveLetter));
 			}
 
 			availableDrivesBitmask >>= 1;
@@ -108,12 +82,7 @@ namespace Filesystem {
 	void OpenSystemPath(const std::filesystem::path& value) {
 		const std::wstring& nativeFormat = value.native();
 
-		ShellExecuteW(nullptr, nullptr,
-			fmt::format(L"\"{}\"", nativeFormat).c_str(),
-			nullptr,
-			nullptr,
-			SW_NORMAL
-		);
+		ShellExecuteW(nullptr, nullptr, fmt::format(L"\"{}\"", nativeFormat).c_str(), nullptr, nullptr, SW_NORMAL);
 	}
 
 	std::string GetLocalSettingsPath() {
@@ -130,7 +99,7 @@ namespace Filesystem {
 		std::error_code error;
 		std::queue<NodeWrapper> result;
 
-		auto iterator = std::filesystem::directory_iterator(node->path, error);
+		auto iterator  = std::filesystem::directory_iterator(node->path, error);
 		const auto end = std::filesystem::end(iterator);
 
 		const auto depth = node->depth + 1;
@@ -147,10 +116,9 @@ namespace Filesystem {
 
 				if (iterator->is_directory(error) && !error) {
 					result.emplace(std::ref(child));
-				}
-				else if (iterator->file_size(error) && !error) {
-					child->size = iterator->file_size(error);
-					total += child->size;
+				} else if (iterator->file_size(error) && !error) {
+					child->size  = iterator->file_size(error);
+					total       += child->size;
 				}
 			}
 
@@ -158,7 +126,7 @@ namespace Filesystem {
 		}
 
 		progress += total;
-		
+
 		return result;
 	}
 
@@ -194,7 +162,7 @@ namespace Filesystem {
 	}
 
 	std::string BytesToString(size_t value) {
-		constexpr std::array units = {"B", "KB", "MB", "GB", "TB", "PB"};
+		constexpr std::array units = { "B", "KB", "MB", "GB", "TB", "PB" };
 
 		auto size = static_cast<double>(value);
 

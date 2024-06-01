@@ -1,7 +1,7 @@
 ﻿// Copyright ❤️ 2023-2024, Sergei Belov
 
-#include <Parallel.h>
 #include <gtest/gtest.h>
+#include <Parallel.h>
 #include <Storage.h>
 
 struct TestStorage {
@@ -12,7 +12,7 @@ TEST(Storage, Write) {
 	Storage<TestStorage>::Write([](TestStorage::DataType& storage) {
 		storage.clear();
 
-		for (int number : {1, 2, 3}) {
+		for (int number : { 1, 2, 3 }) {
 			storage.emplace_back(number);
 		}
 
@@ -22,7 +22,7 @@ TEST(Storage, Write) {
 	Storage<TestStorage>::Write([](TestStorage::DataType& storage) {
 		EXPECT_EQ(storage.size(), 3);
 
-		for (int number : {1, 2, 3}) {
+		for (int number : { 1, 2, 3 }) {
 			EXPECT_EQ(storage[number - 1], number);
 		}
 
@@ -43,7 +43,7 @@ TEST(Storage, Read) {
 	Storage<TestStorage>::Write([](TestStorage::DataType& storage) {
 		EXPECT_TRUE(storage.empty());
 
-		for (int number : {1, 2, 3}) {
+		for (int number : { 1, 2, 3 }) {
 			storage.emplace_back(number);
 		}
 	});
@@ -51,7 +51,7 @@ TEST(Storage, Read) {
 	Storage<TestStorage>::Read([](const TestStorage::DataType& storage) {
 		EXPECT_EQ(storage.size(), 3);
 
-		for (int number : {1, 2, 3}) {
+		for (int number : { 1, 2, 3 }) {
 			EXPECT_EQ(storage[number - 1], number);
 		}
 	});
@@ -63,7 +63,7 @@ TEST(Storage, Recursion) {
 
 		Storage<TestStorage>::Write([](TestStorage::DataType& storage) {
 			EXPECT_TRUE(storage.empty());
-			for (int number : {1, 2, 3}) {
+			for (int number : { 1, 2, 3 }) {
 				storage.emplace_back(number);
 			}
 		});
@@ -75,14 +75,14 @@ TEST(Storage, Recursion) {
 		EXPECT_EQ(storage.size(), 3);
 
 		Storage<TestStorage>::Read([](const TestStorage::DataType& storage) {
-			for (int number : {1, 2, 3}) {
+			for (int number : { 1, 2, 3 }) {
 				EXPECT_EQ(storage[number - 1], number);
 			}
 		});
 	});
 
 	Storage<TestStorage>::Read([](const TestStorage::DataType& storage) {
-		for (int number : {1, 2, 3}) {
+		for (int number : { 1, 2, 3 }) {
 			EXPECT_EQ(storage[number - 1], number);
 		}
 
@@ -90,14 +90,14 @@ TEST(Storage, Recursion) {
 			storage.clear();
 			EXPECT_TRUE(storage.empty());
 
-			for (int number : {1, 2, 3}) {
+			for (int number : { 1, 2, 3 }) {
 				storage.emplace_back(number);
 			}
 
 			EXPECT_EQ(storage.size(), 3);
 		});
 
-		for (int number : {1, 2, 3}) {
+		for (int number : { 1, 2, 3 }) {
 			EXPECT_EQ(storage[number - 1], number);
 		}
 	});
@@ -106,14 +106,14 @@ TEST(Storage, Recursion) {
 		storage.clear();
 		EXPECT_TRUE(storage.empty());
 
-		for (int number : {1, 2, 3}) {
+		for (int number : { 1, 2, 3 }) {
 			storage.emplace_back(number);
 		}
 
 		EXPECT_EQ(storage.size(), 3);
 
 		Storage<TestStorage>::Read([](const TestStorage::DataType& storage) {
-			for (int number : {1, 2, 3}) {
+			for (int number : { 1, 2, 3 }) {
 				EXPECT_EQ(storage[number - 1], number);
 			}
 		});
@@ -142,7 +142,7 @@ TEST(Storage, Recursion) {
 									Storage<TestStorage>::Read([](const TestStorage::DataType& storage) {
 										EXPECT_EQ(storage.size(), 3);
 
-										for (int number : {1, 2, 3}) {
+										for (int number : { 1, 2, 3 }) {
 											EXPECT_EQ(storage[number - 1], number);
 										}
 									});
@@ -162,13 +162,13 @@ TEST(Storage, MultithreadedWrite) {
 		EXPECT_TRUE(storage.empty());
 	});
 
-	size_t writers = 0;
+	size_t writers    = 0;
 	const auto worker = [&] {
 		Storage<TestStorage>::Write([&](TestStorage::DataType& storage) {
 			EXPECT_EQ(++writers, 1);
 
 			const size_t size = storage.size();
-			for (int number : {1, 2, 3}) {
+			for (int number : { 1, 2, 3 }) {
 				storage.emplace_back(number);
 			}
 
@@ -204,7 +204,7 @@ TEST(Storage, MultithreadedRead) {
 		storage.clear();
 		EXPECT_TRUE(storage.empty());
 
-		for (int number : {1, 2, 3, 4, 5}) {
+		for (int number : { 1, 2, 3, 4, 5 }) {
 			storage.emplace_back(number);
 		}
 
@@ -263,7 +263,7 @@ TEST(Storage, MultithreadedRecirsion) {
 							storage.clear();
 							EXPECT_TRUE(storage.empty());
 
-							for (int number : {1, 2, 3}) {
+							for (int number : { 1, 2, 3 }) {
 								storage.emplace_back(number);
 							}
 
@@ -276,7 +276,7 @@ TEST(Storage, MultithreadedRecirsion) {
 										Storage<TestStorage>::Read([](const TestStorage::DataType& storage) {
 											EXPECT_EQ(storage.size(), 3);
 
-											for (int number : {1, 2, 3}) {
+											for (int number : { 1, 2, 3 }) {
 												EXPECT_EQ(storage[number - 1], number);
 											}
 
@@ -314,12 +314,12 @@ TEST(Storage, ConcurrentReadWrite) {
 	});
 
 	std::thread reader;
-	
+
 	const auto readerWorker = []() {
 		Storage<TestStorage>::Read([](const TestStorage::DataType& storage) {
 			const size_t size = storage.size();
 
-			for (int number : {1, 2, 3, 4, 5}) {
+			for (int number : { 1, 2, 3, 4, 5 }) {
 				std::this_thread::sleep_for(5ms);
 				EXPECT_EQ(storage.size(), size);
 			}
@@ -328,9 +328,9 @@ TEST(Storage, ConcurrentReadWrite) {
 
 	const auto writerWorker = [&] {
 		reader = std::thread(readerWorker);
-		
+
 		Storage<TestStorage>::Write([](TestStorage::DataType& storage) {
-			for (int number : {1, 2, 3, 4, 5}) {
+			for (int number : { 1, 2, 3, 4, 5 }) {
 				storage.emplace_back(number);
 
 				std::this_thread::sleep_for(10ms);

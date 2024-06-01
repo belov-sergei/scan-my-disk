@@ -2,8 +2,7 @@
 
 #pragma once
 
-#include "Log/Level.h"
-#include "Log/Time.h"
 #include "Log/Handler.h"
+#include "Log/Level.h"
 #include "Log/Logger.h"
-
+#include "Log/Time.h"

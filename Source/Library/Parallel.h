@@ -11,13 +11,13 @@ namespace Parallel {
 
 	template <typename T>
 	using OptionalType = std::optional<TaskType<T>>;
-	
+
 	// Execute tasks in parallel using worker threads. A handler, which should have the signature QueueType<T>(T, V...),
 	// processes each task and produces a queue of new tasks.
 	//
 	// Tasks are managed in a shared queue and are distributed among threads. Synchronization occurs via a mutex and a condition variable.
 	//
-	// Execution can be canceled via the cancel flag. 
+	// Execution can be canceled via the cancel flag.
 	template <typename H, typename T, typename... V>
 	void Execute(H&& handler, T&& task, bool& cancel, V&&... values) {
 		// Shared queue of tasks for all threads.
@@ -108,4 +108,4 @@ namespace Parallel {
 			thread.join();
 		}
 	}
-}
+} // namespace Parallel

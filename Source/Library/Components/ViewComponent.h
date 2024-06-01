@@ -1,14 +1,14 @@
 ﻿// Copyright ❤️ 2023-2024, Sergei Belov
 
 #pragma once
-#include <SDL_opengl.h>
-#include <imgui_internal.h>
-
 #include "Application.h"
-#include "IMGUIComponent.h"
-#include "SDLWindowComponent.h"
-#include "SDLEventComponent.h"
 #include "Filesystem.h"
+#include "IMGUIComponent.h"
+#include "SDLEventComponent.h"
+#include "SDLWindowComponent.h"
+
+#include <imgui_internal.h>
+#include <SDL_opengl.h>
 
 void Draw();
 void LoadTexture(std::string_view path, GLuint& textureId);
@@ -16,11 +16,7 @@ void LoadTexture(std::string_view path, GLuint& textureId);
 inline SDL_Window* window = nullptr;
 inline std::vector<Filesystem::VolumeData> volumes;
 
-enum class State {
-	Started,
-	Loading,
-	Chart
-};
+enum class State { Started, Loading, Chart };
 
 inline State state = State::Started;
 inline std::future<Tree::Node<Filesystem::Entry>> future;

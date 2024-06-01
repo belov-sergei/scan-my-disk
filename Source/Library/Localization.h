@@ -30,14 +30,14 @@ namespace Localization {
 		static void Add(std::string_view textId, std::string_view value);
 
 		constexpr Text(std::string_view textId)
-			: _id(Id(textId)) {}
+		    : _id(Id(textId)) {}
 
 		constexpr Text(uint32_t textId)
-			: _id(textId) {}
+		    : _id(textId) {}
 
-		operator const std::string&() const;
+		operator const std::string &() const;
 		operator std::string_view() const;
-		operator const char*() const;
+		operator const char *() const;
 		operator uint32_t() const;
 
 	private:

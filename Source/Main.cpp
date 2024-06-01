@@ -2,20 +2,21 @@
 
 #include "Components/ComponentGroup.h"
 #include "Components/EventLoopComponent.h"
+#include "Components/FrameRateComponent.h"
+#include "Components/IMGUIComponent.h"
+#include "Components/LocalizationComponent.h"
 #include "Components/SDLEventComponent.h"
 #include "Components/SDLWindowComponent.h"
-#include "Components/IMGUIComponent.h"
 #include "Components/SettingsComponent.h"
-#include "Components/LocalizationComponent.h"
 #include "Components/ViewComponent.h"
 #include "Components/WindowTitleComponent.h"
-#include "Components/FrameRateComponent.h"
 
 int main(int argc, char* argv[]) {
 	if (!std::filesystem::exists("README.md")) {
 		std::filesystem::current_path(SDL_GetBasePath());
 	}
 
+	// clang-format off
 	std::ignore = ComponentGroup<
 		EventLoopComponent,
 		SDLEventComponent,
@@ -27,6 +28,7 @@ int main(int argc, char* argv[]) {
 		WindowTitleComponent,
 		FrameRateComponent
 	>();
+	// clang-format on
 
 	Event<Application::Initialize>::Send();
 	Event<Application::Launch>::Send();

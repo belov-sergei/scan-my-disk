@@ -10,10 +10,8 @@ namespace Log {
 		constexpr bool CustomFormat = false;
 
 		template <typename T>
-		constexpr bool CustomFormat<T, std::void_t<
-			decltype(std::declval<T>().Format)
-		>> = true;
-	}
+		constexpr bool CustomFormat<T, std::void_t<decltype(std::declval<T>().Format)>> = true;
+	} // namespace TypeTraits
 
 	// Provides shared buffers for more efficient memory usage in Logger<T> instances.
 	// It allows reusing existing resources for constructing and formatting log messages.
@@ -50,7 +48,7 @@ namespace Log {
 			if (T::Level < Level::Get()) {
 				return;
 			}
-			
+
 			_buffer.clear();
 			// Format timestamp, log level prefix, and the actual message.
 			fmt::format_to(std::back_inserter(_buffer), fmt::runtime(_format), Time::Get(), T::Name, std::forward<M>(message));
@@ -68,4 +66,4 @@ namespace Log {
 		// Default log message format.
 		std::string_view _format = "{} <{}> {}\n";
 	};
-}
+} // namespace Log

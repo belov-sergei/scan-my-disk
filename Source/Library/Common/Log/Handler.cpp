@@ -5,7 +5,7 @@
 namespace Log::Handler {
 	namespace Detail {
 		std::vector<std::function<void(std::string_view)>> Handlers;
-	}
+	} // namespace Detail
 
 	std::vector<std::function<void(std::string_view)>>& List() {
 		return Detail::Handlers;
@@ -25,4 +25,4 @@ namespace Log::Handler {
 			stream << value;
 		}
 	}
-}
+} // namespace Log::Handler

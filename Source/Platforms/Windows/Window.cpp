@@ -1,6 +1,7 @@
 ﻿// Copyright ❤️ 2023-2024, Sergei Belov
 
 #include "Window.h"
+
 #include <dwmapi.h>
 
 bool CustomWindowTitleEnabled() {
@@ -15,14 +16,14 @@ LRESULT CALLBACK MyWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 			if (wParam == TRUE) {
 				return 0;
 			}
-		break;
+			break;
 	}
 
 	return CallWindowProc(SDLWndProc, hwnd, msg, wParam, lParam);
 }
 
 void SetWindowProc(int w, int h) {
-	MARGINS margins = {-1};
+	MARGINS margins = { -1 };
 	DwmExtendFrameIntoClientArea(GetActiveWindow(), &margins);
 
 	SDLWndProc = (WNDPROC)SetWindowLongPtr(GetActiveWindow(), GWLP_WNDPROC, (LONG_PTR)MyWndProc);

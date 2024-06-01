@@ -1,7 +1,7 @@
 ﻿// Copyright ❤️ 2023-2024, Sergei Belov
 
-#include <gtest/gtest.h>
 #include <Filesystem.h>
+#include <gtest/gtest.h>
 
 TEST(Filesystem, BuildTree) {
 	std::atomic<size_t> progress;

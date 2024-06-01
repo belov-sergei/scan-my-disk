@@ -10,9 +10,9 @@ namespace Filesystem {
 		Entry() = default;
 
 		Entry(size_t s, size_t d, const std::filesystem::path& p) {
-			size = s;
+			size  = s;
 			depth = d;
-			path = p;
+			path  = p;
 		}
 
 		size_t size, depth;

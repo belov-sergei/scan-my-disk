@@ -1,7 +1,8 @@
 ﻿// Copyright ❤️ 2023-2024, Sergei Belov
 
-#include <gtest/gtest.h>
 #include "Common/Checksum.h"
+
+#include <gtest/gtest.h>
 
 TEST(Checksum, EmptyString) {
 	static_assert(Common::Checksum("") == 0x00000000);

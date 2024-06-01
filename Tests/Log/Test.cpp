@@ -1,21 +1,21 @@
 ﻿// Copyright ❤️ 2023-2024, Sergei Belov
 
-#include <gtest/gtest.h>
 #include <Common/Log.h>
+#include <gtest/gtest.h>
 
 namespace Log {
-	auto Debug = Log::Logger<Level::Debug>();
+	auto Debug   = Log::Logger<Level::Debug>();
 	auto Message = Log::Logger<Level::Message>();
 	auto Warning = Log::Logger<Level::Warning>();
-	auto Error = Log::Logger<Level::Error>();
-}
+	auto Error   = Log::Logger<Level::Error>();
+} // namespace Log
 
 namespace Detail {
 	std::string TestLogHandlerBuffer;
-}
+} // namespace Detail
 
 constexpr auto Message = "Some text here";
-constexpr auto Time = "00:00:00";
+constexpr auto Time    = "00:00:00";
 
 struct TestLogHandler {
 	TestLogHandler() {
@@ -71,12 +71,12 @@ TEST(Log, Consistency) {
 
 	Log::Debug(Message);
 
-	const std::string first = Detail::TestLogHandlerBuffer;
+	const std::string first      = Detail::TestLogHandlerBuffer;
 	Detail::TestLogHandlerBuffer = {};
 
 	Log::Debug(Message);
 
-	const std::string second = Detail::TestLogHandlerBuffer;
+	const std::string second     = Detail::TestLogHandlerBuffer;
 	Detail::TestLogHandlerBuffer = {};
 
 	EXPECT_EQ(first, second);

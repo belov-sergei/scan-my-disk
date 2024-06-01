@@ -1,7 +1,7 @@
 ﻿// Copyright ❤️ 2023-2024, Sergei Belov
 
-#include <gtest/gtest.h>
 #include <Event.h>
+#include <gtest/gtest.h>
 
 struct TestEvent {
 	int counter = 0;

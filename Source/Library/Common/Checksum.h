@@ -4,7 +4,7 @@
 
 namespace Common {
 	class Crc32Kernel final {
-		template <auto ... Index>
+		template <auto... Index>
 		constexpr Crc32Kernel(std::index_sequence<Index...>) noexcept {
 			for (auto& value : _table) {
 				value = static_cast<uint32_t>(&value - _table.data());
@@ -14,7 +14,7 @@ namespace Common {
 
 	public:
 		constexpr Crc32Kernel() noexcept
-			: Crc32Kernel(std::make_index_sequence<8>()) {}
+		    : Crc32Kernel(std::make_index_sequence<8>()) {}
 
 		constexpr uint32_t operator()(std::string_view string) const {
 			uint32_t result = ~0;
@@ -29,4 +29,4 @@ namespace Common {
 	};
 
 	constexpr Crc32Kernel Checksum;
-}
+} // namespace Common
