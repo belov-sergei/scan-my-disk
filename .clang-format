@@ -1,72 +1,95 @@
----
 AccessModifierOffset: -4
 AlignAfterOpenBracket: DontAlign
 AlignArrayOfStructures: Right
+
 AlignConsecutiveAssignments:
-  Enabled: false
+  Enabled: true
+  AcrossComments: false
+  AcrossEmptyLines: false
+  AlignCompound: true
+  PadOperators: true
+
 AlignConsecutiveBitFields:
-  Enabled: false
-AlignConsecutiveDeclarations:
-  Enabled: false
+  Enabled: true
+  AcrossComments: false
+  AcrossEmptyLines: false
+
+AlignConsecutiveDeclarations: None
+
 AlignConsecutiveMacros:
-  Enabled: false
-AlignEscapedNewlines: Right
+  Enabled: true
+  AcrossComments: false
+  AcrossEmptyLines: false
+
+AlignConsecutiveShortCaseStatements:
+  Enabled: true
+  AcrossComments: false
+  AcrossEmptyLines: false
+
+AlignEscapedNewlines: Left
 AlignOperands: DontAlign
-AlignTrailingComments: false
-AllowAllArgumentsOnNextLine: false
-AllowAllParametersOfDeclarationOnNextLine: false
+AlignTrailingComments: Always
+AllowAllArgumentsOnNextLine: true
+AllowAllParametersOfDeclarationOnNextLine: true
+AllowBreakBeforeNoexceptSpecifier: Never
 AllowShortBlocksOnASingleLine: Empty
 AllowShortCaseLabelsOnASingleLine: false
+AllowShortCompoundRequirementOnASingleLine: true
 AllowShortEnumsOnASingleLine: true
 AllowShortFunctionsOnASingleLine: Empty
 AllowShortIfStatementsOnASingleLine: Never
 AllowShortLambdasOnASingleLine: Empty
 AllowShortLoopsOnASingleLine: false
-AlwaysBreakAfterDefinitionReturnType: None
-AlwaysBreakAfterReturnType: None
 AlwaysBreakBeforeMultilineStrings: false
-AlwaysBreakTemplateDeclarations: Yes
+AlwaysBreakTemplateDeclarations: true
+
+BinPackArguments: true
+BinPackParameters: true
+
 BitFieldColonSpacing: Both
+
+BreakBeforeBraces: Custom
 BraceWrapping:
   AfterCaseLabel: false
   AfterClass: false
-  AfterControlStatement: Never
+  AfterControlStatement: false
   AfterEnum: false
   AfterFunction: false
   AfterNamespace: false
   AfterStruct: false
   AfterUnion: false
   AfterExternBlock: false
-  BeforeCatch: true
-  BeforeElse: true
+  BeforeCatch: false
+  BeforeElse: false
   BeforeLambdaBody: false
-  BeforeWhile: true
-  SplitEmptyFunction: true
-  SplitEmptyRecord: true
-  SplitEmptyNamespace: true
+  BeforeWhile: false
+  SplitEmptyFunction: false
+  SplitEmptyRecord: false
+  SplitEmptyNamespace: false
+
+BracedInitializerIndentWidth: 4
+
+BreakAdjacentStringLiterals: false
+BreakAfterAttributes: Leave
 BreakBeforeBinaryOperators: None
-BreakBeforeBraces: Custom
-BreakBeforeConceptDeclarations: Never
+BreakBeforeConceptDeclarations: Allowed
 BreakBeforeTernaryOperators: true
 BreakConstructorInitializers: BeforeComma
 BreakInheritanceList: BeforeComma
 BreakStringLiterals: false
-ColumnLimit: 0
-UseTab: ForContinuationAndIndentation
-TabWidth: 4
-Standard: c++17
+
+ColumnLimit: 1000
 CompactNamespaces: false
 ConstructorInitializerIndentWidth: 4
-ContinuationIndentWidth: 4
-Cpp11BracedListStyle: true
-DeriveLineEnding: true
+ContinuationIndentWidth: 0
+Cpp11BracedListStyle: false
 DerivePointerAlignment: false
 DisableFormat: false
 EmptyLineAfterAccessModifier: Never
 EmptyLineBeforeAccessModifier: Always
-ExperimentalAutoDetectBinPacking: false
 FixNamespaceComments: true
 IncludeBlocks: Regroup
+
 IndentAccessModifiers: false
 IndentCaseBlocks: false
 IndentCaseLabels: true
@@ -76,28 +99,36 @@ IndentPPDirectives: BeforeHash
 IndentRequiresClause: false
 IndentWidth: 4
 IndentWrappedFunctionNames: false
+
 InsertBraces: true
 InsertNewlineAtEOF: true
 InsertTrailingCommas: None
+
+KeepEmptyLinesAtEOF: false
 KeepEmptyLinesAtTheStartOfBlocks: false
+
 LambdaBodyIndentation: Signature
+
 Language: Cpp
 LineEnding: CRLF
 MaxEmptyLinesToKeep: 1
 NamespaceIndentation: All
 PPIndentWidth: 4
+PackConstructorInitializers: Never
 PointerAlignment: Left
 QualifierAlignment: Left
 ReferenceAlignment: Left
 ReflowComments: false
-RemoveBracesLLVM: false
+RemoveParentheses: ReturnStatement
 RemoveSemicolon: true
 RequiresClausePosition: WithPreceding
 RequiresExpressionIndentation: OuterScope
 SeparateDefinitionBlocks: Always
-SortUsingDeclarations: Never
 ShortNamespaceLines: 0
-SortIncludes: Never
+SkipMacroDefinitionBody: true
+SortIncludes: CaseInsensitive
+SortUsingDeclarations: Never
+
 SpaceAfterCStyleCast: false
 SpaceAfterLogicalNot: false
 SpaceAfterTemplateKeyword: true
@@ -117,5 +148,13 @@ SpacesInAngles: Never
 SpacesInCStyleCastParentheses: false
 SpacesInConditionalStatement: false
 SpacesInContainerLiterals: false
-SpacesInParentheses: false
+SpacesInLineCommentPrefix:
+  Minimum: 1
+  Maximum: 1
+SpacesInParens: Never
 SpacesInSquareBrackets: false
+
+Standard: c++17
+TabWidth: 4
+
+UseTab: ForIndentation
