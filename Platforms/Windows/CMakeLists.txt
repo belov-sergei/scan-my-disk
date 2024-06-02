@@ -22,6 +22,7 @@ CREATE_PROJECT(Kernel
 		dwmapi
 	COMPILE_OPTIONS
 		/W4
+		/WX
 )
 
 CREATE_PROJECT(Application
