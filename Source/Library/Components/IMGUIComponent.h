@@ -32,11 +32,11 @@ struct IMGUIComponent final {
 			window = event.window;
 		});
 
-		Event<SDLEventComponent::Process>::Receive(this, [this](const SDLEventComponent::Process& event) {
+		Event<SDLEventComponent::Process>::Receive(this, [](const SDLEventComponent::Process& event) {
 			ImGui_ImplSDL2_ProcessEvent(&event.data);
 		});
 
-		Event<SDLWindowComponent::Destroy>::Receive(this, [this](const auto&) {
+		Event<SDLWindowComponent::Destroy>::Receive(this, [](const auto&) {
 			ImGui_ImplOpenGL3_Shutdown();
 			ImGui_ImplSDL2_Shutdown();
 			ImGui::DestroyContext();

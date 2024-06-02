@@ -7,4 +7,6 @@ bool CustomWindowTitleEnabled() {
 }
 
 void SetWindowProc(int w, int h) {
+	std::ignore = w;
+	std::ignore = h;
 }

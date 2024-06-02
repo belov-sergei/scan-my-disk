@@ -4,5 +4,6 @@
 
 namespace Log::Handler {
 	void WindowsDebugOutput::operator()(std::string_view value) const {
+		std::ignore = value;
 	}
 }
