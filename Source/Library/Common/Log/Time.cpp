@@ -1,15 +1,13 @@
 ﻿// Copyright ❤️ 2023-2024, Sergei Belov
 
 #include "Time.h"
+#include <fmt/chrono.h>
 
 namespace Log::Time {
 	namespace Detail {
-		std::function<std::string_view()> Time = [result = std::string(16, 0)]() mutable {
-			const std::time_t now = std::time(nullptr);
-
-			tm tm;
-			std::ignore = gmtime_s(&tm, &now);
-			std::ignore = std::strftime(result.data(), result.size(), "%y.%j-%T", &tm);
+		std::function<std::string_view()> Time = [result = std::string()]() mutable -> std::string_view {
+			result.clear();
+			fmt::format_to(std::back_inserter(result), "{:%y.%j-%T}", std::chrono::system_clock::now());
 
 			return result;
 		};
