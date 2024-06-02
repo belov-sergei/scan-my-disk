@@ -20,6 +20,8 @@ CREATE_PROJECT(Kernel
 		opengl32
 		imm32
 		dwmapi
+	COMPILE_OPTIONS
+		/W4
 )
 
 CREATE_PROJECT(Application
