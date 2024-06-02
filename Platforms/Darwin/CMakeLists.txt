@@ -18,6 +18,11 @@ CREATE_PROJECT(Kernel
 		pugixml-static
 		fmt
 		"-framework OpenGL"
+	COMPILE_OPTIONS
+		-Wall
+		-Wextra
+		-Wpedantic
+		-Werror
 )
 
 CREATE_PROJECT(Application
