@@ -237,7 +237,7 @@ void StartedState() {
 	ImGui::PushStyleColor(ImGuiCol_Text, Settings<Color>::Text);
 
 	ImGui::Indent(30);
-	ImGui::Text(Localization::Text("StartedState_SelectDisk_Text"));
+	ImGui::Text("%s", (const char*)Localization::Text("StartedState_SelectDisk_Text"));
 
 	{
 		const auto& [x, y] = ImGui::GetCursorPos();
@@ -261,9 +261,9 @@ void StartedState() {
 		ImGui::BeginGroup();
 		{
 			if (volume.name.empty()) {
-				ImGui::Text(volume.rootPath.c_str());
+				ImGui::Text("%s", volume.rootPath.c_str());
 			} else {
-				ImGui::Text(volume.name.c_str());
+				ImGui::Text("%s", volume.name.c_str());
 			}
 
 			const float scale = 1.0f - volume.bytesFree / (float)volume.bytesTotal;
@@ -616,7 +616,7 @@ void Draw() {
 			{
 				const auto* windowTitle = "Scan My Disk";
 				ImGui::SetCursorPos({ ImGui::GetWindowWidth() / 2 - ImGui::CalcTextSize(windowTitle).x / 2, 15 - ImGui::CalcTextSize(windowTitle).y / 2 });
-				ImGui::Text(windowTitle);
+				ImGui::Text("%s", windowTitle);
 			}
 			ImGui::PopStyleColor();
 		}
