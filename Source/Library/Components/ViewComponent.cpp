@@ -7,11 +7,12 @@
 #include "Chart.h"
 #include "Localization.h"
 #include "Settings.h"
+#include "Warnings.h"
 #include "Window.h"
 
-#pragma warning(push, 0)
+WARNINGS_IGNORE
 #include <stb_image.h>
-#pragma warning(pop)
+WARNINGS_NOTICE
 
 using SliceDrawData = std::vector<std::tuple<float, float, float, float, const Tree::Node<Filesystem::Entry>*>>;
 
