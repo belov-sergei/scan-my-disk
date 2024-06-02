@@ -17,7 +17,7 @@ namespace Common {
 		    : Crc32Kernel(std::make_index_sequence<8>()) {}
 
 		constexpr uint32_t operator()(std::string_view string) const {
-			uint32_t result = ~0;
+			uint32_t result = ~0u;
 			for (const auto value : string) {
 				result = _table[(result ^ value) & 255] ^ result >> 8;
 			}

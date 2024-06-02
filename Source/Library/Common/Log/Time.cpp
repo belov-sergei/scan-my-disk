@@ -6,7 +6,10 @@ namespace Log::Time {
 	namespace Detail {
 		std::function<std::string_view()> Time = [result = std::string(16, 0)]() mutable {
 			const std::time_t now = std::time(nullptr);
-			std::ignore           = std::strftime(result.data(), result.size(), "%y.%j-%T", std::gmtime(&now));
+
+			tm tm;
+			std::ignore = gmtime_s(&tm, &now);
+			std::ignore = std::strftime(result.data(), result.size(), "%y.%j-%T", &tm);
 
 			return result;
 		};

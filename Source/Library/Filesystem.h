@@ -9,13 +9,14 @@ namespace Filesystem {
 	struct Entry {
 		Entry() = default;
 
-		Entry(size_t s, size_t d, const std::filesystem::path& p) {
-			size  = s;
-			depth = d;
-			path  = p;
-		}
+		Entry(size_t size, size_t depth, const std::filesystem::path& path)
+		    : size(size)
+		    , depth(depth)
+		    , path(path) {}
 
-		size_t size, depth;
+		size_t size { 0 };
+		size_t depth { 0 };
+
 		std::filesystem::path path;
 	};
 
@@ -23,8 +24,9 @@ namespace Filesystem {
 	struct VolumeData {
 		std::string name;
 		std::string rootPath;
-		size_t bytesTotal;
-		size_t bytesFree;
+
+		size_t bytesTotal { 0 };
+		size_t bytesFree { 0 };
 	};
 
 	using NodeWrapper = std::reference_wrapper<Tree::Node<Entry>>;

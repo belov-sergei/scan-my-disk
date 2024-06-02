@@ -9,17 +9,23 @@
 #include "Settings.h"
 #include "Window.h"
 
+#pragma warning(push, 0)
 #include <stb_image.h>
+#pragma warning(pop)
 
 using SliceDrawData = std::vector<std::tuple<float, float, float, float, const Tree::Node<Filesystem::Entry>*>>;
 
-int w = 440, h = 540;
+int WindowWidth { 440 };
+int WindowHeight { 540 };
 
-void LoadTexture(std::string_view path, GLuint& textureId) {
+void LoadTexture(std::string_view path, ImTextureID& textureId) {
 	int width, height;
 	if (auto* pixels = stbi_load(path.data(), &width, &height, nullptr, 4)) {
-		glGenTextures(1, &textureId);
-		glBindTexture(GL_TEXTURE_2D, textureId);
+		GLuint glTextureId;
+		glGenTextures(1, &glTextureId);
+		glBindTexture(GL_TEXTURE_2D, glTextureId);
+
+		textureId = (ImTextureID)(intptr_t)glTextureId;
 
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -57,8 +63,8 @@ SliceDrawData BuildDrawData(const Tree::Node<Filesystem::Entry>& node) {
 
 		const float normalized = entry->size / (float)root;
 		const float relative   = entry->size / (float)size;
-		if (relative > 0.01) {
-			result.emplace_back(32 * (entry->depth - depth + 1), start, start + normalized, std::max(0.0f, 0.25f - normalized * 0.75f), &entry);
+		if (relative > 0.01f) {
+			result.emplace_back(32.0f * static_cast<float>(entry->depth - depth + 1), start, start + normalized, std::max(0.0f, 0.25f - normalized * 0.75f), &entry);
 		}
 
 		start += normalized;
@@ -79,8 +85,8 @@ Tree::Node<Filesystem::Entry> tree;
 
 std::stack<const Tree::Node<Filesystem::Entry>*> history;
 
-std::filesystem::path path;
-std::string size;
+std::filesystem::path CurrentPath;
+std::string CurrentSize;
 
 namespace ImGui {
 	namespace Shadow {
@@ -97,7 +103,7 @@ namespace ImGui {
 			constexpr float UV[] = { 0.00f, 1.0f / 3.0f, 1.0f / 1.5f, 1.00f };
 
 			void AddImage(float minX, float minY, float maxX, float maxY) {
-				DrawList->AddImage((void*)icons[Icons::Shadow], {}, {}, { minX, minY }, { maxX, maxY }, IM_COL32(0, 0, 0, 128));
+				DrawList->AddImage(icons[Icons::Shadow], {}, {}, { minX, minY }, { maxX, maxY }, IM_COL32(0, 0, 0, 128));
 			}
 		} // namespace Details
 
@@ -207,10 +213,11 @@ namespace ImGui {
 				{ w - 130,       h },
 			};
 
-			int index = *Details::Index;
-
-			for (const auto& [vx, vy] : vertices) {
-				Details::DrawList->VtxBuffer[index++].pos = { x + vx, y + vy };
+			{
+				int index = *Details::Index;
+				for (const auto& [vx, vy] : vertices) {
+					Details::DrawList->VtxBuffer[index++].pos = { x + vx, y + vy };
+				}
 			}
 
 			Details::State.pop();
@@ -371,7 +378,7 @@ void ChartState() {
 
 	ImGui::PushTextWrapPos(ImGui::GetWindowWidth() - 60);
 
-	std::string string = path.u8string();
+	std::string string = CurrentPath.u8string();
 	std::string text   = std::string(string.begin(), string.end());
 
 	text = fmt::vformat((const std::string&)Localization::Text("ChartState_Path_Text"), fmt::make_format_args(text));
@@ -379,7 +386,7 @@ void ChartState() {
 	ImGui::TextWrapped("%s", text.c_str());
 	ImGui::PopTextWrapPos();
 
-	ImGui::Text("%s", fmt::vformat((std::string_view)Localization::Text("ChartState_Size_Text"), fmt::make_format_args(size)).c_str());
+	ImGui::Text("%s", fmt::vformat((std::string_view)Localization::Text("ChartState_Size_Text"), fmt::make_format_args(CurrentSize)).c_str());
 
 	std::filesystem::path root = (*history.top())->path;
 	if (history.size() > 1) {
@@ -396,7 +403,7 @@ void ChartState() {
 	const float length = std::sqrt(mx * mx + my * my);
 	float angle        = ((int)(std::atan2(-my, -mx) * 180 / 3.14) + 180) / 360.0f;
 
-	const float sliceScale = std::min(w, h - 120) * scale;
+	const float sliceScale = std::min(WindowWidth, WindowHeight - 120) * scale;
 
 	const auto cx = x + offsetX * scale;
 	const auto cy = y + offsetY * scale;
@@ -438,8 +445,8 @@ void ChartState() {
 					Chart::Pie::Color(ImColor::HSV(hue, 0.15f, 0.9f));
 				}
 
-				path = (*node)->path;
-				size = Filesystem::BytesToString((*node)->size);
+				CurrentPath = (*node)->path;
+				CurrentSize = Filesystem::BytesToString((*node)->size);
 			} else {
 				if (node == top) {
 					Chart::Pie::Color(IM_COL32(72, 74, 78, 255), IM_COL32(55, 57, 62, 255));
@@ -486,7 +493,7 @@ void ChartState() {
 		ImGui::SameLine(18.0f);
 
 		if (ImGui::MenuItem(Localization::Text("ChartState_Explore_Button"))) {
-			Filesystem::OpenSystemPath(path);
+			Filesystem::OpenSystemPath(CurrentPath);
 		}
 
 		ImGui::EndPopup();
@@ -497,13 +504,13 @@ void ChartState() {
 	ImGui::PopStyleVar(3);
 
 	ImGui::SetCursorPos({ cx - 6 * scale, cy - 6 * scale });
-	ImGui::Image((void*)icons[Icons::Back], { 12 * scale, 12 * scale });
+	ImGui::Image(icons[Icons::Back], { 12 * scale, 12 * scale });
 
 	ImGui::GetWindowDrawList()->AddRectFilled({ 0, ImGui::GetWindowHeight() - 30 }, { ImGui::GetWindowWidth(), ImGui::GetWindowHeight() }, IM_COL32(55, 57, 62, 255));
 	ImGui::GetWindowDrawList()->AddLine({ 0, ImGui::GetWindowHeight() - 30 }, { ImGui::GetWindowWidth(), ImGui::GetWindowHeight() - 30 }, IM_COL32(43, 45, 48, 255));
 
 	ImGui::SetCursorPos({ 0 + 9, ImGui::GetWindowHeight() - 21 });
-	ImGui::Image((void*)icons[Icons::Folder], { 14, 13 });
+	ImGui::Image(icons[Icons::Folder], { 14, 13 });
 
 	ImGui::SameLine();
 
@@ -518,10 +525,10 @@ void ChartState() {
 }
 
 void Draw() {
-	SDL_GetWindowSize(window, &w, &h);
+	SDL_GetWindowSize(window, &WindowWidth, &WindowHeight);
 
 	ImGui::SetNextWindowPos({});
-	ImGui::SetNextWindowSize({ (float)w, (float)h });
+	ImGui::SetNextWindowSize({ (float)WindowWidth, (float)WindowHeight });
 
 	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2());
 
@@ -566,24 +573,24 @@ void Draw() {
 		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, IM_COL32(255, 255, 255, 32));
 		ImGui::PushStyleColor(ImGuiCol_ButtonActive, IM_COL32(255, 255, 255, 32));
 
-		if (ImGui::ImageButton("#Menu", (void*)icons[Icons::Menu], { 12, 12 })) {
+		if (ImGui::ImageButton("#Menu", icons[Icons::Menu], { 12, 12 })) {
 			ImGui::OpenPopup("File");
 		}
 
 		if (CustomWindowTitleEnabled()) {
 			ImGui::SetCursorPos({ ImGui::GetWindowWidth() - 48 * 3, 0 });
-			if (ImGui::ImageButton("#Minimize", (void*)icons[Icons::Minimize], { 12, 12 })) {
+			if (ImGui::ImageButton("#Minimize", icons[Icons::Minimize], { 12, 12 })) {
 				SDL_MinimizeWindow(window);
 			}
 
 			if (SDL_GetWindowFlags(window) & SDL_WINDOW_MAXIMIZED) {
 				ImGui::SetCursorPos({ ImGui::GetWindowWidth() - 48 * 2, 0 });
-				if (ImGui::ImageButton("#Restore", (void*)icons[Icons::Restore], { 12, 12 })) {
+				if (ImGui::ImageButton("#Restore", icons[Icons::Restore], { 12, 12 })) {
 					SDL_RestoreWindow(window);
 				}
 			} else {
 				ImGui::SetCursorPos({ ImGui::GetWindowWidth() - 48 * 2, 0 });
-				if (ImGui::ImageButton("#Maximize", (void*)icons[Icons::Maximize], { 12, 12 })) {
+				if (ImGui::ImageButton("#Maximize", icons[Icons::Maximize], { 12, 12 })) {
 					SDL_MaximizeWindow(window);
 				}
 			}
@@ -593,7 +600,7 @@ void Draw() {
 				ImGui::PushStyleColor(ImGuiCol_ButtonActive, IM_COL32(196, 43, 23, 255));
 
 				ImGui::SetCursorPos({ ImGui::GetWindowWidth() - 48, 0 });
-				if (ImGui::ImageButton("#Close", (void*)icons[Icons::Close], { 12, 12 })) {
+				if (ImGui::ImageButton("#Close", icons[Icons::Close], { 12, 12 })) {
 					close();
 				}
 
@@ -634,14 +641,14 @@ void Draw() {
 		ImGui::NewLine();
 		ImGui::SameLine(18.0f);
 		if (ImGui::MenuItem(Localization::Text("Menu_OpenFolder_Button"))) {
-			const auto path = Filesystem::OpenSelectFolderDialog();
-			if (!path.empty() && std::filesystem::exists(path)) {
-				space = std::make_pair(0, 0);
-
+			const auto folderPath = Filesystem::OpenSelectFolderDialog();
+			if (!folderPath.empty() && std::filesystem::exists(folderPath)) {
 				progress = 0;
-				future   = std::async(std::launch::async, [path] {
-                    return Filesystem::ParallelBuildTree(path, progress);
-                });
+
+				space  = std::make_pair(0, 0);
+				future = std::async(std::launch::async, [folderPath] {
+					return Filesystem::ParallelBuildTree(folderPath, progress);
+				});
 
 				state = State::Loading;
 			}

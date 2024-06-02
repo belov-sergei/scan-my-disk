@@ -11,7 +11,7 @@
 #include <SDL_opengl.h>
 
 void Draw();
-void LoadTexture(std::string_view path, GLuint& textureId);
+void LoadTexture(std::string_view path, ImTextureID& textureId);
 
 inline SDL_Window* window = nullptr;
 inline std::vector<Filesystem::VolumeData> volumes;
@@ -35,7 +35,7 @@ enum Icons {
 	Last
 };
 
-inline std::array<GLuint, Icons::Last> icons = {};
+inline std::array<ImTextureID, Icons::Last> icons = {};
 
 struct ViewComponent final {
 	ViewComponent() {

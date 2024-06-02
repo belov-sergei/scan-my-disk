@@ -16,11 +16,11 @@ namespace Chart {
 			} // namespace Color
 
 			// Mathematical constants.
-			constexpr float kTwoPI     = 6.28318;
-			constexpr float kAlmostOne = 0.99975;
+			constexpr float kTwoPI     = 6.28318f;
+			constexpr float kAlmostOne = 0.99975f;
 
 			// Number of segments for a full circle.
-			constexpr int kSegments = 180;
+			constexpr float kSegments = 180.0f;
 		} // namespace Details
 
 		void Begin(const ImVec2& position) {
@@ -41,7 +41,7 @@ namespace Chart {
 			}
 
 			// Calculate the number of segments based on the angle difference.
-			const int segments = std::max<int>(1, Details::kSegments * (end - start));
+			const int segments = static_cast<int>(std::max(1.0f, Details::kSegments * (end - start)));
 
 			if (end - start > Details::kAlmostOne) {
 				Details::DrawList->AddCircleFilled(Details::BeginPosition, radius, Details::Color::Fill, segments);
