@@ -29,8 +29,8 @@ void LoadTexture(std::string_view path, ImTextureID& textureId) {
 
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
 
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
 		stbi_image_free(pixels);
@@ -525,7 +525,7 @@ void ChartState() {
 }
 
 void Draw() {
-	SDL_GetWindowSize(window, &WindowWidth, &WindowHeight);
+	glfwGetWindowSize(window, &WindowWidth, &WindowHeight);
 
 	ImGui::SetNextWindowPos({});
 	ImGui::SetNextWindowSize({ (float)WindowWidth, (float)WindowHeight });
@@ -538,10 +538,7 @@ void Draw() {
 	{ ImGui::GetWindowDrawList()->AddRectFilled({}, ImGui::GetWindowSize(), IM_COL32(55, 57, 62, 255)); }
 
 	const auto close = []() {
-		SDL_Event quit;
-		quit.type = SDL_QUIT;
-
-		SDL_PushEvent(&quit);
+		glfwSetWindowShouldClose(window, GLFW_TRUE);
 	};
 
 	ImGui::SetCursorPos({ 0, 50 });
@@ -580,18 +577,18 @@ void Draw() {
 		if (CustomWindowTitleEnabled()) {
 			ImGui::SetCursorPos({ ImGui::GetWindowWidth() - 48 * 3, 0 });
 			if (ImGui::ImageButton("#Minimize", icons[Icons::Minimize], { 12, 12 })) {
-				SDL_MinimizeWindow(window);
+				glfwIconifyWindow(window);
 			}
 
-			if (SDL_GetWindowFlags(window) & SDL_WINDOW_MAXIMIZED) {
+			if (glfwGetWindowAttrib(window, GLFW_MAXIMIZED)) {
 				ImGui::SetCursorPos({ ImGui::GetWindowWidth() - 48 * 2, 0 });
 				if (ImGui::ImageButton("#Restore", icons[Icons::Restore], { 12, 12 })) {
-					SDL_RestoreWindow(window);
+					glfwRestoreWindow(window);
 				}
 			} else {
 				ImGui::SetCursorPos({ ImGui::GetWindowWidth() - 48 * 2, 0 });
 				if (ImGui::ImageButton("#Maximize", icons[Icons::Maximize], { 12, 12 })) {
-					SDL_MaximizeWindow(window);
+					glfwMaximizeWindow(window);
 				}
 			}
 
@@ -690,6 +687,10 @@ void Draw() {
 		ImGui::EndPopup();
 	}
 	ImGui::Shadow::End();
+
+	if (ImGui::GetMousePos().x > WindowWidth - 10 && ImGui::GetMousePos().y > WindowHeight - 10) {
+		ImGui::SetMouseCursor(ImGuiMouseCursor_ResizeNWSE);
+	}
 
 	ImGui::PopStyleColor(3);
 	ImGui::PopStyleVar(3);

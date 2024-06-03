@@ -4,8 +4,6 @@
 #include "Application.h"
 #include "Filesystem.h"
 #include "IMGUIComponent.h"
-#include "SDLEventComponent.h"
-#include "SDLWindowComponent.h"
 
 #include <imgui_internal.h>
 #include <SDL_opengl.h>
@@ -13,7 +11,7 @@
 void Draw();
 void LoadTexture(std::string_view path, ImTextureID& textureId);
 
-inline SDL_Window* window = nullptr;
+inline GLFWwindow* window = nullptr;
 inline std::vector<Filesystem::VolumeData> volumes;
 
 enum class State { Started, Loading, Chart };
@@ -39,7 +37,7 @@ inline std::array<ImTextureID, Icons::Last> icons = {};
 
 struct ViewComponent final {
 	ViewComponent() {
-		Event<SDLWindowComponent::Create>::Receive(this, [](const SDLWindowComponent::Create& event) {
+		Event<GLFWWindowComponent::Create>::Receive(this, [](const GLFWWindowComponent::Create& event) {
 			LoadTexture("Icons/Close.png", icons[Icons::Close]);
 			LoadTexture("Icons/Maximize.png", icons[Icons::Maximize]);
 			LoadTexture("Icons/Menu.png", icons[Icons::Menu]);

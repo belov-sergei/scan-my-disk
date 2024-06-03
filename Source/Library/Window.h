@@ -3,4 +3,4 @@
 #pragma once
 
 bool CustomWindowTitleEnabled();
-void SetWindowProc(int w, int h);
+void SetCustomWindowProcedure();

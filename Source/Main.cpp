@@ -3,10 +3,10 @@
 #include "Components/ComponentGroup.h"
 #include "Components/EventLoopComponent.h"
 #include "Components/FrameRateComponent.h"
+#include "Components/GLFWEventComponent.h"
+#include "Components/GLFWWindowComponent.h"
 #include "Components/IMGUIComponent.h"
 #include "Components/LocalizationComponent.h"
-#include "Components/SDLEventComponent.h"
-#include "Components/SDLWindowComponent.h"
 #include "Components/SettingsComponent.h"
 #include "Components/ViewComponent.h"
 #include "Components/WindowTitleComponent.h"
@@ -19,8 +19,8 @@ int main(int argc, char* argv[]) {
 	// clang-format off
 	std::ignore = ComponentGroup<
 		EventLoopComponent,
-		SDLEventComponent,
-		SDLWindowComponent,
+		GLFWEventComponent,
+		GLFWWindowComponent,
 		IMGUIComponent,
 		SettingsComponent,
 		LocalizationComponent,

@@ -6,7 +6,4 @@ bool CustomWindowTitleEnabled() {
 	return false;
 }
 
-void SetWindowProc(int w, int h) {
-	std::ignore = w;
-	std::ignore = h;
-}
+void SetCustomWindowProcedure() {}
