@@ -21,6 +21,7 @@ CREATE_PROJECT(Kernel
 		opengl32
 		imm32
 		dwmapi
+		glfw
 	COMPILE_OPTIONS
 		/W4
 		/WX
