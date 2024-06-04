@@ -1,7 +1,7 @@
 ﻿// Copyright ❤️ 2023-2024, Sergei Belov
 
 #pragma once
-#include "SDLWindowComponent.h"
+#include "GLFWWindowComponent.h"
 #include "Window.h"
 
 struct WindowTitleComponent final {

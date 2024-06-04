@@ -11,8 +11,6 @@ CREATE_PROJECT(Kernel
 	SOURCE_GROUP
 		"${PROJECT_SOURCE_DIR}/Source"
 	LINK_LIBRARIES
-		SDL2main
-		SDL2-static
 		imgui
 		stb
 		pugixml-static

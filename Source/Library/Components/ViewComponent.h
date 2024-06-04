@@ -6,7 +6,6 @@
 #include "IMGUIComponent.h"
 
 #include <imgui_internal.h>
-#include <SDL_opengl.h>
 
 void Draw();
 void LoadTexture(std::string_view path, ImTextureID& textureId);

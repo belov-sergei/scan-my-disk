@@ -1,5 +1,7 @@
 // Copyright ❤️ 2023-2024, Sergei Belov
 
+#include <windows.h>
+
 #include "Components/ComponentGroup.h"
 #include "Components/EventLoopComponent.h"
 #include "Components/FrameRateComponent.h"
@@ -11,9 +13,9 @@
 #include "Components/ViewComponent.h"
 #include "Components/WindowTitleComponent.h"
 
-int main(int argc, char* argv[]) {
+int APIENTRY WinMain(HINSTANCE hInst, HINSTANCE hInstPrev, PSTR cmdline, int cmdshow) {
 	if (!std::filesystem::exists("README.md")) {
-		std::filesystem::current_path(SDL_GetBasePath());
+		// std::filesystem::current_path(SDL_GetBasePath());
 	}
 
 	// clang-format off
