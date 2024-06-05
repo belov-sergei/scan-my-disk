@@ -16,6 +16,8 @@ CREATE_PROJECT(Kernel
 		pugixml-static
 		fmt
 		"-framework OpenGL"
+	COMPILE_DEFINITIONS
+		GL_SILENCE_DEPRECATION
 	COMPILE_OPTIONS
 		-Wall
 		-Wextra
