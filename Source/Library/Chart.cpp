@@ -16,7 +16,7 @@ namespace Chart {
 			} // namespace Color
 
 			// Mathematical constants.
-			constexpr float kTwoPI     = 6.28318f;
+			constexpr float kTwoPI = 6.28318f;
 			constexpr float kAlmostOne = 0.99975f;
 
 			// Number of segments for a full circle.
@@ -25,13 +25,13 @@ namespace Chart {
 
 		void Begin(const ImVec2& position) {
 			Details::BeginPosition = position;
-			Details::DrawList      = ImGui::GetWindowDrawList();
+			Details::DrawList = ImGui::GetWindowDrawList();
 
 			Details::Color::Fill = Details::Color::Stroke = {};
 		}
 
 		void End() {
-			Details::DrawList      = nullptr;
+			Details::DrawList = nullptr;
 			Details::BeginPosition = {};
 		}
 
@@ -63,16 +63,16 @@ namespace Chart {
 		}
 
 		void Color(ImColor fill) {
-			auto stroke  = fill.Value;
-			stroke.x    *= 0.9f;
-			stroke.y    *= 0.9f;
-			stroke.z    *= 0.9f;
+			auto stroke = fill.Value;
+			stroke.x *= 0.9f;
+			stroke.y *= 0.9f;
+			stroke.z *= 0.9f;
 
 			Color(fill, stroke);
 		}
 
 		void Color(ImColor fill, ImColor stroke) {
-			Details::Color::Fill   = fill;
+			Details::Color::Fill = fill;
 			Details::Color::Stroke = stroke;
 		}
 	} // namespace Pie

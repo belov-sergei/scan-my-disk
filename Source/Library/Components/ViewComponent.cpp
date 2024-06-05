@@ -38,7 +38,7 @@ void LoadTexture(std::string_view path, ImTextureID& textureId) {
 }
 
 SliceDrawData BuildDrawData(const Tree::Node<Filesystem::Entry>& node) {
-	const size_t root  = node->size;
+	const size_t root = node->size;
 	const size_t depth = node->depth;
 
 	std::vector<float> depthStartAngle(1);
@@ -58,11 +58,11 @@ SliceDrawData BuildDrawData(const Tree::Node<Filesystem::Entry>& node) {
 			depthStartAngle.emplace_back();
 		}
 
-		float& start                              = depthStartAngle[entry->depth - depth];
+		float& start = depthStartAngle[entry->depth - depth];
 		depthStartAngle[entry->depth - depth + 1] = start;
 
 		const float normalized = entry->size / (float)root;
-		const float relative   = entry->size / (float)size;
+		const float relative = entry->size / (float)size;
 		if (relative > 0.01f) {
 			result.emplace_back(32.0f * static_cast<float>(entry->depth - depth + 1), start, start + normalized, std::max(0.0f, 0.25f - normalized * 0.75f), &entry);
 		}
@@ -114,9 +114,9 @@ namespace ImGui {
 
 			auto& [index, position, size] = Details::State.emplace();
 
-			Details::Index    = &index;
+			Details::Index = &index;
 			Details::Position = &position;
-			Details::Size     = &size;
+			Details::Size = &size;
 
 			*Details::Index = Details::DrawList->VtxBuffer.Size;
 
@@ -156,9 +156,9 @@ namespace ImGui {
 				if (!Details::State.empty()) {
 					auto& [index, position, size] = Details::State.top();
 
-					Details::Index    = &index;
+					Details::Index = &index;
 					Details::Position = &position;
-					Details::Size     = &size;
+					Details::Size = &size;
 				}
 
 				return;
@@ -225,9 +225,9 @@ namespace ImGui {
 			if (!Details::State.empty()) {
 				auto& [index, position, size] = Details::State.top();
 
-				Details::Index    = &index;
+				Details::Index = &index;
 				Details::Position = &position;
-				Details::Size     = &size;
+				Details::Size = &size;
 			}
 		}
 	} // namespace Shadow
@@ -247,11 +247,11 @@ void StartedState() {
 	float buttonWidth = 165.0f;
 
 	for (const auto& volume : volumes) {
-		const auto bytesFreeText  = Filesystem::BytesToString(volume.bytesFree);
+		const auto bytesFreeText = Filesystem::BytesToString(volume.bytesFree);
 		const auto bytesTotalText = Filesystem::BytesToString(volume.bytesTotal);
 
 		const auto textSize = ImGui::CalcTextSize(fmt::vformat((std::string_view)Localization::Text("StartedState_FreeSpace_Text"), fmt::make_format_args(bytesFreeText, bytesTotalText)).c_str());
-		buttonWidth         = std::max(buttonWidth, textSize.x + 3.0f);
+		buttonWidth = std::max(buttonWidth, textSize.x + 3.0f);
 	}
 
 	int buttonsInRow = 0;
@@ -275,9 +275,9 @@ void StartedState() {
 					space = std::make_pair(volume.bytesTotal, volume.bytesFree);
 
 					progress = 0;
-					future   = std::async(std::launch::async, [volume] {
-                        return Filesystem::ParallelBuildTree(volume.rootPath, progress);
-                    });
+					future = std::async(std::launch::async, [volume] {
+						return Filesystem::ParallelBuildTree(volume.rootPath, progress);
+					});
 
 					state = State::Loading;
 				}
@@ -290,7 +290,7 @@ void StartedState() {
 			ImGui::GetWindowDrawList()->AddRectFilled({ x, y }, { x + (buttonWidth - 5.0f), y + 8 }, IM_COL32(190, 190, 190, 127));
 			ImGui::GetWindowDrawList()->AddRectFilled({ x, y }, { x + (buttonWidth - 5.0f) * scale, y + 8 }, IM_COL32(190, 190, 190, 255));
 
-			const auto bytesFreeText  = Filesystem::BytesToString(volume.bytesFree);
+			const auto bytesFreeText = Filesystem::BytesToString(volume.bytesFree);
 			const auto bytesTotalText = Filesystem::BytesToString(volume.bytesTotal);
 			ImGui::Text("%s", fmt::vformat((std::string_view)Localization::Text("StartedState_FreeSpace_Text"), fmt::make_format_args(bytesFreeText, bytesTotalText)).c_str());
 		}
@@ -359,11 +359,11 @@ void LoadingState() {
 }
 
 void ChartState() {
-	static float scale   = 1.0f;
+	static float scale = 1.0f;
 	static float offsetX = 0.0f, offsetY = 0.0f;
 
 	scale += ImGui::GetIO().MouseWheel * scale * 0.25f;
-	scale  = std::max(scale, 0.5f);
+	scale = std::max(scale, 0.5f);
 
 	if (ImGui::IsMouseDragging(ImGuiMouseButton_Middle)) {
 		offsetX += ImGui::GetMouseDragDelta(ImGuiMouseButton_Middle).x / scale;
@@ -379,7 +379,7 @@ void ChartState() {
 	ImGui::PushTextWrapPos(ImGui::GetWindowWidth() - 60);
 
 	std::string string = CurrentPath.u8string();
-	std::string text   = std::string(string.begin(), string.end());
+	std::string text = std::string(string.begin(), string.end());
 
 	text = fmt::vformat((const std::string&)Localization::Text("ChartState_Path_Text"), fmt::make_format_args(text));
 
@@ -393,15 +393,15 @@ void ChartState() {
 		root = std::filesystem::relative(root, root.parent_path());
 	}
 
-	auto [x, y]  = ImGui::GetWindowSize();
-	x           *= 0.5f;
-	y            = y * 0.5f + 30;
+	auto [x, y] = ImGui::GetWindowSize();
+	x *= 0.5f;
+	y = y * 0.5f + 30;
 
 	const auto mx = ImGui::GetMousePos().x - x - offsetX * scale;
 	const auto my = ImGui::GetMousePos().y - y - offsetY * scale;
 
 	const float length = std::sqrt(mx * mx + my * my);
-	float angle        = ((int)(std::atan2(-my, -mx) * 180 / 3.14) + 180) / 360.0f;
+	float angle = ((int)(std::atan2(-my, -mx) * 180 / 3.14) + 180) / 360.0f;
 
 	const float sliceScale = std::min(WindowWidth, WindowHeight - 120) * scale;
 
@@ -412,7 +412,7 @@ void ChartState() {
 
 	for (auto it = drawData.rbegin(); it != drawData.rend(); ++it) {
 		const auto& [radius, start, end, hue, node] = *it;
-		auto* top                                   = history.top();
+		auto* top = history.top();
 
 		if (!ImGui::IsPopupOpen("Menu") && !ImGui::IsPopupOpen("File")) {
 			if (length <= (radius * sliceScale / 512) && length >= ((radius - 32) * sliceScale / 512) && angle >= start && angle <= end) {
@@ -423,7 +423,7 @@ void ChartState() {
 							drawData = BuildDrawData(*history.top());
 						} else {
 							history = {};
-							state   = State::Started;
+							state = State::Started;
 						}
 					} else {
 						if (!node->isLeaf()) {
@@ -472,7 +472,7 @@ void ChartState() {
 			drawData = BuildDrawData(*history.top());
 		} else {
 			history = {};
-			state   = State::Started;
+			state = State::Started;
 		}
 	}
 
@@ -517,7 +517,7 @@ void ChartState() {
 	ImGui::SetCursorPosY(ImGui::GetWindowHeight() - 24);
 
 	string = root.u8string();
-	text   = std::string(string.begin(), string.end());
+	text = std::string(string.begin(), string.end());
 
 	ImGui::Text("%s", text.c_str());
 
@@ -642,7 +642,7 @@ void Draw() {
 			if (!folderPath.empty() && std::filesystem::exists(folderPath)) {
 				progress = 0;
 
-				space  = std::make_pair(0, 0);
+				space = std::make_pair(0, 0);
 				future = std::async(std::launch::async, [folderPath] {
 					return Filesystem::ParallelBuildTree(folderPath, progress);
 				});

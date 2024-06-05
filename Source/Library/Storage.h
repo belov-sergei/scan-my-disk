@@ -5,7 +5,7 @@
 template <typename UserType>
 class Storage final {
 	using MutexType = std::shared_mutex;
-	using DataType  = typename UserType::DataType;
+	using DataType = typename UserType::DataType;
 
 public:
 	~Storage() = delete;
@@ -48,6 +48,6 @@ private:
 	inline static MutexType mutex;
 	inline static DataType storage;
 
-	inline static thread_local size_t readCount  = 0;
+	inline static thread_local size_t readCount = 0;
 	inline static thread_local size_t writeCount = 0;
 };

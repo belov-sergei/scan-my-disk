@@ -1,6 +1,7 @@
 ﻿// Copyright ❤️ 2023-2024, Sergei Belov
 
 #include "Time.h"
+
 #include <fmt/chrono.h>
 
 namespace Log::Time {
@@ -15,7 +16,7 @@ namespace Log::Time {
 
 	void Set(std::function<std::string_view()> value) {
 		auto& time = Detail::Time;
-		time       = std::move(value);
+		time = std::move(value);
 	}
 
 	std::string_view Get() {

@@ -20,7 +20,7 @@ struct LocalizationComponent final {
 
 				for (const auto text : language) {
 					const auto textId = text.attribute("Id").as_string();
-					const auto value  = text.attribute("Value").as_string();
+					const auto value = text.attribute("Value").as_string();
 
 					Localization::Text::Add(textId, value);
 				}

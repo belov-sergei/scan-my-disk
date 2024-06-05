@@ -8,7 +8,7 @@ class Event final {
 public:
 	~Event() = delete;
 
-	using ReceiverAddressType  = void*;
+	using ReceiverAddressType = void*;
 	using ReceiverCallbackType = std::function<void(EventType&)>;
 
 	using DataType = std::unordered_map<ReceiverAddressType, ReceiverCallbackType>;

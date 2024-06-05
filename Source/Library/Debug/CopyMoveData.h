@@ -8,7 +8,7 @@ namespace Debug {
 	// in order to track the number of copy and move operations for tests.
 	template <typename ValueType>
 	struct CopyMoveData final {
-		CopyMoveData()  = default;
+		CopyMoveData() = default;
 		~CopyMoveData() = default;
 
 		template <typename... ArgumentTypes, std::enable_if_t<std::is_constructible_v<ValueType, ArgumentTypes...>, bool> = true>
@@ -18,21 +18,21 @@ namespace Debug {
 		CopyMoveData(const CopyMoveData& other) {
 			this->value = other.value;
 
-			this->moved  = other.moved;
+			this->moved = other.moved;
 			this->copied = other.copied + 1;
 		}
 
 		CopyMoveData(CopyMoveData&& other) noexcept {
 			this->value = std::move(other.value);
 
-			this->moved  = other.moved + 1;
+			this->moved = other.moved + 1;
 			this->copied = other.copied;
 		}
 
 		CopyMoveData& operator=(const CopyMoveData& other) {
 			this->value = other.value;
 
-			this->moved  = other.moved;
+			this->moved = other.moved;
 			this->copied = other.copied + 1;
 
 			return *this;
@@ -41,13 +41,13 @@ namespace Debug {
 		CopyMoveData& operator=(CopyMoveData&& other) noexcept {
 			this->value = std::move(other.value);
 
-			this->moved  = other.moved + 1;
+			this->moved = other.moved + 1;
 			this->copied = other.copied;
 
 			return *this;
 		}
 
-		size_t moved  = 0;
+		size_t moved = 0;
 		size_t copied = 0;
 
 		ValueType value = {};

@@ -46,8 +46,8 @@ namespace Localization {
 	}
 
 	void Reset() {
-		Details::Default   = 0;
-		Details::Language  = 0;
+		Details::Default = 0;
+		Details::Language = 0;
 		Details::Languages = {};
 	}
 

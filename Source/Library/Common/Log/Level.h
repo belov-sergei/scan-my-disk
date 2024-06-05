@@ -22,25 +22,25 @@ namespace Log::Level {
 
 	// Detailed debugging information during the development and testing of the application.
 	struct Debug {
-		constexpr static uint8_t Level         = 1;
+		constexpr static uint8_t Level = 1;
 		constexpr static std::string_view Name = "Debug";
 	};
 
 	// General information about the program's execution progress.
 	struct Message {
-		constexpr static uint8_t Level         = 2;
+		constexpr static uint8_t Level = 2;
 		constexpr static std::string_view Name = "Message";
 	};
 
 	// Possible issues or non-critical errors that do not lead to a critical failure of the application.
 	struct Warning {
-		constexpr static uint8_t Level         = 3;
+		constexpr static uint8_t Level = 3;
 		constexpr static std::string_view Name = "Warning";
 	};
 
 	// Errors that lead to a failure or incorrect operation of the application.
 	struct Error {
-		constexpr static uint8_t Level         = 4;
+		constexpr static uint8_t Level = 4;
 		constexpr static std::string_view Name = "Error";
 	};
 } // namespace Log::Level

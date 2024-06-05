@@ -16,14 +16,14 @@ struct Settings<User> {
 	inline static auto Language = Localization::Id("English");
 
 	static void Load(pugi::xml_node root) {
-		const auto user     = root.child("User");
+		const auto user = root.child("User");
 		const auto language = user.child("Language");
 
 		Language = language.attribute("Value").as_uint(Language);
 	}
 
 	static void Save(pugi::xml_node root) {
-		auto user     = root.append_child("User");
+		auto user = root.append_child("User");
 		auto language = user.append_child("Language");
 
 		auto value = language.append_attribute("Value");

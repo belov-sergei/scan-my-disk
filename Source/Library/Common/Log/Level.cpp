@@ -9,7 +9,7 @@ namespace Log::Level {
 
 	void Set(uint8_t value) {
 		auto& level = Detail::Level;
-		level       = value;
+		level = value;
 	}
 
 	uint8_t Get() {
