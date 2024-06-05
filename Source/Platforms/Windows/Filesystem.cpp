@@ -3,8 +3,12 @@
 #include "fmt/xchar.h"
 
 #include <Filesystem.h>
-#include <shlobj_core.h>
 #include <Windows.h>
+
+// clang-format off
+#include <shellapi.h>
+#include <shlobj_core.h>
+// clang-format on
 
 namespace Filesystem {
 	namespace Detail {
@@ -54,11 +58,11 @@ namespace Filesystem {
 		VolumeData MakeVolumeData(char driveLetter) {
 			VolumeData result;
 			result.rootPath = fmt::format("{}:\\", driveLetter);
-			result.name     = GetVolumeName(result.rootPath);
+			result.name = GetVolumeName(result.rootPath);
 
 			const auto& [bytesTotal, bytesFree] = GetVolumeCapacity(result.rootPath);
-			result.bytesTotal                   = bytesTotal;
-			result.bytesFree                    = bytesFree;
+			result.bytesTotal = bytesTotal;
+			result.bytesFree = bytesFree;
 
 			return result;
 		}
@@ -99,7 +103,7 @@ namespace Filesystem {
 		std::error_code error;
 		std::queue<NodeWrapper> result;
 
-		auto iterator  = std::filesystem::directory_iterator(node->path, error);
+		auto iterator = std::filesystem::directory_iterator(node->path, error);
 		const auto end = std::filesystem::end(iterator);
 
 		const auto depth = node->depth + 1;
@@ -117,8 +121,8 @@ namespace Filesystem {
 				if (iterator->is_directory(error) && !error) {
 					result.emplace(std::ref(child));
 				} else if (iterator->file_size(error) && !error) {
-					child->size  = iterator->file_size(error);
-					total       += child->size;
+					child->size = iterator->file_size(error);
+					total += child->size;
 				}
 			}
 
