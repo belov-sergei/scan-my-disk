@@ -1,17 +1,12 @@
 ﻿// Copyright ❤️ 2023-2024, Sergei Belov
 
-#define STB_IMAGE_IMPLEMENTATION
 #include "ViewComponent.h"
 
 #include "Chart.h"
+#include "Image.h"
 #include "Localization.h"
 #include "Settings.h"
-#include "Warnings.h"
 #include "Window.h"
-
-WARNINGS_IGNORE
-#include <stb_image.h>
-WARNINGS_NOTICE
 
 using SliceDrawData = std::vector<std::tuple<float, float, float, float, const Tree::Node<Filesystem::Entry>*>>;
 
@@ -20,7 +15,7 @@ int WindowHeight { 540 };
 
 void LoadTexture(std::string_view path, ImTextureID& textureId) {
 	int width, height;
-	if (auto* pixels = stbi_load(path.data(), &width, &height, nullptr, 4)) {
+	if (auto* pixels = Image::Load(path, width, height, 4)) {
 		GLuint glTextureId;
 		glGenTextures(1, &glTextureId);
 		glBindTexture(GL_TEXTURE_2D, glTextureId);
@@ -33,7 +28,7 @@ void LoadTexture(std::string_view path, ImTextureID& textureId) {
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
 
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
-		stbi_image_free(pixels);
+		Image::Free(pixels);
 	}
 }
 
