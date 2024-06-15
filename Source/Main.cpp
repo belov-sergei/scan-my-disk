@@ -8,6 +8,7 @@
 #include "Components/IMGUIComponent.h"
 #include "Components/LocalizationComponent.h"
 #include "Components/SettingsComponent.h"
+#include "Components/SystemFontComponent.h"
 #include "Components/ViewComponent.h"
 #include "Components/WindowTitleComponent.h"
 
@@ -20,6 +21,7 @@ int main(int argc, char* argv[]) {
 
 	// clang-format off
 	std::ignore = ComponentGroup<
+		SystemFontComponent,
 		EventLoopComponent,
 		GLFWEventComponent,
 		GLFWWindowComponent,
