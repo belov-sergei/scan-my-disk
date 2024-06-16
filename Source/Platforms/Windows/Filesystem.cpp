@@ -1,5 +1,6 @@
 // Copyright ❤️ 2023-2024, Sergei Belov
 
+#include "Common/Encoding.h"
 #include "fmt/xchar.h"
 
 #include <Filesystem.h>
@@ -12,41 +13,19 @@
 
 namespace Filesystem {
 	namespace Detail {
-		// Converts a multi-byte string to a wide character string.
-		std::wstring MultiByteToWideChar(std::string_view value) {
-			const int bufferSize = ::MultiByteToWideChar(CP_UTF8, 0, value.data(), static_cast<int>(value.size()), nullptr, 0);
-
-			std::wstring result(bufferSize, 0);
-
-			::MultiByteToWideChar(CP_UTF8, 0, value.data(), static_cast<int>(value.size()), result.data(), static_cast<int>(result.size()));
-
-			return result;
-		}
-
-		// Converts a wide character string to a multibyte string using UTF-8 encoding.
-		std::string WideCharToMultiByte(std::wstring_view value) {
-			const int bufferSize = ::WideCharToMultiByte(CP_UTF8, 0, value.data(), static_cast<int>(value.size()), nullptr, 0, nullptr, nullptr);
-
-			std::string result(bufferSize, 0);
-
-			::WideCharToMultiByte(CP_UTF8, 0, value.data(), static_cast<int>(value.size()), result.data(), static_cast<int>(result.size()), nullptr, nullptr);
-
-			return result;
-		}
-
 		// Retrieves the name of a volume based on the specified volume path.
 		std::string GetVolumeName(std::string_view volume) {
-			const std::wstring rootPath = MultiByteToWideChar(volume);
+			const std::wstring rootPath = Encoding::MultiByteToWideChar(volume);
 
 			WCHAR buffer[MAX_PATH + 1];
 			::GetVolumeInformationW(rootPath.c_str(), buffer, MAX_PATH + 1, nullptr, nullptr, nullptr, nullptr, 0);
 
-			return WideCharToMultiByte(buffer);
+			return Encoding::WideCharToMultiByte(buffer);
 		}
 
 		// Retrieves the total and free capacity of a given volume.
 		std::tuple<std::size_t, std::size_t> GetVolumeCapacity(std::string_view volume) {
-			const std::wstring rootPath = MultiByteToWideChar(volume);
+			const std::wstring rootPath = Encoding::MultiByteToWideChar(volume);
 
 			ULARGE_INTEGER bytesTotal, bytesFree;
 			::GetDiskFreeSpaceExW(rootPath.data(), nullptr, &bytesTotal, &bytesFree);
@@ -96,7 +75,7 @@ namespace Filesystem {
 		std::wstring result(pathBuffer);
 		result += L"\\Scan My Disk\\Settings.xml";
 
-		return Detail::WideCharToMultiByte(result);
+		return Encoding::WideCharToMultiByte(result);
 	}
 
 	std::queue<NodeWrapper> EnumerateDirectory(Tree::Node<Entry>& node, std::atomic<size_t>& progress) {
