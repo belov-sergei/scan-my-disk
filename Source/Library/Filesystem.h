@@ -55,6 +55,19 @@ namespace Filesystem {
 
 	// Cancels the build tree operation.
 	void CancelBuildTree();
+
+	template <typename DataType>
+	std::vector<DataType> ReadFile(std::filesystem::path path) {
+		std::ifstream stream(path.native(), std::ios::binary | std::ios::ate);
+
+		const auto size = stream.tellg();
+		stream.seekg(0, std::ios::beg);
+
+		std::vector<DataType> result(size);
+		stream.read(reinterpret_cast<char*>(result.data()), size);
+
+		return result;
+	}
 } // namespace Filesystem
 
 template <>
