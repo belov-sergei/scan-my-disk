@@ -9,8 +9,12 @@ WARNINGS_IGNORE
 #include <stb_image.h>
 WARNINGS_NOTICE
 
-void* Image::Load(std::string_view path, int& width, int& height, int channels) {
+unsigned char* Image::Load(std::string_view path, int& width, int& height, int channels) {
 	return stbi_load(path.data(), &width, &height, nullptr, channels);
+}
+
+unsigned char* Image::Load(const unsigned char* buffer, int length, int& width, int& height, int channels) {
+	return stbi_load_from_memory(buffer, length, &width, &height, nullptr, channels);
 }
 
 void Image::Free(void* bytes) {

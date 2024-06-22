@@ -3,6 +3,7 @@
 #pragma once
 
 namespace Image {
-	void* Load(std::string_view path, int& width, int& height, int channels);
+	unsigned char* Load(std::string_view path, int& width, int& height, int channels);
+	unsigned char* Load(const unsigned char* buffer, int length, int& width, int& height, int channels);
 	void Free(void* bytes);
 } // namespace Image
