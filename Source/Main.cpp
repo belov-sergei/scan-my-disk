@@ -16,10 +16,6 @@
 #include <Main.h>
 
 int main(int argc, char* argv[]) {
-	if (!std::filesystem::exists("README.md")) {
-		// std::filesystem::current_path(SDL_GetBasePath());
-	}
-
 	// clang-format off
 	std::ignore = ComponentGroup<
 		SystemFontComponent,
