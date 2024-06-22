@@ -137,7 +137,7 @@ int main(int argc, char* argv[]) {
 			}
 		}
 
-		stream << fmt::format("\t{{0, (ImWchar){}, {}, {}, {}, {}, {}f, {{{}, {}}}}},\n", glyph.codepoint, x, y, glyph.width, glyph.height, glyph.advanceX, glyph.offsetX, glyph.offsetY + 11);
+		stream << fmt::format("\t{{0, (ImWchar){}, {}, {}, {}, {}, {}f, {{{}, {}}}}},\n", glyph.codepoint, x, y, glyph.width, glyph.height, glyph.advanceX, glyph.offsetX, glyph.offsetY + 15);
 
 		x += glyph.width;
 		if (glyph.height > maxGlyphHeight) {
