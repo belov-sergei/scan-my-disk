@@ -13,9 +13,9 @@ using SliceDrawData = std::vector<std::tuple<float, float, float, float, const T
 int WindowWidth { 440 };
 int WindowHeight { 540 };
 
-void LoadTexture(std::string_view path, ImTextureID& textureId) {
+void LoadTexture(const unsigned char* buffer, int length, ImTextureID& textureId) {
 	int width, height;
-	if (auto* pixels = Image::Load(path, width, height, 4)) {
+	if (auto* pixels = Image::Load(buffer, length, width, height, 4)) {
 		GLuint glTextureId;
 		glGenTextures(1, &glTextureId);
 		glBindTexture(GL_TEXTURE_2D, glTextureId);

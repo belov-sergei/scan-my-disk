@@ -3,12 +3,13 @@
 #pragma once
 #include "Application.h"
 #include "Filesystem.h"
+#include "Icons.Generated.h"
 #include "IMGUIComponent.h"
 
 #include <imgui_internal.h>
 
 void Draw();
-void LoadTexture(std::string_view path, ImTextureID& textureId);
+void LoadTexture(const unsigned char* buffer, int length, ImTextureID& textureId);
 
 inline GLFWwindow* window = nullptr;
 inline std::vector<Filesystem::VolumeData> volumes;
@@ -24,7 +25,6 @@ enum Icons {
 	Menu,
 	Minimize,
 	Restore,
-	Icon,
 	Shadow,
 	Back,
 	Folder,
@@ -37,15 +37,14 @@ inline std::array<ImTextureID, Icons::Last> icons = {};
 struct ViewComponent final {
 	ViewComponent() {
 		Event<GLFWWindowComponent::Create>::Receive(this, [](const GLFWWindowComponent::Create& event) {
-			LoadTexture("Icons/Close.png", icons[Icons::Close]);
-			LoadTexture("Icons/Maximize.png", icons[Icons::Maximize]);
-			LoadTexture("Icons/Menu.png", icons[Icons::Menu]);
-			LoadTexture("Icons/Minimize.png", icons[Icons::Minimize]);
-			LoadTexture("Icons/Restore.png", icons[Icons::Restore]);
-			LoadTexture("Icons/Icon.png", icons[Icons::Icon]);
-			LoadTexture("Icons/Shadow.png", icons[Icons::Shadow]);
-			LoadTexture("Icons/Back.png", icons[Icons::Back]);
-			LoadTexture("Icons/Folder.png", icons[Icons::Folder]);
+			LoadTexture(CloseIcon, sizeof(CloseIcon), icons[Icons::Close]);
+			LoadTexture(MaximizeIcon, sizeof(MaximizeIcon), icons[Icons::Maximize]);
+			LoadTexture(MenuIcon, sizeof(MenuIcon), icons[Icons::Menu]);
+			LoadTexture(MinimizeIcon, sizeof(MinimizeIcon), icons[Icons::Minimize]);
+			LoadTexture(RestoreIcon, sizeof(RestoreIcon), icons[Icons::Restore]);
+			LoadTexture(ShadowIcon, sizeof(ShadowIcon), icons[Icons::Shadow]);
+			LoadTexture(BackIcon, sizeof(BackIcon), icons[Icons::Back]);
+			LoadTexture(FolderIcon, sizeof(FolderIcon), icons[Icons::Folder]);
 
 			volumes = Filesystem::GetVolumesData();
 
