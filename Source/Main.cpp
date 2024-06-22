@@ -6,6 +6,7 @@
 #include "Components/GLFWEventComponent.h"
 #include "Components/GLFWWindowComponent.h"
 #include "Components/IMGUIComponent.h"
+#include "Components/IMGUIFontComponent.h"
 #include "Components/LocalizationComponent.h"
 #include "Components/SettingsComponent.h"
 #include "Components/SystemFontComponent.h"
@@ -26,6 +27,7 @@ int main(int argc, char* argv[]) {
 		GLFWEventComponent,
 		GLFWWindowComponent,
 		IMGUIComponent,
+		IMGUIFontComponent,
 		SettingsComponent,
 		LocalizationComponent,
 		ViewComponent,
