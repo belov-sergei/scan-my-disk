@@ -4,6 +4,8 @@
 #include "Event.h"
 
 struct Application {
+	struct Loading {};
+
 	struct Initialize {};
 
 	struct Launch {};

@@ -6,7 +6,7 @@
 
 struct SettingsComponent final {
 	SettingsComponent() {
-		Event<Application::Initialize>::Receive(this, [](const auto&) {
+		Event<Application::Loading>::Receive(this, [](const Application::Loading&) {
 			Settings<>::Load();
 		});
 	}

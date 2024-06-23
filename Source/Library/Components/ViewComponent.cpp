@@ -4,6 +4,7 @@
 
 #include "Chart.h"
 #include "Image.h"
+#include "IMGUIFontComponent.h"
 #include "Localization.h"
 #include "Settings.h"
 #include "Window.h"
@@ -376,9 +377,31 @@ void ChartState() {
 	std::string string = CurrentPath.u8string();
 	std::string text = std::string(string.begin(), string.end());
 
-	text = fmt::vformat((const std::string&)Localization::Text("ChartState_Path_Text"), fmt::make_format_args(text));
+	auto cursor = ImGui::GetCursorPos();
+	cursor.y -= 4;
 
+	ImGui::Text("%s", (const char*)Localization::Text("ChartState_Path_Text"));
+
+	int padding = 10;
+	if (Localization::Language() == Localization::Id("French")) {
+		padding += 8;
+	} else if (Localization::Language() == Localization::Id("Portuguese")) {
+		padding += 8;
+	} else if (Localization::Language() == Localization::Id("Korean")) {
+		padding -= 1;
+	} else if (Localization::Language() == Localization::Id("Italian")) {
+		padding += 8;
+	}
+
+	std::string pathFormatString(padding, ' ');
+	pathFormatString += "{}";
+
+	text = fmt::vformat(pathFormatString, fmt::make_format_args(text));
+
+	ImGui::SetCursorPos(cursor);
+	ImGui::PushFont(IMGUIFontComponent::SystemFont);
 	ImGui::TextWrapped("%s", text.c_str());
+	ImGui::PopFont();
 	ImGui::PopTextWrapPos();
 
 	ImGui::Text("%s", fmt::vformat((std::string_view)Localization::Text("ChartState_Size_Text"), fmt::make_format_args(CurrentSize)).c_str());
@@ -514,7 +537,9 @@ void ChartState() {
 	string = root.u8string();
 	text = std::string(string.begin(), string.end());
 
+	ImGui::PushFont(IMGUIFontComponent::SystemFont);
 	ImGui::Text("%s", text.c_str());
+	ImGui::PopFont();
 
 	ImGui::PopStyleColor(1);
 }
@@ -528,6 +553,7 @@ void Draw() {
 	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2());
 
 	ImGui::Begin("Scan My Disk", nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoSavedSettings);
+	ImGui::PushFont(IMGUIFontComponent::DefaultFont);
 
 	// Window Background.
 	{ ImGui::GetWindowDrawList()->AddRectFilled({}, ImGui::GetWindowSize(), IM_COL32(55, 57, 62, 255)); }
@@ -690,6 +716,7 @@ void Draw() {
 	ImGui::PopStyleColor(3);
 	ImGui::PopStyleVar(3);
 
+	ImGui::PopFont();
 	ImGui::End();
 
 	ImGui::PopStyleVar();

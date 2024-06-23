@@ -32,6 +32,7 @@ int main(int argc, char* argv[]) {
 	>();
 	// clang-format on
 
+	Event<Application::Loading>::Send();
 	Event<Application::Initialize>::Send();
 	Event<Application::Launch>::Send();
 

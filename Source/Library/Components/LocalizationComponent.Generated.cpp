@@ -8,7 +8,7 @@ void LocalizationComponent::LoadText() {
 	Localization::Text::Add("StartedState_SelectDisk_Text", "Select a disk:");
 	Localization::Text::Add("StartedState_FreeSpace_Text", "{0} free of {1}");
 	Localization::Text::Add("LoadingState_AbortLoading_Button", "Abort");
-	Localization::Text::Add("ChartState_Path_Text", "Path: {}");
+	Localization::Text::Add("ChartState_Path_Text", "Path:");
 	Localization::Text::Add("ChartState_Size_Text", "Size: {}");
 	Localization::Text::Add("ChartState_Explore_Button", "Browse");
 	Localization::Text::Add("ChartState_Open_Button", "Open");
@@ -32,7 +32,7 @@ void LocalizationComponent::LoadText() {
 	Localization::Text::Add("StartedState_SelectDisk_Text", "Sélectionnez un disque :");
 	Localization::Text::Add("StartedState_FreeSpace_Text", "{0} libre sur {1}");
 	Localization::Text::Add("LoadingState_AbortLoading_Button", "Annuler");
-	Localization::Text::Add("ChartState_Path_Text", "Chemin : {}");
+	Localization::Text::Add("ChartState_Path_Text", "Chemin :");
 	Localization::Text::Add("ChartState_Size_Text", "Taille : {}");
 	Localization::Text::Add("ChartState_Explore_Button", "Explorer");
 	Localization::Text::Add("ChartState_Open_Button", "Ouvrir");
@@ -45,7 +45,7 @@ void LocalizationComponent::LoadText() {
 	Localization::Text::Add("StartedState_SelectDisk_Text", "Seleccione un disco:");
 	Localization::Text::Add("StartedState_FreeSpace_Text", "{0} libre de {1}");
 	Localization::Text::Add("LoadingState_AbortLoading_Button", "Abortar");
-	Localization::Text::Add("ChartState_Path_Text", "Ruta: {}");
+	Localization::Text::Add("ChartState_Path_Text", "Ruta:");
 	Localization::Text::Add("ChartState_Size_Text", "Tamaño: {}");
 	Localization::Text::Add("ChartState_Explore_Button", "Explorar");
 	Localization::Text::Add("ChartState_Open_Button", "Abrir");
@@ -58,7 +58,7 @@ void LocalizationComponent::LoadText() {
 	Localization::Text::Add("StartedState_SelectDisk_Text", "选择一个磁盘：");
 	Localization::Text::Add("StartedState_FreeSpace_Text", "{0} 可用，共 {1}");
 	Localization::Text::Add("LoadingState_AbortLoading_Button", "中止");
-	Localization::Text::Add("ChartState_Path_Text", "路径：{}");
+	Localization::Text::Add("ChartState_Path_Text", "路径：");
 	Localization::Text::Add("ChartState_Size_Text", "大小：{}");
 	Localization::Text::Add("ChartState_Explore_Button", "浏览");
 	Localization::Text::Add("ChartState_Open_Button", "打开");
@@ -71,7 +71,7 @@ void LocalizationComponent::LoadText() {
 	Localization::Text::Add("StartedState_SelectDisk_Text", "Выберите диск:");
 	Localization::Text::Add("StartedState_FreeSpace_Text", "{0} свободно из {1}");
 	Localization::Text::Add("LoadingState_AbortLoading_Button", "Прервать");
-	Localization::Text::Add("ChartState_Path_Text", "Путь: {}");
+	Localization::Text::Add("ChartState_Path_Text", "Путь:");
 	Localization::Text::Add("ChartState_Size_Text", "Размер: {}");
 	Localization::Text::Add("ChartState_Explore_Button", "Обзор");
 	Localization::Text::Add("ChartState_Open_Button", "Открыть");
@@ -84,7 +84,7 @@ void LocalizationComponent::LoadText() {
 	Localization::Text::Add("StartedState_SelectDisk_Text", "Wählen Sie ein Laufwerk:");
 	Localization::Text::Add("StartedState_FreeSpace_Text", "{0} frei von {1}");
 	Localization::Text::Add("LoadingState_AbortLoading_Button", "Abbrechen");
-	Localization::Text::Add("ChartState_Path_Text", "Pfad: {}");
+	Localization::Text::Add("ChartState_Path_Text", "Pfad:");
 	Localization::Text::Add("ChartState_Size_Text", "Größe: {}");
 	Localization::Text::Add("ChartState_Explore_Button", "Erkunden");
 	Localization::Text::Add("ChartState_Open_Button", "Öffnen");
@@ -97,7 +97,7 @@ void LocalizationComponent::LoadText() {
 	Localization::Text::Add("StartedState_SelectDisk_Text", "Selecione um disco:");
 	Localization::Text::Add("StartedState_FreeSpace_Text", "{0} livre de {1}");
 	Localization::Text::Add("LoadingState_AbortLoading_Button", "Abortar");
-	Localization::Text::Add("ChartState_Path_Text", "Caminho: {}");
+	Localization::Text::Add("ChartState_Path_Text", "Caminho:");
 	Localization::Text::Add("ChartState_Size_Text", "Tamanho: {}");
 	Localization::Text::Add("ChartState_Explore_Button", "Explorar");
 	Localization::Text::Add("ChartState_Open_Button", "Abrir");
@@ -110,7 +110,7 @@ void LocalizationComponent::LoadText() {
 	Localization::Text::Add("StartedState_SelectDisk_Text", "ディスクを選択：");
 	Localization::Text::Add("StartedState_FreeSpace_Text", "{0} の空き、合計 {1}");
 	Localization::Text::Add("LoadingState_AbortLoading_Button", "中止");
-	Localization::Text::Add("ChartState_Path_Text", "パス：{}");
+	Localization::Text::Add("ChartState_Path_Text", "パス：");
 	Localization::Text::Add("ChartState_Size_Text", "サイズ：{}");
 	Localization::Text::Add("ChartState_Explore_Button", "探索");
 	Localization::Text::Add("ChartState_Open_Button", "開く");
@@ -123,7 +123,7 @@ void LocalizationComponent::LoadText() {
 	Localization::Text::Add("StartedState_SelectDisk_Text", "디스크 선택:");
 	Localization::Text::Add("StartedState_FreeSpace_Text", "{0} 여유, 총 {1}");
 	Localization::Text::Add("LoadingState_AbortLoading_Button", "중단");
-	Localization::Text::Add("ChartState_Path_Text", "경로: {}");
+	Localization::Text::Add("ChartState_Path_Text", "경로:");
 	Localization::Text::Add("ChartState_Size_Text", "크기: {}");
 	Localization::Text::Add("ChartState_Explore_Button", "탐색");
 	Localization::Text::Add("ChartState_Open_Button", "열기");
@@ -136,7 +136,7 @@ void LocalizationComponent::LoadText() {
 	Localization::Text::Add("StartedState_SelectDisk_Text", "Seleziona un disco:");
 	Localization::Text::Add("StartedState_FreeSpace_Text", "{0} libero di {1}");
 	Localization::Text::Add("LoadingState_AbortLoading_Button", "Interrompi");
-	Localization::Text::Add("ChartState_Path_Text", "Percorso: {}");
+	Localization::Text::Add("ChartState_Path_Text", "Percorso:");
 	Localization::Text::Add("ChartState_Size_Text", "Dimensione: {}");
 	Localization::Text::Add("ChartState_Explore_Button", "Esplora");
 	Localization::Text::Add("ChartState_Open_Button", "Apri");
@@ -149,7 +149,7 @@ void LocalizationComponent::LoadText() {
 	Localization::Text::Add("StartedState_SelectDisk_Text", "Selecteer een schijf:");
 	Localization::Text::Add("StartedState_FreeSpace_Text", "{0} vrij van {1}");
 	Localization::Text::Add("LoadingState_AbortLoading_Button", "Afbreken");
-	Localization::Text::Add("ChartState_Path_Text", "Pad: {}");
+	Localization::Text::Add("ChartState_Path_Text", "Pad:");
 	Localization::Text::Add("ChartState_Size_Text", "Grootte: {}");
 	Localization::Text::Add("ChartState_Explore_Button", "Verkennen");
 	Localization::Text::Add("ChartState_Open_Button", "Openen");

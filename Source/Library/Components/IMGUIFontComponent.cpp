@@ -2,17 +2,33 @@
 
 #include "Application.h"
 #include "Image.h"
+#include "IMGUIComponent.h"
 #include "IMGUIFontComponent.Generated.h"
+#include "SystemFontComponent.h"
 
 IMGUIFontComponent::IMGUIFontComponent() {
-	Event<Application::Launch>::Receive(this, [this](const Application::Launch&) {
+	Event<IMGUIComponent::CreateContext>::Receive(this, [this](const IMGUIComponent::CreateContext&) {
 		ImFontAtlas* Fonts = ImGui::GetIO().Fonts;
 		int ignore = 0;
 
-		Fonts->AddFontDefault();
+		Storage<FontCollection>::Write([&](FontCollection& collection) {
+			const auto& binaryFontData = collection.GetFont(SystemFontComponent::FontId);
 
-		const auto addCustomGlyph = [&, defaultFont = ImGui::GetDefaultFont()](Glyph& glyph) {
-			glyph.index = Fonts->AddCustomRectFontGlyph(defaultFont, glyph.codepoint, glyph.width, glyph.height, glyph.advanceX, glyph.offset);
+			ImFontConfig config;
+			config.FontDataOwnedByAtlas = false;
+
+			SystemFont = Fonts->AddFontFromMemoryTTF((void*)binaryFontData.data(), (int)binaryFontData.size(), 18.0f, &config, Fonts->GetGlyphRangesCyrillic());
+
+			config.MergeMode = true;
+			Fonts->AddFontFromMemoryTTF((void*)binaryFontData.data(), (int)binaryFontData.size(), 18.0f, &config, Fonts->GetGlyphRangesChineseSimplifiedCommon());
+			Fonts->AddFontFromMemoryTTF((void*)binaryFontData.data(), (int)binaryFontData.size(), 18.0f, &config, Fonts->GetGlyphRangesJapanese());
+			Fonts->AddFontFromMemoryTTF((void*)binaryFontData.data(), (int)binaryFontData.size(), 18.0f, &config, Fonts->GetGlyphRangesKorean());
+		});
+
+		DefaultFont = Fonts->AddFontDefault();
+
+		const auto addCustomGlyph = [&](Glyph& glyph) {
+			glyph.index = Fonts->AddCustomRectFontGlyph(DefaultFont, glyph.codepoint, glyph.width, glyph.height, glyph.advanceX, glyph.offset);
 		};
 
 		std::for_each(std::begin(Glyphs), std::end(Glyphs), addCustomGlyph);

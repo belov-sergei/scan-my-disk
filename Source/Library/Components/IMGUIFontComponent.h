@@ -9,6 +9,9 @@ struct IMGUIFontComponent final {
 	using BaseImageIterator = MemoryRegionIterator<unsigned char>;
 	using TargetImageIterator = MemoryRegionIterator<ImU32>;
 
+	inline static ImFont* DefaultFont = nullptr;
+	inline static ImFont* SystemFont = nullptr;
+
 	struct ImageData {
 		int stride = 0;
 		unsigned char* data = nullptr;

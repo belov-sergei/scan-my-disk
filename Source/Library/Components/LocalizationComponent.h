@@ -6,7 +6,7 @@
 
 struct LocalizationComponent final {
 	LocalizationComponent() {
-		Event<Application::Launch>::Receive(this, [](const auto&) {
+		Event<Application::Loading>::Receive(this, [](const Application::Loading&) {
 			LoadText();
 			Localization::Language(Settings<User>::Language);
 		});

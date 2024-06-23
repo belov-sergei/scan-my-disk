@@ -9,13 +9,13 @@ struct SystemFontComponent final {
 	inline static const Identifier FontId = Identifier::Next();
 
 	SystemFontComponent() {
-		Event<Application::Initialize>::Receive(this, [this](const auto&) {
+		Event<Application::Loading>::Receive(this, [this](const Application::Loading&) {
 			Storage<FontCollection>::Write([this](FontCollection& collection) {
 				collection.CreateFont(FontId, GetBinaryFontData());
 			});
 		});
 
-		Event<Application::Terminate>::Receive(this, [](const auto&) {
+		Event<Application::Terminate>::Receive(this, [](const Application::Terminate&) {
 			Storage<FontCollection>::Write([](FontCollection& collection) {
 				collection.DeleteFont(FontId);
 			});

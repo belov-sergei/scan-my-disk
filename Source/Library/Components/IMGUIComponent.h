@@ -10,6 +10,10 @@
 struct IMGUIComponent final {
 	struct Draw {};
 
+	struct CreateContext {};
+
+	struct DestroyContext {};
+
 	IMGUIComponent() {
 		Event<GLFWWindowComponent::Create>::Receive(this, [this](const GLFWWindowComponent::Create& event) {
 			ImGui::CreateContext();
@@ -21,9 +25,13 @@ struct IMGUIComponent final {
 			ImGui_ImplOpenGL2_Init();
 
 			window = event.window;
+
+			Event<CreateContext>::Send();
 		});
 
 		Event<GLFWWindowComponent::Destroy>::Receive(this, [](const GLFWWindowComponent::Destroy&) {
+			Event<DestroyContext>::Send();
+
 			ImGui_ImplOpenGL2_Shutdown();
 			ImGui_ImplGlfw_Shutdown();
 			ImGui::DestroyContext();
