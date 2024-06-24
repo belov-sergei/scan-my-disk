@@ -7,7 +7,7 @@
 #include "SystemFontComponent.h"
 
 IMGUIFontComponent::IMGUIFontComponent() {
-	Event<IMGUIComponent::CreateContext>::Receive(this, [this](const IMGUIComponent::CreateContext&) {
+	Event<IMGUIComponent::CreateContext>::Receive(this, [](const IMGUIComponent::CreateContext&) {
 		ImFontAtlas* Fonts = ImGui::GetIO().Fonts;
 		int ignore = 0;
 

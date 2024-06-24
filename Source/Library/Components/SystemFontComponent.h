@@ -9,8 +9,8 @@ struct SystemFontComponent final {
 	inline static const Identifier FontId = Identifier::Next();
 
 	SystemFontComponent() {
-		Event<Application::Loading>::Receive(this, [this](const Application::Loading&) {
-			Storage<FontCollection>::Write([this](FontCollection& collection) {
+		Event<Application::Loading>::Receive(this, [](const Application::Loading&) {
+			Storage<FontCollection>::Write([](FontCollection& collection) {
 				collection.CreateFont(FontId, GetBinaryFontData());
 			});
 		});
