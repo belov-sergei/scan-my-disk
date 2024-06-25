@@ -535,8 +535,11 @@ void ChartState() {
 	ImGui::PopStyleColor(3);
 	ImGui::PopStyleVar(3);
 
-	ImGui::SetCursorPos({ cx - 6 * scale, cy - 6 * scale });
-	ImGui::Image(icons[Icons::Back], { 12 * scale, 12 * scale });
+	{
+		const auto ix = cx - 6 * scale;
+		const auto iy = cy - 6 * scale;
+		ImGui::GetWindowDrawList()->AddImage(icons[Icons::Back], {ix, iy}, {ix + 12 * scale, iy + 12 * scale});
+	}
 
 	ImGui::GetWindowDrawList()->AddRectFilled({ 0, ImGui::GetWindowHeight() - 30 }, { ImGui::GetWindowWidth(), ImGui::GetWindowHeight() }, IM_COL32(55, 57, 62, 255));
 	ImGui::GetWindowDrawList()->AddLine({ 0, ImGui::GetWindowHeight() - 30 }, { ImGui::GetWindowWidth(), ImGui::GetWindowHeight() - 30 }, IM_COL32(43, 45, 48, 255));
