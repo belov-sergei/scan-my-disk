@@ -7,6 +7,7 @@
 #include "IMGUIFontComponent.h"
 #include "Localization.h"
 #include "Settings.h"
+#include "utf8proc.h"
 #include "Window.h"
 
 using SliceDrawData = std::vector<std::tuple<float, float, float, float, const Tree::Node<Filesystem::Entry>*>>;
@@ -398,11 +399,15 @@ void ChartState() {
 
 	text = fmt::vformat(pathFormatString, fmt::make_format_args(text));
 
+	auto* textNFC = (char*)utf8proc_NFC((uint8_t*)text.c_str());
+
 	ImGui::SetCursorPos(cursor);
 	ImGui::PushFont(IMGUIFontComponent::SystemFont);
-	ImGui::TextWrapped("%s", text.c_str());
+	ImGui::TextWrapped("%s", textNFC);
 	ImGui::PopFont();
 	ImGui::PopTextWrapPos();
+
+	free(textNFC);
 
 	ImGui::Text("%s", fmt::vformat((std::string_view)Localization::Text("ChartState_Size_Text"), fmt::make_format_args(CurrentSize)).c_str());
 
@@ -537,9 +542,13 @@ void ChartState() {
 	string = root.u8string();
 	text = std::string(string.begin(), string.end());
 
+	textNFC = (char*)utf8proc_NFC((uint8_t*)text.c_str());
+
 	ImGui::PushFont(IMGUIFontComponent::SystemFont);
-	ImGui::Text("%s", text.c_str());
+	ImGui::Text("%s", textNFC);
 	ImGui::PopFont();
+
+	free(textNFC);
 
 	ImGui::PopStyleColor(1);
 }
