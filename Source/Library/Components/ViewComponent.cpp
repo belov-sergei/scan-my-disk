@@ -352,6 +352,7 @@ void LoadingState() {
 
 		drawData = BuildDrawData(tree);
 
+		history = {};
 		history.emplace(&tree);
 		state = State::Chart;
 	}
