@@ -20,6 +20,7 @@ CREATE_PROJECT(Kernel
 		imm32
 		dwmapi
 		glfw
+		utf8proc
 	COMPILE_DEFINITIONS
 		WIN32_LEAN_AND_MEAN
 	COMPILE_OPTIONS

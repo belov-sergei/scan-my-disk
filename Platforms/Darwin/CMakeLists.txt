@@ -15,6 +15,7 @@ CREATE_PROJECT(Kernel
 		stb
 		pugixml-static
 		fmt
+		utf8proc
 		"-framework OpenGL"
 	COMPILE_DEFINITIONS
 		GL_SILENCE_DEPRECATION
