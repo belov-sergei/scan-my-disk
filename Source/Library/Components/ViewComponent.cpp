@@ -35,6 +35,13 @@ void LoadTexture(const unsigned char* buffer, int length, ImTextureID& textureId
 }
 
 SliceDrawData BuildDrawData(const Tree::Node<Filesystem::Entry>& node) {
+	SliceDrawData result;
+
+	if (node->size == 0) {
+		result.emplace_back(32.0f, 0.0f, 1.0f, 1.0f, &node);
+		return result;
+	}
+
 	const size_t root = node->size;
 	const size_t depth = node->depth;
 
@@ -45,7 +52,6 @@ SliceDrawData BuildDrawData(const Tree::Node<Filesystem::Entry>& node) {
 		size += child->size;
 	}
 
-	SliceDrawData result;
 	node.depthTraversal([&](const Tree::Node<Filesystem::Entry>& entry) {
 		if (entry->depth - depth >= 7) {
 			return false;
