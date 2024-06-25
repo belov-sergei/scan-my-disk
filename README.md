@@ -13,10 +13,10 @@ I thought it would be beneficial and interesting to write an analog of this util
 High-performance scanning and display for quick and effective processing of large and complex file systems.
 
 ### User-Friendly and Accessible:
-An intuitive and accessible application with a user-friendly interface, supporting multiple languages and platforms, including mobile platforms.
+An intuitive and accessible application with a user-friendly interface, supporting multiple languages and platforms.
 
 ## How to Use
-You can download the pre-built versions of the application from the Releases section for your Windows or macOS. Alternatively, you can build the application yourself. All necessary libraries and dependencies are already in the repository, so you'll just need to clone it.
+You can [download](https://github.com/belov-sergei/scan-my-disk/releases) the pre-built versions of the application from the Releases section for your Windows or macOS. Alternatively, you can build the application yourself. All necessary libraries and dependencies are already in the repository, so you'll just need to clone it.
 
 ## Building
 To build the application, you will need the latest versions Xcode for macOS or Visual Studio 2022 for Windows, with support for C++17.
@@ -47,7 +47,7 @@ Once the build configuration is generated, the simplest way to compile the appli
 
 ## Upcoming Plans
 
-In the near future, I am focusing on several improvements and new features to enhance Scan My Disk:
+I aim to release updates every three months, and in the near future, I am focusing on several improvements and new features to enhance Scan My Disk:
 
 ### Code Refactoring:
 - Organize and clean up the current codebase. Much of the code was initially written quickly to test core functionalities. I plan to revisit and refine the architecture and code quality.
@@ -75,11 +75,12 @@ This project is distributed under the GNU General Public License v3.0. This mean
 
 ### Libraries:
   - [fmtlib/fmt](https://github.com/fmtlib/fmt) - A modern formatting library providing a faster and safer alternative to C's printf and C++'s iostreams.
+  - [glfw/glfw](https://github.com/glfw/glfw) - A multi-platform library for OpenGL, OpenGL ES, Vulkan, window and input.
   - [google/googletest](https://github.com/google/googletest) - Google's C++ test framework, offering rich assertions and test organization.
   - [ocornut/imgui](https://github.com/ocornut/imgui) - A bloat-free graphical user interface library for C++ with minimal dependencies.
-  - [libsdl-org/SDL](https://github.com/libsdl-org/SDL) - Simple DirectMedia Layer, a cross-platform development library designed to provide low-level access to audio, keyboard, mouse, joystick, and graphics hardware.
   - [nothings/stb](https://github.com/nothings/stb) - A range of single-file libraries for C/C++ development, primarily for media processing and creation.
   - [zeux/pugixml](https://github.com/zeux/pugixml) - A light-weight, simple and fast XML parser for C++ with XPath support.
+  - [JuliaStrings/utf8proc](https://github.com/JuliaStrings/utf8proc) - A clean C library for processing UTF-8 Unicode data.
 
 ### Fonts:
   - [Noto Sans](https://fonts.google.com/noto/specimen/Noto+Sans) - A font family from Google that aims to support all languages with a harmonious look and feel.
