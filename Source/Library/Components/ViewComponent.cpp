@@ -301,6 +301,8 @@ void StartedState() {
 	}
 
 	ImGui::PopStyleColor();
+
+	volumes = Filesystem::GetVolumesData();
 }
 
 void LoadingState() {
