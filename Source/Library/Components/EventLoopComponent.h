@@ -2,6 +2,7 @@
 
 #pragma once
 #include "Application.h"
+#include <tracy/Tracy.hpp>
 
 struct EventLoopComponent final {
 	using Seconds = std::chrono::duration<float>;
@@ -21,6 +22,8 @@ struct EventLoopComponent final {
 				Event<Application::LateUpdate>::Send();
 
 				Event<Application::Draw>::Send();
+
+				FrameMark;
 			}
 		});
 
