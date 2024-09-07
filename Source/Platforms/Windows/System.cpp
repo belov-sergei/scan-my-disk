@@ -12,13 +12,13 @@ namespace System {
 		PROCESS_MEMORY_COUNTERS_EX processMemoryCounters;
 		GetProcessMemoryInfo(GetCurrentProcess(), (PROCESS_MEMORY_COUNTERS*)&processMemoryCounters, sizeof(processMemoryCounters));
 
-		return processMemoryCounters.PrivateUsage / 1024;
+		return processMemoryCounters.PrivateUsage;
 	}
 
 	int64_t GetPhysicalMemoryUsed() {
 		PROCESS_MEMORY_COUNTERS_EX processMemoryCounters;
 		GetProcessMemoryInfo(GetCurrentProcess(), (PROCESS_MEMORY_COUNTERS*)&processMemoryCounters, sizeof(processMemoryCounters));
 
-		return processMemoryCounters.WorkingSetSize  / 1024;
+		return processMemoryCounters.WorkingSetSize;
 	}
 } // namespace System
