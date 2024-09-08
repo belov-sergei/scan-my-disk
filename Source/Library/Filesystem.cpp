@@ -71,6 +71,8 @@ namespace Filesystem {
 		Detail::CancelFlag = false;
 
 		Tree::Node<Entry> root = { 0, 0, path };
+		root->nameOnly = path;
+
 		Parallel::Execute(&EnumerateDirectory, std::ref(root), Detail::CancelFlag, progress);
 
 		Detail::CalculateDirectorySizes(root);

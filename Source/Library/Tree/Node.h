@@ -44,6 +44,16 @@ namespace Tree {
 			return std::distance(_children.cbegin(), _children.cend());
 		}
 
+		Node* getParent() const {
+			return _parent;
+		}
+
+		void fixParent() {
+			for (auto& child : _children) {
+				child._parent = this;
+			}
+		}
+
 		// A node is considered a leaf if it has no child nodes.
 		bool isLeaf() const {
 			return getChildCount() == 0;
@@ -52,12 +62,17 @@ namespace Tree {
 		template <typename ValueTypeForward = ValueType>
 		Node& insert(ValueTypeForward&& value) {
 			*_children.emplace_front() = std::forward<ValueTypeForward>(value);
+			_children.front()._parent = this;
+
 			return _children.front();
 		}
 
 		template <typename... Types>
 		Node& emplace(Types&&... values) {
-			return _children.emplace_front(std::forward<Types>(values)...);
+			_children.emplace_front(std::forward<Types>(values)...);
+			_children.front()._parent = this;
+
+			return _children.front();
 		}
 
 		// Executes a user-provided callback function on each visited node. The traversal stops if the callback function returns true.
@@ -150,6 +165,7 @@ namespace Tree {
 	private:
 		ValueType _value;
 		std::forward_list<Node> _children;
+		Node* _parent = nullptr;
 	};
 } // namespace Tree
 

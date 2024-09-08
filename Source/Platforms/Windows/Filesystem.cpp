@@ -84,6 +84,7 @@ namespace Filesystem {
 
 		std::error_code errorCode;
 		auto iterator = std::filesystem::directory_iterator(directoryNode->pathFull, errorCode);
+		directoryNode->pathFull = std::filesystem::path();
 
 		size_t totalSize = 0;
 		const size_t currentDepth = directoryNode->depth + 1;
@@ -97,11 +98,14 @@ namespace Filesystem {
 				}
 
 				auto& childNode = directoryNode.emplace(0, currentDepth, iterator->path());
+				childNode->nameOnly = iterator->path().filename();
 
 				if (iterator->is_directory(errorCode) && !errorCode) {
 					newTasks.emplace_back(std::ref(childNode));
 				} else if (iterator->file_size(errorCode) && !errorCode) {
 					childNode->size = iterator->file_size(errorCode);
+					childNode->pathFull = std::filesystem::path();
+
 					totalSize += childNode->size;
 				}
 			}

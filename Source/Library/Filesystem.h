@@ -17,6 +17,7 @@ namespace Filesystem {
 		size_t size { 0 };
 		size_t depth { 0 };
 
+		std::filesystem::path nameOnly;
 		std::filesystem::path pathFull;
 	};
 

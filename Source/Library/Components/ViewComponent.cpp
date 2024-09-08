@@ -350,6 +350,7 @@ void LoadingState() {
 
 	if (future.valid() && future.wait_for(0s) == std::future_status::ready) {
 		tree = future.get();
+		tree.fixParent();
 
 		// The size of the root is replaced with the size of the disk. If the size is 0, then it is the folder selected by the user.
 		if (space.first > 0) {
@@ -420,10 +421,7 @@ void ChartState() {
 
 	ImGui::Text("%s", fmt::vformat((std::string_view)Localization::Text("ChartState_Size_Text"), fmt::make_format_args(CurrentSize)).c_str());
 
-	std::filesystem::path root = (*history.top())->pathFull;
-	if (history.size() > 1) {
-		root = std::filesystem::relative(root, root.parent_path());
-	}
+	std::filesystem::path root = (*history.top())->nameOnly;
 
 	auto [x, y] = ImGui::GetWindowSize();
 	x *= 0.5f;
@@ -477,7 +475,20 @@ void ChartState() {
 					Chart::Pie::Color(ImColor::HSV(hue, 0.15f, 0.9f));
 				}
 
-				CurrentPath = (*node)->pathFull;
+				std::filesystem::path pathFull;
+				pathFull = (*node)->nameOnly;
+
+				auto* parent = node->getParent();
+				while (parent != nullptr) {
+					std::filesystem::path path = (*parent)->nameOnly;
+					path.append(pathFull.native());
+
+					pathFull = path;
+
+					parent = parent->getParent();
+				}
+
+				CurrentPath = pathFull;
 				CurrentSize = Filesystem::BytesToString((*node)->size);
 			} else {
 				if (node == top) {
