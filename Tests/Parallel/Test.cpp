@@ -15,10 +15,10 @@ TEST(Parallel, Test) {
 
 	Parallel::Execute(
 	[](Job& job) {
-		std::queue<Job> jobs;
+		std::vector<Job> jobs;
 
 		for (size_t i = 0; i < job.iterations; i++) {
-			auto& newJob      = jobs.emplace();
+			auto& newJob = jobs.emplace_back();
 			newJob.iterations = i;
 		}
 
