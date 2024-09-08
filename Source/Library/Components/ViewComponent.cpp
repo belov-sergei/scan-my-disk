@@ -420,7 +420,7 @@ void ChartState() {
 
 	ImGui::Text("%s", fmt::vformat((std::string_view)Localization::Text("ChartState_Size_Text"), fmt::make_format_args(CurrentSize)).c_str());
 
-	std::filesystem::path root = (*history.top())->path;
+	std::filesystem::path root = (*history.top())->pathFull;
 	if (history.size() > 1) {
 		root = std::filesystem::relative(root, root.parent_path());
 	}
@@ -477,7 +477,7 @@ void ChartState() {
 					Chart::Pie::Color(ImColor::HSV(hue, 0.15f, 0.9f));
 				}
 
-				CurrentPath = (*node)->path;
+				CurrentPath = (*node)->pathFull;
 				CurrentSize = Filesystem::BytesToString((*node)->size);
 			} else {
 				if (node == top) {

@@ -42,33 +42,29 @@ namespace Filesystem {
 		bool CancelFlag = false;
 	} // namespace Detail
 
-	Tree::Node<Entry> BuildTree(const std::filesystem::path& path, std::atomic<size_t>& progress) {
+	Tree::Node<Entry> BuildTree(const std::filesystem::path& path, std::atomic<size_t>& scanProgress) {
 		Detail::CancelFlag = false;
 
-		Tree::Node<Entry> root = { 0, 0, path };
+		Tree::Node<Entry> rootNode = { 0, 0, path };
 
-		std::queue<NodeWrapper> pending;
-		pending.emplace(root);
+		std::vector<NodeWrapper> scanQueue;
+		scanQueue.emplace_back(rootNode);
 
-		while (!pending.empty() && !Detail::CancelFlag) {
-			NodeWrapper node = pending.front();
-			pending.pop();
+		while (!scanQueue.empty() && !Detail::CancelFlag) {
+			NodeWrapper currentNode = scanQueue.back();
+			scanQueue.pop_back();
 
-			std::queue<NodeWrapper> queue = EnumerateDirectory(node, progress);
+			std::vector<NodeWrapper> newTasks = EnumerateDirectory(currentNode, scanProgress);
 
-			if (queue.size() > pending.size()) {
-				std::swap(queue, pending);
-			}
-
-			while (!queue.empty()) {
-				pending.emplace(queue.front());
-				queue.pop();
+			while (!newTasks.empty()) {
+				scanQueue.emplace_back(newTasks.back());
+				newTasks.pop_back();
 			}
 		}
 
-		Detail::CalculateDirectorySizes(root);
+		Detail::CalculateDirectorySizes(rootNode);
 
-		return root;
+		return rootNode;
 	}
 
 	Tree::Node<Entry> ParallelBuildTree(const std::filesystem::path& path, std::atomic<size_t>& progress) {

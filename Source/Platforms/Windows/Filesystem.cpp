@@ -78,39 +78,40 @@ namespace Filesystem {
 		return Encoding::WideCharToMultiByte(result);
 	}
 
-	std::queue<NodeWrapper> EnumerateDirectory(Tree::Node<Entry>& node, std::atomic<size_t>& progress) {
-		std::error_code error;
-		std::queue<NodeWrapper> result;
+	std::vector<NodeWrapper> EnumerateDirectory(Tree::Node<Entry>& directoryNode, std::atomic<size_t>& scanProgress) {
+		thread_local std::vector<NodeWrapper> newTasks;
+		newTasks.clear();
 
-		auto iterator = std::filesystem::directory_iterator(node->path, error);
+		std::error_code errorCode;
+		auto iterator = std::filesystem::directory_iterator(directoryNode->pathFull, errorCode);
+
+		size_t totalSize = 0;
+		const size_t currentDepth = directoryNode->depth + 1;
+
 		const auto end = std::filesystem::end(iterator);
-
-		const auto depth = node->depth + 1;
-
-		size_t total = 0;
 		while (iterator != end) {
-			if (!error) {
-				if (iterator->is_symlink(error) || error) {
-					iterator.increment(error);
+			if (!errorCode) {
+				if (iterator->is_symlink(errorCode) || errorCode) {
+					iterator.increment(errorCode);
 					continue;
 				}
 
-				auto& child = node.emplace(0, depth, iterator->path());
+				auto& childNode = directoryNode.emplace(0, currentDepth, iterator->path());
 
-				if (iterator->is_directory(error) && !error) {
-					result.emplace(std::ref(child));
-				} else if (iterator->file_size(error) && !error) {
-					child->size = iterator->file_size(error);
-					total += child->size;
+				if (iterator->is_directory(errorCode) && !errorCode) {
+					newTasks.emplace_back(std::ref(childNode));
+				} else if (iterator->file_size(errorCode) && !errorCode) {
+					childNode->size = iterator->file_size(errorCode);
+					totalSize += childNode->size;
 				}
 			}
 
-			iterator.increment(error);
+			iterator.increment(errorCode);
 		}
 
-		progress += total;
+		scanProgress += totalSize;
 
-		return result;
+		return newTasks;
 	}
 
 	std::filesystem::path OpenSelectFolderDialog() {
