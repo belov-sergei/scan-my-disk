@@ -44,4 +44,8 @@ struct GenericForwardIterator {
 	[[nodiscard]] ValueType* operator->() {
 		return &static_cast<DerivedType*>(this)->Dereference();
 	}
+
+	[[nodiscard]] operator bool() {
+		return static_cast<DerivedType&>(*this) != DerivedType();
+	}
 };
