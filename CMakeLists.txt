@@ -6,7 +6,6 @@ if(NOT CMAKE_GENERATOR MATCHES "Xcode|Visual Studio")
 	message(WARNING "This project has only been tested with Xcode and Visual Studio.")
 endif()
 
-
 project(
 	"Scan My Disk"
 	VERSION 1.1
@@ -35,5 +34,7 @@ set_property(GLOBAL PROPERTY PREDEFINED_TARGETS_FOLDER "Build")
 
 add_subdirectory("Platforms/${CMAKE_SYSTEM_NAME}")
 add_subdirectory("ThirdParty")
-add_subdirectory("Tests")
 add_subdirectory("Tools")
+
+enable_testing()
+add_subdirectory("Tests")

@@ -1,3 +1,5 @@
+include("GoogleTest")
+
 file(GLOB TEST_PROJECT_LIST RELATIVE ${CMAKE_CURRENT_LIST_DIR} "${CMAKE_CURRENT_LIST_DIR}/*")
 
 # Each folder is considered a separate project with tests.
@@ -19,6 +21,8 @@ foreach(TEST_PROJECT_NAME ${TEST_PROJECT_LIST})
 			Kernel
 			gtest
 	)
+
+	gtest_discover_tests(${TEST_PROJECT_NAME})
 
 	set_target_properties(${TEST_PROJECT_NAME} PROPERTIES FOLDER "Tests")
 endforeach()
