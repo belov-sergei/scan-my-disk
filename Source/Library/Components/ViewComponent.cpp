@@ -3,6 +3,8 @@
 #include "ViewComponent.h"
 
 #include "Chart.h"
+#include "Common/Encoding.h"
+#include "DepthFirstIterator.h"
 #include "Image.h"
 #include "IMGUIFontComponent.h"
 #include "Localization.h"
@@ -10,7 +12,7 @@
 #include "utf8proc.h"
 #include "Window.h"
 
-using SliceDrawData = std::vector<std::tuple<float, float, float, float, const Tree::Node<Filesystem::Entry>*>>;
+using SliceDrawData = std::vector<std::tuple<float, float, float, float, const Node*>>;
 
 int WindowWidth { 440 };
 int WindowHeight { 540 };
@@ -34,46 +36,49 @@ void LoadTexture(const unsigned char* buffer, int length, ImTextureID& textureId
 	}
 }
 
-SliceDrawData BuildDrawData(const Tree::Node<Filesystem::Entry>& node) {
+SliceDrawData BuildDrawData(const Node& rootNode) {
 	SliceDrawData result;
 
-	if (node->size == 0) {
-		result.emplace_back(32.0f, 0.0f, 1.0f, 1.0f, &node);
+	if (rootNode.GetSize() == 0) {
+		result.emplace_back(32.0f, 0.0f, 1.0f, 1.0f, &rootNode);
 		return result;
 	}
 
-	const size_t root = node->size;
-	const size_t depth = node->depth;
+	const size_t root = rootNode.GetSize();
+	const size_t depth = rootNode.GetDepth();
 
 	std::vector<float> depthStartAngle(1);
 
 	size_t size = 0;
-	for (const auto& child : node) {
-		size += child->size;
+	for (const auto& child : rootNode.GetChildren()) {
+		size += child->GetSize();
 	}
 
-	node.depthTraversal([&](const Tree::Node<Filesystem::Entry>& entry) {
-		if (entry->depth - depth >= 7) {
-			return false;
+	DepthFirstIterator iterator(&rootNode);
+
+	while (iterator) {
+		const Node& pathNode = *iterator;
+		++iterator;
+
+		if (pathNode.GetDepth() - depth >= 7) {
+			continue;
 		}
 
-		if (depthStartAngle.size() < entry->depth - depth + 2) {
+		if (depthStartAngle.size() < pathNode.GetDepth() - depth + 2) {
 			depthStartAngle.emplace_back();
 		}
 
-		float& start = depthStartAngle[entry->depth - depth];
-		depthStartAngle[entry->depth - depth + 1] = start;
+		float& start = depthStartAngle[pathNode.GetDepth() - depth];
+		depthStartAngle[pathNode.GetDepth() - depth + 1] = start;
 
-		const float normalized = entry->size / (float)root;
-		const float relative = entry->size / (float)size;
+		const float normalized = pathNode.GetSize() / (float)root;
+		const float relative = pathNode.GetSize() / (float)size;
 		if (relative > 0.01f) {
-			result.emplace_back(32.0f * static_cast<float>(entry->depth - depth + 1), start, start + normalized, std::max(0.0f, 0.25f - normalized * 0.75f), &entry);
+			result.emplace_back(32.0f * static_cast<float>(pathNode.GetDepth() - depth + 1), start, start + normalized, std::max(0.0f, 0.25f - normalized * 0.75f), &pathNode);
 		}
 
 		start += normalized;
-
-		return false;
-	});
+	}
 
 	return result;
 }
@@ -84,9 +89,9 @@ SliceDrawData drawData;
 
 std::atomic<size_t> progress = 0;
 
-Tree::Node<Filesystem::Entry> tree;
+std::unique_ptr<Node> tree;
 
-std::stack<const Tree::Node<Filesystem::Entry>*> history;
+std::stack<const Node*> history;
 
 std::filesystem::path CurrentPath;
 std::string CurrentSize;
@@ -278,8 +283,12 @@ void StartedState() {
 					space = std::make_pair(volume.bytesTotal, volume.bytesFree);
 
 					progress = 0;
-					future = std::async(std::launch::async, [volume] {
-						return Filesystem::ParallelBuildTree(volume.rootPath, progress);
+
+					tree = std::make_unique<Node>();
+					tree->SetPath(volume.rootPath);
+
+					future = std::async(std::launch::async, [] {
+						return Filesystem::ParallelBuildTree(*tree, progress);
 					});
 
 					state = State::Loading;
@@ -340,7 +349,7 @@ void LoadingState() {
 
 	if (ImGui::Button(buttonText)) {
 		Filesystem::CancelBuildTree();
-		std::ignore = future.get();
+		future.get();
 
 		state = State::Started;
 	}
@@ -349,18 +358,17 @@ void LoadingState() {
 	ImGui::PopStyleVar(2);
 
 	if (future.valid() && future.wait_for(0s) == std::future_status::ready) {
-		tree = future.get();
-		tree.fixParent();
+		future.get();
 
 		// The size of the root is replaced with the size of the disk. If the size is 0, then it is the folder selected by the user.
 		if (space.first > 0) {
-			tree->size = space.first;
+			tree->SetSize(space.first);
 		}
 
-		drawData = BuildDrawData(tree);
+		drawData = BuildDrawData(*tree);
 
 		history = {};
-		history.emplace(&tree);
+		history.emplace(tree.get());
 		state = State::Chart;
 	}
 }
@@ -421,7 +429,7 @@ void ChartState() {
 
 	ImGui::Text("%s", fmt::vformat((std::string_view)Localization::Text("ChartState_Size_Text"), fmt::make_format_args(CurrentSize)).c_str());
 
-	std::filesystem::path root = (*history.top())->nameOnly;
+	std::filesystem::path root = (*history.top()).GetPath();
 
 	auto [x, y] = ImGui::GetWindowSize();
 	x *= 0.5f;
@@ -456,7 +464,7 @@ void ChartState() {
 							state = State::Started;
 						}
 					} else {
-						if (!node->isLeaf()) {
+						if (node->HasChildren()) {
 							history.emplace(node);
 							drawData = BuildDrawData(*node);
 						}
@@ -475,21 +483,8 @@ void ChartState() {
 					Chart::Pie::Color(ImColor::HSV(hue, 0.15f, 0.9f));
 				}
 
-				std::filesystem::path pathFull;
-				pathFull = (*node)->nameOnly;
-
-				auto* parent = node->getParent();
-				while (parent != nullptr) {
-					std::filesystem::path path = (*parent)->nameOnly;
-					path.append(pathFull.native());
-
-					pathFull = path;
-
-					parent = parent->getParent();
-				}
-
-				CurrentPath = pathFull;
-				CurrentSize = Filesystem::BytesToString((*node)->size);
+				CurrentPath = node->GetFullPath();
+				CurrentSize = Filesystem::BytesToString((*node).GetSize());
 			} else {
 				if (node == top) {
 					Chart::Pie::Color(IM_COL32(72, 74, 78, 255), IM_COL32(55, 57, 62, 255));
@@ -549,7 +544,7 @@ void ChartState() {
 	{
 		const auto ix = cx - 6 * scale;
 		const auto iy = cy - 6 * scale;
-		ImGui::GetWindowDrawList()->AddImage(icons[Icons::Back], {ix, iy}, {ix + 12 * scale, iy + 12 * scale});
+		ImGui::GetWindowDrawList()->AddImage(icons[Icons::Back], { ix, iy }, { ix + 12 * scale, iy + 12 * scale });
 	}
 
 	ImGui::GetWindowDrawList()->AddRectFilled({ 0, ImGui::GetWindowHeight() - 30 }, { ImGui::GetWindowWidth(), ImGui::GetWindowHeight() }, IM_COL32(55, 57, 62, 255));
@@ -695,9 +690,12 @@ void Draw() {
 			if (!folderPath.empty() && std::filesystem::exists(folderPath)) {
 				progress = 0;
 
+				tree = std::make_unique<Node>();
+				tree->SetPath(Encoding::WideCharToMultiByte(folderPath.native()));
+
 				space = std::make_pair(0, 0);
-				future = std::async(std::launch::async, [folderPath] {
-					return Filesystem::ParallelBuildTree(folderPath, progress);
+				future = std::async(std::launch::async, [] {
+					return Filesystem::ParallelBuildTree(*tree, progress);
 				});
 
 				state = State::Loading;

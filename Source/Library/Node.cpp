@@ -1,10 +1,30 @@
 ﻿// Copyright ❤️ 2023-2024, Sergei Belov
 
-#include "HierarchyUpIterator.h"
 #include "Node.h"
 
+#include "DepthFirstIterator.h"
+#include "HierarchyUpIterator.h"
+
 Node::Node() noexcept = default;
-Node::~Node() = default;
+
+Node::~Node() {
+	if (HasParent()) {
+		return;
+	}
+
+	std::vector<Node*> nodesToDestory;
+
+	DepthFirstIterator iterator(this);
+	while (++iterator) {
+		nodesToDestory.emplace_back(&*iterator);
+	}
+
+	for (auto* node : nodesToDestory) {
+		node->~Node();
+	}
+
+	ReleaseMemory();
+}
 
 bool Node::HasParent() const {
 	return parentNode != nullptr;
@@ -22,19 +42,40 @@ bool Node::HasChildren() const {
 	return lastChild != nullptr;
 }
 
+std::vector<Node*> Node::GetChildren() {
+	if (!HasChildren()) {
+		return {};
+	}
+
+	std::vector<Node*> children = { lastChild };
+	while (children.back()->nextChild) {
+		Node* child = children.back()->nextChild;
+		children.emplace_back(child);
+	}
+
+	return children;
+}
+
+std::vector<const Node*> Node::GetChildren() const {
+	if (!HasChildren()) {
+		return {};
+	}
+
+	std::vector<const Node*> children = { lastChild };
+	while (children.back()->nextChild) {
+		const Node* child = children.back()->nextChild;
+		children.emplace_back(child);
+	}
+
+	return children;
+}
+
 size_t Node::GetSize() const {
 	return nodeSize;
 }
 
 void Node::SetSize(size_t newSize) {
-	if (nodeSize != newSize) {
-		if (HasParent()) {
-			const size_t parentSize = parentNode->GetSize() - nodeSize;
-			parentNode->SetSize(parentSize + newSize);
-		}
-
-		nodeSize = newSize;
-	}
+	nodeSize = newSize;
 }
 
 const std::string& Node::GetPath() const {

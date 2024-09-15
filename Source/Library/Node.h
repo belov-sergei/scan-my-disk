@@ -20,6 +20,9 @@ public:
 
 	bool HasChildren() const;
 
+	std::vector<Node*> GetChildren();
+	std::vector<const Node*> GetChildren() const;
+
 	size_t GetSize() const;
 	void SetSize(size_t newSize);
 
@@ -38,5 +41,5 @@ private:
 	Node* nextChild = nullptr;
 
 	std::string nodePath;
-	std::atomic_size_t nodeSize = 0;
+	std::size_t nodeSize = 0;
 };

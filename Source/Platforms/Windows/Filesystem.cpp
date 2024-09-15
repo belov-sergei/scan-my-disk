@@ -78,16 +78,14 @@ namespace Filesystem {
 		return Encoding::WideCharToMultiByte(result);
 	}
 
-	std::vector<NodeWrapper> EnumerateDirectory(Tree::Node<Entry>& directoryNode, std::atomic<size_t>& scanProgress) {
-		thread_local std::vector<NodeWrapper> newTasks;
+	std::vector<Node*> EnumerateDirectory(Node* pathNode, std::atomic<size_t>& progress) {
+		thread_local std::vector<Node*> newTasks;
 		newTasks.clear();
 
 		std::error_code errorCode;
-		auto iterator = std::filesystem::directory_iterator(directoryNode->pathFull, errorCode);
-		directoryNode->pathFull = std::filesystem::path();
+		auto iterator = std::filesystem::directory_iterator(pathNode->GetFullPath(), errorCode);
 
 		size_t totalSize = 0;
-		const size_t currentDepth = directoryNode->depth + 1;
 
 		const auto end = std::filesystem::end(iterator);
 		while (iterator != end) {
@@ -97,23 +95,21 @@ namespace Filesystem {
 					continue;
 				}
 
-				auto& childNode = directoryNode.emplace(0, currentDepth, iterator->path());
-				childNode->nameOnly = iterator->path().filename();
+				Node& newNode = pathNode->CreateChild();
+				newNode.SetPath(Encoding::WideCharToMultiByte(iterator->path().filename().wstring()));
 
 				if (iterator->is_directory(errorCode) && !errorCode) {
-					newTasks.emplace_back(std::ref(childNode));
+					newTasks.emplace_back(&newNode);
 				} else if (iterator->file_size(errorCode) && !errorCode) {
-					childNode->size = iterator->file_size(errorCode);
-					childNode->pathFull = std::filesystem::path();
-
-					totalSize += childNode->size;
+					newNode.SetSize(iterator->file_size(errorCode));
+					totalSize += newNode.GetSize();
 				}
 			}
 
 			iterator.increment(errorCode);
 		}
 
-		scanProgress += totalSize;
+		progress += totalSize;
 
 		return newTasks;
 	}

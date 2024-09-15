@@ -2,25 +2,9 @@
 
 #pragma once
 #include <fmt/format.h>
-#include <Tree/Node.h>
+#include <Node.h>
 
 namespace Filesystem {
-	// Struct representing an entry in the filesystem.
-	struct Entry {
-		Entry() = default;
-
-		Entry(size_t size, size_t depth, const std::filesystem::path& path)
-		    : size(size)
-		    , depth(depth)
-		    , pathFull(path) {}
-
-		size_t size { 0 };
-		size_t depth { 0 };
-
-		std::filesystem::path nameOnly;
-		std::filesystem::path pathFull;
-	};
-
 	// Struct representing volume data.
 	struct VolumeData {
 		std::string name;
@@ -29,8 +13,6 @@ namespace Filesystem {
 		size_t bytesTotal { 0 };
 		size_t bytesFree { 0 };
 	};
-
-	using NodeWrapper = std::reference_wrapper<Tree::Node<Entry>>;
 
 	// Retrieves the data of all available volumes.
 	std::vector<VolumeData> GetVolumesData();
@@ -46,13 +28,13 @@ namespace Filesystem {
 	std::string GetLocalSettingsPath();
 
 	// Build a tree structure representing the file system hierarchy starting from the given path.
-	Tree::Node<Entry> BuildTree(const std::filesystem::path& path, std::atomic<size_t>& scanProgress);
+	void BuildTree(Node& pathNode, std::atomic<size_t>& progress);
 
 	// Build a tree representing the file system structure in parallel.
-	Tree::Node<Entry> ParallelBuildTree(const std::filesystem::path& path, std::atomic<size_t>& progress);
+	void ParallelBuildTree(Node& pathNode, std::atomic<size_t>& progress);
 
 	// Enumerates the contents of a directory.
-	std::vector<NodeWrapper> EnumerateDirectory(Tree::Node<Entry>& directoryNode, std::atomic<size_t>& scanProgress);
+	std::vector<Node*> EnumerateDirectory(Node* pathNode, std::atomic<size_t>& progress);
 
 	// Cancels the build tree operation.
 	void CancelBuildTree();
@@ -72,13 +54,13 @@ namespace Filesystem {
 } // namespace Filesystem
 
 template <>
-struct fmt::formatter<Filesystem::Entry> : fmt::formatter<std::string_view> {
-	auto format(const Filesystem::Entry& value, fmt::format_context& context) const {
+struct fmt::formatter<Node> : fmt::formatter<std::string_view> {
+	auto format(const Node& value, fmt::format_context& context) const {
 		std::string result;
 
-		fmt::format_to(std::back_inserter(result), "Path= \"{}\" ", value.pathFull.stem().string());
-		fmt::format_to(std::back_inserter(result), "Size= \"{}\" ", value.size);
-		fmt::format_to(std::back_inserter(result), "Depth=\"{}\" ", value.depth);
+		fmt::format_to(std::back_inserter(result), "Path= \"{}\" ", value.GetFullPath());
+		fmt::format_to(std::back_inserter(result), "Size= \"{}\" ", value.GetSize());
+		fmt::format_to(std::back_inserter(result), "Depth=\"{}\" ", value.GetDepth());
 
 		return fmt::formatter<std::string_view>::format(result, context);
 	}
