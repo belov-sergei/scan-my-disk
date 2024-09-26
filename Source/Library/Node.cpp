@@ -1,4 +1,4 @@
-// Copyright ❤️ 2023-2024, Sergei Belov
+﻿// Copyright ❤️ 2023-2024, Sergei Belov
 
 #include "Node.h"
 
@@ -98,11 +98,17 @@ std::string Node::GetFullPath() const {
 	while (iterator) {
 		thread_local std::string pathBuffer;
 		pathBuffer.clear();
-
 		pathBuffer += iterator->GetPath();
-		pathBuffer += "/";
-		pathBuffer += pathFull;
 
+		if (iterator->HasParent()) {
+#ifdef WIN32
+			pathBuffer += "\\";
+#else
+			pathBuffer += "/";
+#endif
+		}
+
+		pathBuffer += pathFull;
 		pathFull = pathBuffer;
 
 		++iterator;

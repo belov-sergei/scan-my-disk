@@ -107,8 +107,8 @@ namespace Filesystem {
 		return newTasks;
 	}
 
-	std::filesystem::path OpenSelectFolderDialog() {
-		std::filesystem::path result;
+	std::string OpenSelectFolderDialog() {
+		std::string result;
 		
 		NSOpenPanel* openPanel = [NSOpenPanel openPanel];
 		[openPanel setCanChooseFiles:NO];
@@ -120,7 +120,7 @@ namespace Filesystem {
 			result = [path cStringUsingEncoding:NSUTF8StringEncoding];
 		}
 		
-		return result;
+		return result + "/";
 	}
 
 	std::string BytesToString(size_t value) {
