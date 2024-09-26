@@ -93,7 +93,7 @@ std::unique_ptr<Node> tree;
 
 std::stack<const Node*> history;
 
-std::filesystem::path CurrentPath;
+std::string CurrentPath;
 std::string CurrentSize;
 
 namespace ImGui {
@@ -393,7 +393,7 @@ void ChartState() {
 
 	ImGui::PushTextWrapPos(ImGui::GetWindowWidth() - 60);
 
-	std::string string = CurrentPath.u8string();
+	std::string string = CurrentPath;
 	std::string text = std::string(string.begin(), string.end());
 
 	auto cursor = ImGui::GetCursorPos();
@@ -429,7 +429,7 @@ void ChartState() {
 
 	ImGui::Text("%s", fmt::vformat((std::string_view)Localization::Text("ChartState_Size_Text"), fmt::make_format_args(CurrentSize)).c_str());
 
-	std::filesystem::path root = (*history.top()).GetPath();
+	std::string root = (*history.top()).GetPath();
 
 	auto [x, y] = ImGui::GetWindowSize();
 	x *= 0.5f;
@@ -557,7 +557,7 @@ void ChartState() {
 
 	ImGui::SetCursorPosY(ImGui::GetWindowHeight() - 24);
 
-	string = root.u8string();
+	string = root;
 	text = std::string(string.begin(), string.end());
 
 	textNFC = (char*)utf8proc_NFC((uint8_t*)text.c_str());
@@ -686,12 +686,12 @@ void Draw() {
 		ImGui::NewLine();
 		ImGui::SameLine(18.0f);
 		if (ImGui::MenuItem(Localization::Text("Menu_OpenFolder_Button"))) {
-			const auto folderPath = Filesystem::OpenSelectFolderDialog();
-			if (!folderPath.empty() && std::filesystem::exists(folderPath)) {
+			const auto selectedPath = Filesystem::OpenSelectFolderDialog();
+			if (!selectedPath.empty() && Filesystem::Exists(selectedPath)) {
 				progress = 0;
 
 				tree = std::make_unique<Node>();
-				tree->SetPath(folderPath.string());
+				tree->SetPath(selectedPath);
 
 				space = std::make_pair(0, 0);
 				future = std::async(std::launch::async, [] {

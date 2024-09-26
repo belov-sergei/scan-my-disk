@@ -78,12 +78,17 @@ namespace Filesystem {
 		return Encoding::WideCharToMultiByte(result);
 	}
 
+	bool Exists(std::string path) {
+		return std::filesystem::exists(Encoding::MultiByteToWideChar(path));
+	}
+
 	std::vector<Node*> EnumerateDirectory(Node* pathNode, std::atomic<size_t>& progress) {
 		thread_local std::vector<Node*> newTasks;
 		newTasks.clear();
 
 		std::error_code errorCode;
-		auto iterator = std::filesystem::directory_iterator(pathNode->GetFullPath(), errorCode);
+		std::wstring fullPath = Encoding::MultiByteToWideChar(pathNode->GetFullPath());
+		auto iterator = std::filesystem::directory_iterator(fullPath, errorCode);
 
 		size_t totalSize = 0;
 
@@ -114,35 +119,33 @@ namespace Filesystem {
 		return newTasks;
 	}
 
-	std::filesystem::path OpenSelectFolderDialog() {
-		std::filesystem::path result;
+	std::string OpenSelectFolderDialog() {
+		std::string result;
 
-		HRESULT hr = CoInitializeEx(NULL, COINIT_APARTMENTTHREADED | COINIT_DISABLE_OLE1DDE);
-		if (SUCCEEDED(hr)) {
-			IFileDialog* pfd;
-			if (SUCCEEDED(CoCreateInstance(CLSID_FileOpenDialog, NULL, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&pfd)))) {
-				DWORD dwOptions;
-				if (SUCCEEDED(pfd->GetOptions(&dwOptions))) {
-					if (SUCCEEDED(pfd->SetOptions(dwOptions | FOS_PICKFOLDERS))) {
-						if (SUCCEEDED(pfd->Show(NULL))) {
-							IShellItem* psi;
-							if (SUCCEEDED(pfd->GetResult(&psi))) {
-								PWSTR pszPath;
-								if (SUCCEEDED(psi->GetDisplayName(SIGDN_FILESYSPATH, &pszPath))) {
-									result = pszPath;
-									CoTaskMemFree(pszPath);
-								}
-								psi->Release();
-							}
-						}
-					}
-				}
-				pfd->Release();
+		CoInitializeEx(NULL, COINIT_APARTMENTTHREADED | COINIT_DISABLE_OLE1DDE);
+
+		IFileDialog* pDialog;
+		CoCreateInstance(CLSID_FileOpenDialog, NULL, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&pDialog));
+
+		DWORD dwOptions;
+		pDialog->GetOptions(&dwOptions);
+		pDialog->SetOptions(dwOptions | FOS_PICKFOLDERS);
+		pDialog->Show(NULL);
+
+		IShellItem* pShellItem;
+		if (SUCCEEDED(pDialog->GetResult(&pShellItem))) {
+			PWSTR pwPath;
+			if (SUCCEEDED(pShellItem->GetDisplayName(SIGDN_FILESYSPATH, &pwPath))) {
+				result = Encoding::WideCharToMultiByte(pwPath);
+				CoTaskMemFree(pwPath);
 			}
-			CoUninitialize();
+			pShellItem->Release();
 		}
 
-		return result;
+		pDialog->Release();
+		CoUninitialize();
+
+		return result + "\\";
 	}
 
 	std::string BytesToString(size_t value) {

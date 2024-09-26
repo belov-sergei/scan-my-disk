@@ -20,12 +20,14 @@ namespace Filesystem {
 	// Opens the system path using the native format.
 	void OpenSystemPath(const std::filesystem::path& value);
 
-	std::filesystem::path OpenSelectFolderDialog();
+	std::string OpenSelectFolderDialog();
 
 	std::string BytesToString(size_t value);
 
 	// Retrieves the local path for the settings file.
 	std::string GetLocalSettingsPath();
+
+	bool Exists(std::string path);
 
 	// Build a tree structure representing the file system hierarchy starting from the given path.
 	void BuildTree(Node& pathNode, std::atomic<size_t>& progress);

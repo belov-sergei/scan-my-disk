@@ -45,7 +45,11 @@ namespace Filesystem {
 
 	std::string GetLocalSettingsPath() {
 		return fmt::format("{}/{}", getenv("HOME"), "Library/Application Support/Scan My Disk/Settings.xml");
-	}	
+	}
+
+	bool Exists(std::string path) {
+		return std::filesystem::exists(path);
+	}
 
 	std::vector<Node*> EnumerateDirectory(Node* pathNode, std::atomic<size_t>& progress) {
 		thread_local std::vector<Node*> newTasks;
