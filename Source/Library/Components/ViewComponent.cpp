@@ -691,7 +691,7 @@ void Draw() {
 				progress = 0;
 
 				tree = std::make_unique<Node>();
-				tree->SetPath(Encoding::WideCharToMultiByte(folderPath.native()));
+				tree->SetPath(folderPath.string());
 
 				space = std::make_pair(0, 0);
 				future = std::async(std::launch::async, [] {

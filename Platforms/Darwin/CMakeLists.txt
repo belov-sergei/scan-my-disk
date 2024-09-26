@@ -6,6 +6,7 @@ CREATE_PROJECT(Kernel
 	INCLUDE_DIRECTORIES
 		"${PROJECT_SOURCE_DIR}/Source/Library"
 		"${PROJECT_SOURCE_DIR}/Source/Platforms/${CMAKE_SYSTEM_NAME}"
+		"${PROJECT_SOURCE_DIR}/ThirdParty/tracy-0.11.1/public"
 	PRECOMPILED_HEADER
 		"${PROJECT_SOURCE_DIR}/Source/Library/PrecompiledHeaders.h"
 	SOURCE_GROUP

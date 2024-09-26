@@ -47,16 +47,14 @@ namespace Filesystem {
 		return fmt::format("{}/{}", getenv("HOME"), "Library/Application Support/Scan My Disk/Settings.xml");
 	}	
 
-	std::queue<NodeWrapper> EnumerateDirectory(Tree::Node<Entry>& node, std::atomic<size_t>& progress) {
-		std::queue<NodeWrapper> result;
-		
-		size_t total = 0;
-		
-		const auto depth = node->depth + 1;
-		const char* nodePath = node->path.c_str();
+	std::vector<Node*> EnumerateDirectory(Node* pathNode, std::atomic<size_t>& progress) {
+		thread_local std::vector<Node*> newTasks;
+		newTasks.clear();
+
+		const auto nodePath = pathNode->GetFullPath();
 
 		NSURL* directoryURL = [NSURL fileURLWithPath:
-			[NSString stringWithCString:nodePath encoding:NSUTF8StringEncoding]
+			[NSString stringWithCString:nodePath.c_str() encoding:NSUTF8StringEncoding]
 		];
 		
 		NSArray* propertyKeys = @[
@@ -73,7 +71,9 @@ namespace Filesystem {
 			options:0
 			error:nil
 		];
-		
+
+		size_t totalSize = 0;
+
 		for (NSURL* entryURL in directoryContents) {
 			NSDictionary* propertyValues = [entryURL resourceValuesForKeys:propertyKeys error:nil];
 			
@@ -86,20 +86,21 @@ namespace Filesystem {
 				}
 			}
 
-			auto& child = node.emplace(0, depth, [[entryURL path] cStringUsingEncoding:NSUTF8StringEncoding]);
+			Node& newNode = pathNode->CreateChild();
+			newNode.SetPath([[entryURL lastPathComponent] cStringUsingEncoding:NSUTF8StringEncoding]);
 			
 			if ([propertyValues[NSURLIsDirectoryKey] boolValue]) {
-				result.emplace(std::ref(child));
+				newTasks.emplace_back(&newNode);
 			}
 			else {
-				child->size = [propertyValues[NSURLFileSizeKey] unsignedLongLongValue];
-				total += child->size;
+				newNode.SetSize([propertyValues[NSURLFileSizeKey] unsignedLongLongValue]);
+				totalSize += newNode.GetSize();
 			}
 		}
 
-		progress += total;
+		progress += totalSize;
 		
-		return result;
+		return newTasks;
 	}
 
 	std::filesystem::path OpenSelectFolderDialog() {

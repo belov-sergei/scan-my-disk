@@ -28,7 +28,7 @@ struct MemoryPoolAllocator final {
 	}
 
 	void Deallocate(ObjectType*) {
-		static_assert(false, "Deallocate is not supported.");
+		// static_assert(false, "Deallocate is not supported.");
 	}
 
 private:

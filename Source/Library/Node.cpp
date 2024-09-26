@@ -1,4 +1,4 @@
-﻿// Copyright ❤️ 2023-2024, Sergei Belov
+// Copyright ❤️ 2023-2024, Sergei Belov
 
 #include "Node.h"
 
@@ -100,7 +100,7 @@ std::string Node::GetFullPath() const {
 		pathBuffer.clear();
 
 		pathBuffer += iterator->GetPath();
-		pathBuffer += "\\";
+		pathBuffer += "/";
 		pathBuffer += pathFull;
 
 		pathFull = pathBuffer;
