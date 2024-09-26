@@ -9,7 +9,7 @@ endif()
 
 project(
 	"Scan My Disk"
-	VERSION 1.1
+	VERSION 1.2
 	DESCRIPTION "Interactive pie chart visualization of disk space usage."
 	HOMEPAGE_URL "https://github.com/belov-sergei/scan-my-disk"
 	LANGUAGES ${PROJECT_LANGUAGES}
