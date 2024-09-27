@@ -8,32 +8,34 @@ namespace Filesystem {
 	std::vector<VolumeData> GetVolumesData() {
 		std::vector<VolumeData> result;
 		
-		NSArray* propertyKeys = @[
-			NSURLVolumeNameKey,
-			NSURLVolumeTotalCapacityKey,
-			NSURLVolumeAvailableCapacityKey,
-			NSURLVolumeIsBrowsableKey
-		];
-		
-		NSArray* mountedVolumes = [[NSFileManager defaultManager]
-			mountedVolumeURLsIncludingResourceValuesForKeys:propertyKeys
-			options:0
-		];
-		
-		for(NSURL* volumeURL in mountedVolumes) {
-			NSDictionary* propertyValues = [volumeURL resourceValuesForKeys:propertyKeys error:nil];
+		@autoreleasepool {
+			NSArray* propertyKeys = @[
+				NSURLVolumeNameKey,
+				NSURLVolumeTotalCapacityKey,
+				NSURLVolumeAvailableCapacityKey,
+				NSURLVolumeIsBrowsableKey
+			];
 			
-			if (![propertyValues[NSURLVolumeIsBrowsableKey] boolValue]) {
-				continue;
+			NSArray* mountedVolumes = [[NSFileManager defaultManager]
+				mountedVolumeURLsIncludingResourceValuesForKeys:propertyKeys
+				options:0
+			];
+			
+			for(NSURL* volumeURL in mountedVolumes) {
+				NSDictionary* propertyValues = [volumeURL resourceValuesForKeys:propertyKeys error:nil];
+				
+				if (![propertyValues[NSURLVolumeIsBrowsableKey] boolValue]) {
+					continue;
+				}
+				
+				VolumeData& volumeData = result.emplace_back();
+				volumeData.rootPath = [volumeURL.path cStringUsingEncoding:NSUTF8StringEncoding];
+				
+				volumeData.name = [propertyValues[NSURLVolumeNameKey] cStringUsingEncoding:NSUTF8StringEncoding];
+				
+				volumeData.bytesFree = [propertyValues[NSURLVolumeAvailableCapacityKey] unsignedLongLongValue];
+				volumeData.bytesTotal = [propertyValues[NSURLVolumeTotalCapacityKey] unsignedLongLongValue];
 			}
-			
-			VolumeData& volumeData = result.emplace_back();
-			volumeData.rootPath = [volumeURL.path cStringUsingEncoding:NSUTF8StringEncoding];
-			
-			volumeData.name = [propertyValues[NSURLVolumeNameKey] cStringUsingEncoding:NSUTF8StringEncoding];
-			
-			volumeData.bytesFree = [propertyValues[NSURLVolumeAvailableCapacityKey] unsignedLongLongValue];
-			volumeData.bytesTotal = [propertyValues[NSURLVolumeTotalCapacityKey] unsignedLongLongValue];
 		}
 		
 		return result;
@@ -57,52 +59,54 @@ namespace Filesystem {
 
 		const auto nodePath = pathNode->GetFullPath();
 
-		NSURL* directoryURL = [NSURL fileURLWithPath:
-			[NSString stringWithCString:nodePath.c_str() encoding:NSUTF8StringEncoding]
-		];
-		
-		NSArray* propertyKeys = @[
-			NSURLIsDirectoryKey,
-			NSURLIsSymbolicLinkKey,
-			NSURLIsVolumeKey,
-			NSURLVolumeIsBrowsableKey,
-			NSURLFileSizeKey
-		];
-		
-		NSArray* directoryContents = [[NSFileManager defaultManager]
-			contentsOfDirectoryAtURL:directoryURL
-			includingPropertiesForKeys:propertyKeys
-			options:0
-			error:nil
-		];
-
-		size_t totalSize = 0;
-
-		for (NSURL* entryURL in directoryContents) {
-			NSDictionary* propertyValues = [entryURL resourceValuesForKeys:propertyKeys error:nil];
+		@autoreleasepool {
+			NSURL* directoryURL = [NSURL fileURLWithPath:
+				[NSString stringWithCString:nodePath.c_str() encoding:NSUTF8StringEncoding]
+			];
 			
-			if ([propertyValues[NSURLIsSymbolicLinkKey] boolValue]) {
-				continue;
-			}
-			else if ([propertyValues[NSURLIsVolumeKey] boolValue]) {
-				if ([propertyValues[NSURLVolumeIsBrowsableKey] boolValue]) {
+			NSArray* propertyKeys = @[
+				NSURLIsDirectoryKey,
+				NSURLIsSymbolicLinkKey,
+				NSURLIsVolumeKey,
+				NSURLVolumeIsBrowsableKey,
+				NSURLFileSizeKey
+			];
+			
+			NSArray* directoryContents = [[NSFileManager defaultManager]
+				contentsOfDirectoryAtURL:directoryURL
+				includingPropertiesForKeys:propertyKeys
+				options:0
+				error:nil
+			];
+
+			size_t totalSize = 0;
+
+			for (NSURL* entryURL in directoryContents) {
+				NSDictionary* propertyValues = [entryURL resourceValuesForKeys:propertyKeys error:nil];
+				
+				if ([propertyValues[NSURLIsSymbolicLinkKey] boolValue]) {
 					continue;
+				}
+				else if ([propertyValues[NSURLIsVolumeKey] boolValue]) {
+					if ([propertyValues[NSURLVolumeIsBrowsableKey] boolValue]) {
+						continue;
+					}
+				}
+
+				Node& newNode = pathNode->CreateChild();
+				newNode.SetPath([[entryURL lastPathComponent] cStringUsingEncoding:NSUTF8StringEncoding]);
+				
+				if ([propertyValues[NSURLIsDirectoryKey] boolValue]) {
+					newTasks.emplace_back(&newNode);
+				}
+				else {
+					newNode.SetSize([propertyValues[NSURLFileSizeKey] unsignedLongLongValue]);
+					totalSize += newNode.GetSize();
 				}
 			}
 
-			Node& newNode = pathNode->CreateChild();
-			newNode.SetPath([[entryURL lastPathComponent] cStringUsingEncoding:NSUTF8StringEncoding]);
-			
-			if ([propertyValues[NSURLIsDirectoryKey] boolValue]) {
-				newTasks.emplace_back(&newNode);
-			}
-			else {
-				newNode.SetSize([propertyValues[NSURLFileSizeKey] unsignedLongLongValue]);
-				totalSize += newNode.GetSize();
-			}
+			progress += totalSize;
 		}
-
-		progress += totalSize;
 		
 		return newTasks;
 	}
