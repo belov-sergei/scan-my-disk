@@ -47,7 +47,7 @@ namespace Filesystem {
 			}
 		}
 
-		bool CancelFlag = false;
+		std::atomic CancelFlag = false;
 	} // namespace Detail
 
 	void BuildTree(Node& pathNode, std::atomic<size_t>& progress) {
