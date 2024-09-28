@@ -17,6 +17,22 @@ using SliceDrawData = std::vector<std::tuple<float, float, float, float, const N
 int WindowWidth { 440 };
 int WindowHeight { 540 };
 
+static State state = State::Started;
+static std::future<void> future;
+
+static std::pair<size_t, size_t> space = {};
+
+static SliceDrawData drawData;
+
+static std::atomic<size_t> progress = 0;
+
+static std::unique_ptr<Node> tree;
+
+static std::stack<const Node*> history;
+
+std::string CurrentPath;
+std::string CurrentSize;
+
 void LoadTexture(const unsigned char* buffer, int length, ImTextureID& textureId) {
 	int width, height;
 	if (auto* pixels = Image::Load(buffer, length, width, height, 4)) {
@@ -34,6 +50,15 @@ void LoadTexture(const unsigned char* buffer, int length, ImTextureID& textureId
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
 		Image::Free(pixels);
 	}
+}
+
+void ViewComponent::OnExit() {
+	if (state == State::Loading) {
+		Filesystem::CancelBuildTree();
+		future.get();
+	}
+
+	tree.reset();
 }
 
 SliceDrawData BuildDrawData(const Node& rootNode) {
@@ -82,19 +107,6 @@ SliceDrawData BuildDrawData(const Node& rootNode) {
 
 	return result;
 }
-
-std::pair<size_t, size_t> space = {};
-
-SliceDrawData drawData;
-
-std::atomic<size_t> progress = 0;
-
-std::unique_ptr<Node> tree;
-
-std::stack<const Node*> history;
-
-std::string CurrentPath;
-std::string CurrentSize;
 
 namespace ImGui {
 	namespace Shadow {

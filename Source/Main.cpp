@@ -19,7 +19,7 @@
 
 int main(int argc, char* argv[]) {
 	// clang-format off
-	std::ignore = ComponentGroup<
+	const auto componentGroup = ComponentGroup<
 		SystemFontComponent,
 		EventLoopComponent,
 		GLFWEventComponent,
