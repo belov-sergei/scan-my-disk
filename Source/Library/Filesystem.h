@@ -54,16 +54,3 @@ namespace Filesystem {
 		return result;
 	}
 } // namespace Filesystem
-
-template <>
-struct fmt::formatter<Node> : fmt::formatter<std::string_view> {
-	auto format(const Node& value, fmt::format_context& context) const {
-		std::string result;
-
-		fmt::format_to(std::back_inserter(result), "Path= \"{}\" ", value.GetFullPath());
-		fmt::format_to(std::back_inserter(result), "Size= \"{}\" ", value.GetSize());
-		fmt::format_to(std::back_inserter(result), "Depth=\"{}\" ", value.GetDepth());
-
-		return fmt::formatter<std::string_view>::format(result, context);
-	}
-};
