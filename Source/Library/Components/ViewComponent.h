@@ -16,9 +16,6 @@ inline std::vector<Filesystem::VolumeData> volumes;
 
 enum class State { Started, Loading, Chart };
 
-inline State state = State::Started;
-inline std::future<Tree::Node<Filesystem::Entry>> future;
-
 enum Icons {
 	Close,
 	Maximize,
@@ -55,11 +52,11 @@ struct ViewComponent final {
 			Draw();
 		});
 
-		Event<Application::Terminate>::Receive(this, [](const auto&) {
-			if (state == State::Loading) {
-				Filesystem::CancelBuildTree();
-				std::ignore = future.get();
-			}
+		Event<Application::Exit>::Receive(this, [this](const auto&) {
+			OnExit();
 		});
 	}
+
+private:
+	void OnExit();
 };

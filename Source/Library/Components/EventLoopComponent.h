@@ -9,27 +9,34 @@ struct EventLoopComponent final {
 
 	EventLoopComponent() {
 		Event<Application::Launch>::Receive(this, [this](const auto&) {
-			lastFrameTime = std::chrono::steady_clock::now();
+			const Application::StartFrame startFrame;
+			lastFrameTime = startFrame.eventTime;
 
 			while (!exit) {
-				const auto now = std::chrono::steady_clock::now();
+				Event<Application::StartFrame>::Send();
 
-				const Seconds deltaTime = now - lastFrameTime;
-				lastFrameTime = now;
-
-				Event<Application::Update>::Send(deltaTime.count());
+				Event<Application::Update>::Send(deltaTime);
 				Event<Application::LateUpdate>::Send();
 
 				Event<Application::Draw>::Send();
+
+				Event<Application::EndFrame>::Send();
 			}
 		});
 
 		Event<Application::Terminate>::Receive(this, [this](const auto&) {
 			exit = true;
 		});
+
+		Event<Application::StartFrame>::Receive(this, [this](const Application::StartFrame& startFrame) {
+			deltaTime = Seconds(startFrame.eventTime - lastFrameTime).count();
+			lastFrameTime = startFrame.eventTime;
+		});
 	}
 
 private:
 	bool exit = false;
+	float deltaTime = 0.0f;
+
 	TimePoint lastFrameTime;
 };

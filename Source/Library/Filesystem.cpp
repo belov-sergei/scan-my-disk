@@ -1,5 +1,6 @@
 // Copyright ❤️ 2023-2024, Sergei Belov
 
+#include "DepthFirstIterator.h"
 #include "Parallel.h"
 
 #include <Filesystem.h>
@@ -7,17 +8,23 @@
 namespace Filesystem {
 	namespace Detail {
 		// Calculate the size of directories based on the size of their contents.
-		void CalculateDirectorySizes(Tree::Node<Entry>& rootNode) {
-			using NodeType = std::remove_reference_t<decltype(rootNode)>;
-
+		void CalculateDirectorySizes(Node& rootNode) {
 			// Stack to track parent nodes and the count of their remaining children to be processed.
-			std::stack<std::pair<std::reference_wrapper<NodeType>, size_t>> parentStack;
+			std::stack<std::pair<Node*, size_t>> parentStack;
 
-			rootNode.depthTraversal([&](NodeType& currentNode) {
-				if (!currentNode.isLeaf()) {
-					parentStack.emplace(currentNode, currentNode.getChildCount());
+			DepthFirstIterator iterator(&rootNode);
+
+			while (iterator) {
+				Node& currentNode = *iterator;
+				++iterator;
+
+				if (currentNode.HasChildren()) {
+					parentStack.emplace(&currentNode, currentNode.GetChildren().size());
 				} else if (!parentStack.empty()) {
-					auto accumulatedSize = parentStack.top().first.get()->size += currentNode->size;
+					Node* first = parentStack.top().first;
+					first->SetSize(first->GetSize() + currentNode.GetSize());
+
+					auto accumulatedSize = first->GetSize();
 					auto childrenLeft = parentStack.top().second -= 1;
 
 					// If all children of the current parent have been processed, propagate its accumulated size to its own parent.
@@ -30,56 +37,45 @@ namespace Filesystem {
 							break;
 						}
 
-						accumulatedSize = parentStack.top().first.get()->size += accumulatedSize;
+						first = parentStack.top().first;
+						first->SetSize(first->GetSize() + accumulatedSize);
+
+						accumulatedSize = first->GetSize();
 						childrenLeft = parentStack.top().second -= 1;
 					}
 				}
-
-				return false;
-			});
+			}
 		}
 
-		bool CancelFlag = false;
+		std::atomic CancelFlag = false;
 	} // namespace Detail
 
-	Tree::Node<Entry> BuildTree(const std::filesystem::path& path, std::atomic<size_t>& progress) {
+	void BuildTree(Node& pathNode, std::atomic<size_t>& progress) {
 		Detail::CancelFlag = false;
 
-		Tree::Node<Entry> root = { 0, 0, path };
+		std::vector<Node*> scanQueue;
+		scanQueue.emplace_back(&pathNode);
 
-		std::queue<NodeWrapper> pending;
-		pending.emplace(root);
+		while (!scanQueue.empty() && !Detail::CancelFlag) {
+			Node* currentNode = scanQueue.back();
+			scanQueue.pop_back();
 
-		while (!pending.empty() && !Detail::CancelFlag) {
-			NodeWrapper node = pending.front();
-			pending.pop();
+			std::vector<Node*> newTasks = EnumerateDirectory(currentNode, progress);
 
-			std::queue<NodeWrapper> queue = EnumerateDirectory(node, progress);
-
-			if (queue.size() > pending.size()) {
-				std::swap(queue, pending);
-			}
-
-			while (!queue.empty()) {
-				pending.emplace(queue.front());
-				queue.pop();
+			while (!newTasks.empty()) {
+				scanQueue.emplace_back(newTasks.back());
+				newTasks.pop_back();
 			}
 		}
 
-		Detail::CalculateDirectorySizes(root);
-
-		return root;
+		Detail::CalculateDirectorySizes(pathNode);
 	}
 
-	Tree::Node<Entry> ParallelBuildTree(const std::filesystem::path& path, std::atomic<size_t>& progress) {
+	void ParallelBuildTree(Node& pathNode, std::atomic<size_t>& progress) {
 		Detail::CancelFlag = false;
 
-		Tree::Node<Entry> root = { 0, 0, path };
-		Parallel::Execute(&EnumerateDirectory, std::ref(root), Detail::CancelFlag, progress);
-
-		Detail::CalculateDirectorySizes(root);
-
-		return root;
+		Parallel::Execute(&EnumerateDirectory, &pathNode, Detail::CancelFlag, progress);
+		Detail::CalculateDirectorySizes(pathNode);
 	}
 
 	void CancelBuildTree() {

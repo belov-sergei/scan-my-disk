@@ -1,0 +1,32 @@
+{
+	"version": 3,
+	"cmakeMinimumRequired": {
+		"major": 3,
+		"minor": 16,
+		"patch": 0
+	},
+	"configurePresets": [
+		{
+			"name": "Debug",
+			"binaryDir": "${sourceDir}/Build/Debug",
+			"cacheVariables": {
+				"CMAKE_BUILD_TYPE": "Debug"
+			}
+		},
+		{
+			"name": "Release",
+			"binaryDir": "${sourceDir}/Build/Release",
+			"cacheVariables": {
+				"CMAKE_BUILD_TYPE": "Release"
+			}
+		},
+		{
+			"name": "Profile",
+			"binaryDir": "${sourceDir}/Build/Profile",
+			"cacheVariables": {
+			"CMAKE_BUILD_TYPE": "Release",
+				"CMAKE_CXX_FLAGS_RELEASE": "-DTRACY_ENABLE"
+			}
+		}
+	]
+}

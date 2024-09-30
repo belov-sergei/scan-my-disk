@@ -5,7 +5,12 @@
 
 TEST(Filesystem, BuildTree) {
 	std::atomic<size_t> progress;
-	const auto root = Filesystem::BuildTree(std::filesystem::absolute("../../Tests/Filesystem/Sandbox"), progress);
+
+	Node root;
+	root.SetPath(std::string(TEST_PROJECT_PATH) + "/Sandbox/");
+
+	Filesystem::BuildTree(root, progress);
+	root.SetPath("Sandbox");
 
 	EXPECT_TRUE(IsEqual(root, R"(
 		<Tree>
@@ -36,7 +41,12 @@ TEST(Filesystem, ParallelBuildTree) {
 
 	const auto worker = [&] {
 		std::atomic<size_t> progress;
-		const auto root = Filesystem::ParallelBuildTree(std::filesystem::absolute("../../Tests/Filesystem/Sandbox"), progress);
+
+		Node root;
+		root.SetPath(std::string(TEST_PROJECT_PATH) + "/Sandbox/");
+
+		Filesystem::ParallelBuildTree(root, progress);
+		root.SetPath("Sandbox");
 
 		EXPECT_TRUE(IsEqual(root, R"(
 			<Tree>

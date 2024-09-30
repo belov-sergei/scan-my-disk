@@ -7,7 +7,7 @@ namespace Parallel {
 	using TaskType = std::decay_t<T>;
 
 	template <typename T>
-	using QueueType = std::queue<TaskType<T>>;
+	using QueueType = std::vector<TaskType<T>>;
 
 	template <typename T>
 	using OptionalType = std::optional<TaskType<T>>;
@@ -18,68 +18,63 @@ namespace Parallel {
 	// Tasks are managed in a shared queue and are distributed among threads. Synchronization occurs via a mutex and a condition variable.
 	//
 	// Execution can be canceled via the cancel flag.
-	template <typename H, typename T, typename... V>
-	void Execute(H&& handler, T&& task, bool& cancel, V&&... values) {
+	template <typename HandlerType, typename TaskType, typename... ValueTypes>
+	void Execute(HandlerType&& handler, TaskType&& task, const bool& cancelFlag, ValueTypes&&... values) {
 		// Shared queue of tasks for all threads.
-		QueueType<T> pending;
-		pending.emplace(std::forward<T>(task));
+		QueueType<TaskType> sharedQueue;
+		sharedQueue.emplace_back(std::forward<TaskType>(task));
 
 		// Mutex and condition variable for thread synchronization.
-		std::mutex mutex;
+		std::mutex queueMutex;
 		std::condition_variable condition;
 
 		// Active worker thread count.
-		size_t workers = 0;
+		size_t activeWorkers = 0;
 
-		const auto worker = [&] {
+		const auto workerLambda = [&] {
 			// Current task of this thread.
-			OptionalType<T> current;
+			OptionalType<TaskType> currentTask;
 
 			while (true) {
 				{
-					std::unique_lock lock(mutex);
+					std::unique_lock scopedLock(queueMutex);
 
 					// Wait until there are tasks available or all work is done.
-					condition.wait(lock, [&] {
-						return !pending.empty() || workers == 0;
+					condition.wait(scopedLock, [&] {
+						return !sharedQueue.empty() || activeWorkers == 0;
 					});
 
 					// Exit loop if no tasks are pending and all workers are idle.
-					if (pending.empty() && workers == 0) {
+					if (sharedQueue.empty() && activeWorkers == 0) {
 						break;
 					}
 
 					// Fetch next task from the shared queue.
-					current = std::move(pending.front());
-					pending.pop();
+					currentTask = std::move(sharedQueue.back());
+					sharedQueue.pop_back();
 
-					++workers;
+					++activeWorkers;
 				}
 
-				while (current.has_value() && !cancel) {
+				while (currentTask.has_value() && !cancelFlag) {
 					// Execute the callback function on the current task and obtain new tasks.
-					QueueType<T> tasks = handler(current.value(), std::forward<V>(values)...);
-					current.reset();
+					QueueType<TaskType> newTasks = handler(currentTask.value(), std::forward<ValueTypes>(values)...);
+					currentTask.reset();
 
-					if (!tasks.empty()) {
+					if (!newTasks.empty()) {
 						// Keeps one task for this thread.
-						current = std::move(tasks.front());
-						tasks.pop();
+						currentTask = std::move(newTasks.back());
+						newTasks.pop_back();
 					}
 
 					// If multiple tasks are created, share them with other threads.
-					if (!tasks.empty()) {
-						std::unique_lock lock(mutex);
-
-						// Swap queues if local queue has more tasks.
-						if (tasks.size() > pending.size()) {
-							std::swap(tasks, pending);
-						}
+					if (!newTasks.empty()) {
+						std::unique_lock scopedLock(queueMutex);
 
 						// Merge all tasks into the shared queue.
-						while (!tasks.empty()) {
-							pending.emplace(std::move(tasks.front()));
-							tasks.pop();
+						while (!newTasks.empty()) {
+							sharedQueue.emplace_back(std::move(newTasks.back()));
+							newTasks.pop_back();
 						}
 
 						// Notify other threads that new tasks are available.
@@ -88,24 +83,27 @@ namespace Parallel {
 				}
 
 				{
-					std::unique_lock lock(mutex);
+					std::unique_lock scopedLock(queueMutex);
 
 					// If this thread is idle and no more tasks are pending, notify others.
-					if (--workers == 0 && pending.empty()) {
+					if (--activeWorkers == 0 && sharedQueue.empty()) {
 						condition.notify_all();
 					}
 				}
 			}
 		};
 
-		std::vector<std::thread> threads(std::thread::hardware_concurrency() * static_cast<size_t>(2));
+		const size_t kThreadsSize = std::thread::hardware_concurrency() * static_cast<size_t>(2);
 
-		for (auto& thread : threads) {
-			thread = std::thread(worker);
+		std::vector<std::thread> scanThreads;
+		scanThreads.reserve(kThreadsSize);
+
+		for (size_t threadIndex = 0; threadIndex < kThreadsSize; threadIndex++) {
+			scanThreads.emplace_back(workerLambda);
 		}
 
-		for (auto& thread : threads) {
-			thread.join();
+		for (size_t threadIndex = 0; threadIndex < kThreadsSize; threadIndex++) {
+			scanThreads[threadIndex].join();
 		}
 	}
 } // namespace Parallel

@@ -28,5 +28,5 @@ namespace Common {
 		std::array<uint32_t, 256> _table = {};
 	};
 
-	constexpr Crc32Kernel Checksum;
+	inline constexpr Crc32Kernel Checksum;
 } // namespace Common

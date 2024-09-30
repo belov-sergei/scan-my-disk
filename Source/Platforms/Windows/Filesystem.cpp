@@ -78,70 +78,74 @@ namespace Filesystem {
 		return Encoding::WideCharToMultiByte(result);
 	}
 
-	std::queue<NodeWrapper> EnumerateDirectory(Tree::Node<Entry>& node, std::atomic<size_t>& progress) {
-		std::error_code error;
-		std::queue<NodeWrapper> result;
+	bool Exists(std::string path) {
+		return std::filesystem::exists(Encoding::MultiByteToWideChar(path));
+	}
 
-		auto iterator = std::filesystem::directory_iterator(node->path, error);
+	std::vector<Node*> EnumerateDirectory(Node* pathNode, std::atomic<size_t>& progress) {
+		thread_local std::vector<Node*> newTasks;
+		newTasks.clear();
+
+		std::error_code errorCode;
+		std::wstring fullPath = Encoding::MultiByteToWideChar(pathNode->GetFullPath());
+		auto iterator = std::filesystem::directory_iterator(fullPath, errorCode);
+
+		size_t totalSize = 0;
+
 		const auto end = std::filesystem::end(iterator);
-
-		const auto depth = node->depth + 1;
-
-		size_t total = 0;
 		while (iterator != end) {
-			if (!error) {
-				if (iterator->is_symlink(error) || error) {
-					iterator.increment(error);
+			if (!errorCode) {
+				if (iterator->is_symlink(errorCode) || errorCode) {
+					iterator.increment(errorCode);
 					continue;
 				}
 
-				auto& child = node.emplace(0, depth, iterator->path());
+				Node& newNode = pathNode->CreateChild();
+				newNode.SetPath(Encoding::WideCharToMultiByte(iterator->path().filename().wstring()));
 
-				if (iterator->is_directory(error) && !error) {
-					result.emplace(std::ref(child));
-				} else if (iterator->file_size(error) && !error) {
-					child->size = iterator->file_size(error);
-					total += child->size;
+				if (iterator->is_directory(errorCode) && !errorCode) {
+					newTasks.emplace_back(&newNode);
+				} else if (iterator->file_size(errorCode) && !errorCode) {
+					newNode.SetSize(iterator->file_size(errorCode));
+					totalSize += newNode.GetSize();
 				}
 			}
 
-			iterator.increment(error);
+			iterator.increment(errorCode);
 		}
 
-		progress += total;
+		progress += totalSize;
 
-		return result;
+		return newTasks;
 	}
 
-	std::filesystem::path OpenSelectFolderDialog() {
-		std::filesystem::path result;
+	std::string OpenSelectFolderDialog() {
+		std::string result;
 
-		HRESULT hr = CoInitializeEx(NULL, COINIT_APARTMENTTHREADED | COINIT_DISABLE_OLE1DDE);
-		if (SUCCEEDED(hr)) {
-			IFileDialog* pfd;
-			if (SUCCEEDED(CoCreateInstance(CLSID_FileOpenDialog, NULL, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&pfd)))) {
-				DWORD dwOptions;
-				if (SUCCEEDED(pfd->GetOptions(&dwOptions))) {
-					if (SUCCEEDED(pfd->SetOptions(dwOptions | FOS_PICKFOLDERS))) {
-						if (SUCCEEDED(pfd->Show(NULL))) {
-							IShellItem* psi;
-							if (SUCCEEDED(pfd->GetResult(&psi))) {
-								PWSTR pszPath;
-								if (SUCCEEDED(psi->GetDisplayName(SIGDN_FILESYSPATH, &pszPath))) {
-									result = pszPath;
-									CoTaskMemFree(pszPath);
-								}
-								psi->Release();
-							}
-						}
-					}
-				}
-				pfd->Release();
+		CoInitializeEx(NULL, COINIT_APARTMENTTHREADED | COINIT_DISABLE_OLE1DDE);
+
+		IFileDialog* pDialog;
+		CoCreateInstance(CLSID_FileOpenDialog, NULL, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&pDialog));
+
+		DWORD dwOptions;
+		pDialog->GetOptions(&dwOptions);
+		pDialog->SetOptions(dwOptions | FOS_PICKFOLDERS);
+		pDialog->Show(NULL);
+
+		IShellItem* pShellItem;
+		if (SUCCEEDED(pDialog->GetResult(&pShellItem))) {
+			PWSTR pwPath;
+			if (SUCCEEDED(pShellItem->GetDisplayName(SIGDN_FILESYSPATH, &pwPath))) {
+				result = Encoding::WideCharToMultiByte(pwPath);
+				CoTaskMemFree(pwPath);
 			}
-			CoUninitialize();
+			pShellItem->Release();
 		}
 
-		return result;
+		pDialog->Release();
+		CoUninitialize();
+
+		return result + "\\";
 	}
 
 	std::string BytesToString(size_t value) {

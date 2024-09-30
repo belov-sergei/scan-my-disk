@@ -28,6 +28,19 @@ int main(int argc, char* argv[]) {
 		stream << "\n};\n\n";
 	}
 
+	const auto applicationIcon = Filesystem::ReadFile<unsigned char>("Documentation/Icon.png");
+	const int length = applicationIcon.size();
+	auto* data = applicationIcon.data();
+
+	stream << fmt::format("constexpr unsigned char {}Icon[] = {{\n\t", "Application");
+	for (int offset = 0; offset < length; offset++) {
+		stream << static_cast<int>(*data++) << ',';
+
+		if (offset > 0 && offset % 50 == 0) {
+			stream << "\n\t";
+		}
+	}
+	stream << "\n};\n\n";
 	stream << "// clang-format on\n";
 
 	return 0;

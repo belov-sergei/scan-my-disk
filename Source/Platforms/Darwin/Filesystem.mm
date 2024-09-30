@@ -8,32 +8,34 @@ namespace Filesystem {
 	std::vector<VolumeData> GetVolumesData() {
 		std::vector<VolumeData> result;
 		
-		NSArray* propertyKeys = @[
-			NSURLVolumeNameKey,
-			NSURLVolumeTotalCapacityKey,
-			NSURLVolumeAvailableCapacityKey,
-			NSURLVolumeIsBrowsableKey
-		];
-		
-		NSArray* mountedVolumes = [[NSFileManager defaultManager]
-			mountedVolumeURLsIncludingResourceValuesForKeys:propertyKeys
-			options:0
-		];
-		
-		for(NSURL* volumeURL in mountedVolumes) {
-			NSDictionary* propertyValues = [volumeURL resourceValuesForKeys:propertyKeys error:nil];
+		@autoreleasepool {
+			NSArray* propertyKeys = @[
+				NSURLVolumeNameKey,
+				NSURLVolumeTotalCapacityKey,
+				NSURLVolumeAvailableCapacityKey,
+				NSURLVolumeIsBrowsableKey
+			];
 			
-			if (![propertyValues[NSURLVolumeIsBrowsableKey] boolValue]) {
-				continue;
+			NSArray* mountedVolumes = [[NSFileManager defaultManager]
+				mountedVolumeURLsIncludingResourceValuesForKeys:propertyKeys
+				options:0
+			];
+			
+			for(NSURL* volumeURL in mountedVolumes) {
+				NSDictionary* propertyValues = [volumeURL resourceValuesForKeys:propertyKeys error:nil];
+				
+				if (![propertyValues[NSURLVolumeIsBrowsableKey] boolValue]) {
+					continue;
+				}
+				
+				VolumeData& volumeData = result.emplace_back();
+				volumeData.rootPath = [volumeURL.path cStringUsingEncoding:NSUTF8StringEncoding];
+				
+				volumeData.name = [propertyValues[NSURLVolumeNameKey] cStringUsingEncoding:NSUTF8StringEncoding];
+				
+				volumeData.bytesFree = [propertyValues[NSURLVolumeAvailableCapacityKey] unsignedLongLongValue];
+				volumeData.bytesTotal = [propertyValues[NSURLVolumeTotalCapacityKey] unsignedLongLongValue];
 			}
-			
-			VolumeData& volumeData = result.emplace_back();
-			volumeData.rootPath = [volumeURL.path cStringUsingEncoding:NSUTF8StringEncoding];
-			
-			volumeData.name = [propertyValues[NSURLVolumeNameKey] cStringUsingEncoding:NSUTF8StringEncoding];
-			
-			volumeData.bytesFree = [propertyValues[NSURLVolumeAvailableCapacityKey] unsignedLongLongValue];
-			volumeData.bytesTotal = [propertyValues[NSURLVolumeTotalCapacityKey] unsignedLongLongValue];
 		}
 		
 		return result;
@@ -45,65 +47,72 @@ namespace Filesystem {
 
 	std::string GetLocalSettingsPath() {
 		return fmt::format("{}/{}", getenv("HOME"), "Library/Application Support/Scan My Disk/Settings.xml");
-	}	
+	}
 
-	std::queue<NodeWrapper> EnumerateDirectory(Tree::Node<Entry>& node, std::atomic<size_t>& progress) {
-		std::queue<NodeWrapper> result;
-		
-		size_t total = 0;
-		
-		const auto depth = node->depth + 1;
-		const char* nodePath = node->path.c_str();
+	bool Exists(std::string path) {
+		return std::filesystem::exists(path);
+	}
 
-		NSURL* directoryURL = [NSURL fileURLWithPath:
-			[NSString stringWithCString:nodePath encoding:NSUTF8StringEncoding]
-		];
-		
-		NSArray* propertyKeys = @[
-			NSURLIsDirectoryKey,
-			NSURLIsSymbolicLinkKey,
-			NSURLIsVolumeKey,
-			NSURLVolumeIsBrowsableKey,
-			NSURLFileSizeKey
-		];
-		
-		NSArray* directoryContents = [[NSFileManager defaultManager]
-			contentsOfDirectoryAtURL:directoryURL
-			includingPropertiesForKeys:propertyKeys
-			options:0
-			error:nil
-		];
-		
-		for (NSURL* entryURL in directoryContents) {
-			NSDictionary* propertyValues = [entryURL resourceValuesForKeys:propertyKeys error:nil];
+	std::vector<Node*> EnumerateDirectory(Node* pathNode, std::atomic<size_t>& progress) {
+		thread_local std::vector<Node*> newTasks;
+		newTasks.clear();
+
+		const auto nodePath = pathNode->GetFullPath();
+
+		@autoreleasepool {
+			NSURL* directoryURL = [NSURL fileURLWithPath:
+				[NSString stringWithCString:nodePath.c_str() encoding:NSUTF8StringEncoding]
+			];
 			
-			if ([propertyValues[NSURLIsSymbolicLinkKey] boolValue]) {
-				continue;
-			}
-			else if ([propertyValues[NSURLIsVolumeKey] boolValue]) {
-				if ([propertyValues[NSURLVolumeIsBrowsableKey] boolValue]) {
+			NSArray* propertyKeys = @[
+				NSURLIsDirectoryKey,
+				NSURLIsSymbolicLinkKey,
+				NSURLIsVolumeKey,
+				NSURLVolumeIsBrowsableKey,
+				NSURLFileSizeKey
+			];
+			
+			NSArray* directoryContents = [[NSFileManager defaultManager]
+				contentsOfDirectoryAtURL:directoryURL
+				includingPropertiesForKeys:propertyKeys
+				options:0
+				error:nil
+			];
+
+			size_t totalSize = 0;
+
+			for (NSURL* entryURL in directoryContents) {
+				NSDictionary* propertyValues = [entryURL resourceValuesForKeys:propertyKeys error:nil];
+				
+				if ([propertyValues[NSURLIsSymbolicLinkKey] boolValue]) {
 					continue;
+				}
+				else if ([propertyValues[NSURLIsVolumeKey] boolValue]) {
+					if ([propertyValues[NSURLVolumeIsBrowsableKey] boolValue]) {
+						continue;
+					}
+				}
+
+				Node& newNode = pathNode->CreateChild();
+				newNode.SetPath([[entryURL lastPathComponent] cStringUsingEncoding:NSUTF8StringEncoding]);
+				
+				if ([propertyValues[NSURLIsDirectoryKey] boolValue]) {
+					newTasks.emplace_back(&newNode);
+				}
+				else {
+					newNode.SetSize([propertyValues[NSURLFileSizeKey] unsignedLongLongValue]);
+					totalSize += newNode.GetSize();
 				}
 			}
 
-			auto& child = node.emplace(0, depth, [[entryURL path] cStringUsingEncoding:NSUTF8StringEncoding]);
-			
-			if ([propertyValues[NSURLIsDirectoryKey] boolValue]) {
-				result.emplace(std::ref(child));
-			}
-			else {
-				child->size = [propertyValues[NSURLFileSizeKey] unsignedLongLongValue];
-				total += child->size;
-			}
+			progress += totalSize;
 		}
-
-		progress += total;
 		
-		return result;
+		return newTasks;
 	}
 
-	std::filesystem::path OpenSelectFolderDialog() {
-		std::filesystem::path result;
+	std::string OpenSelectFolderDialog() {
+		std::string result;
 		
 		NSOpenPanel* openPanel = [NSOpenPanel openPanel];
 		[openPanel setCanChooseFiles:NO];
@@ -115,7 +124,7 @@ namespace Filesystem {
 			result = [path cStringUsingEncoding:NSUTF8StringEncoding];
 		}
 		
-		return result;
+		return result + "/";
 	}
 
 	std::string BytesToString(size_t value) {

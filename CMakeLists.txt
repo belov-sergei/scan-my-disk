@@ -1,18 +1,18 @@
 cmake_minimum_required(VERSION 3.16)
 include("CMakeCommon.cmake")
 
-# Check for supported generators (Xcode and Visual Studio).
-if(NOT CMAKE_GENERATOR MATCHES "Xcode|Visual Studio")
-	message(WARNING "This project has only been tested with Xcode and Visual Studio.")
-endif()
+set(PROJECT_LANGUAGES CXX)
 
+if (APPLE)
+	list(APPEND PROJECT_LANGUAGES OBJCXX)
+endif()
 
 project(
 	"Scan My Disk"
-	VERSION 1.1
+	VERSION 1.2
 	DESCRIPTION "Interactive pie chart visualization of disk space usage."
 	HOMEPAGE_URL "https://github.com/belov-sergei/scan-my-disk"
-	LANGUAGES CXX
+	LANGUAGES ${PROJECT_LANGUAGES}
 )
 
 # Language standard and extensions.
@@ -35,5 +35,7 @@ set_property(GLOBAL PROPERTY PREDEFINED_TARGETS_FOLDER "Build")
 
 add_subdirectory("Platforms/${CMAKE_SYSTEM_NAME}")
 add_subdirectory("ThirdParty")
-add_subdirectory("Tests")
 add_subdirectory("Tools")
+
+enable_testing()
+add_subdirectory("Tests")

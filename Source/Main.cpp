@@ -10,6 +10,8 @@
 #include "Components/LocalizationComponent.h"
 #include "Components/SettingsComponent.h"
 #include "Components/SystemFontComponent.h"
+#include "Components/TracyFrameComponent.h"
+#include "Components/TracyMemoryPlotComponent.h"
 #include "Components/ViewComponent.h"
 #include "Components/WindowTitleComponent.h"
 
@@ -17,7 +19,7 @@
 
 int main(int argc, char* argv[]) {
 	// clang-format off
-	std::ignore = ComponentGroup<
+	const auto componentGroup = ComponentGroup<
 		SystemFontComponent,
 		EventLoopComponent,
 		GLFWEventComponent,
@@ -28,7 +30,9 @@ int main(int argc, char* argv[]) {
 		LocalizationComponent,
 		ViewComponent,
 		WindowTitleComponent,
-		FrameRateComponent
+		FrameRateComponent,
+		TracyMemoryPlotComponent,
+		TracyFrameComponent
 	>();
 	// clang-format on
 

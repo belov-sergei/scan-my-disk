@@ -3,6 +3,8 @@
 #pragma once
 #include "Application.h"
 #include "GLFW/glfw3.h"
+#include "Icons.Generated.h"
+#include "Image.h"
 
 struct GLFWWindowComponent final {
 	struct Create {
@@ -16,6 +18,11 @@ struct GLFWWindowComponent final {
 			glfwInit();
 
 			window = glfwCreateWindow(440, 540, "Scan My Disk", nullptr, nullptr);
+
+			GLFWimage applicationIcon;
+			applicationIcon.pixels = Image::Load(ApplicationIcon, sizeof(ApplicationIcon), applicationIcon.width, applicationIcon.height, 4);
+
+			glfwSetWindowIcon(window, 1, &applicationIcon);
 			glfwMakeContextCurrent(window);
 
 			Event<Create>::Send(window);
