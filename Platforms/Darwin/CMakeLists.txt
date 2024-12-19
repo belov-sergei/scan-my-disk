@@ -19,6 +19,7 @@ CREATE_PROJECT(Kernel
 		utf8proc
 		zlibstatic
 		png_static
+		freetype
 		"-framework OpenGL"
 	COMPILE_DEFINITIONS
 		GL_SILENCE_DEPRECATION

@@ -24,6 +24,7 @@ CREATE_PROJECT(Kernel
 		utf8proc
 		zlibstatic
 		png_static
+		freetype
 	COMPILE_DEFINITIONS
 		WIN32_LEAN_AND_MEAN
 	COMPILE_OPTIONS
