@@ -17,6 +17,8 @@ CREATE_PROJECT(Kernel
 		pugixml-static
 		fmt
 		utf8proc
+		zlibstatic
+		png_static
 		"-framework OpenGL"
 	COMPILE_DEFINITIONS
 		GL_SILENCE_DEPRECATION

@@ -22,6 +22,8 @@ CREATE_PROJECT(Kernel
 		dwmapi
 		glfw
 		utf8proc
+		zlibstatic
+		png_static
 	COMPILE_DEFINITIONS
 		WIN32_LEAN_AND_MEAN
 	COMPILE_OPTIONS
