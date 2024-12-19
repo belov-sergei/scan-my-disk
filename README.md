@@ -82,6 +82,9 @@ This project is distributed under the GNU General Public License v3.0. This mean
   - [zeux/pugixml](https://github.com/zeux/pugixml) - A light-weight, simple and fast XML parser for C++ with XPath support.
   - [JuliaStrings/utf8proc](https://github.com/JuliaStrings/utf8proc) - A clean C library for processing UTF-8 Unicode data.
   - [tracy](https://github.com/wolfpld/tracy) - Frame profiler.
+  - [zlib](https://www.zlib.net) - A massively spiffy yet delicately unobtrusive compression library.
+  - [libpng](http://www.libpng.org/pub/png) - An open, extensible image format with lossless compression.
+  - [FreeType](https://freetype.org) - A freely available software library to render fonts.
 
 ### Fonts:
   - [Noto Sans](https://fonts.google.com/noto/specimen/Noto+Sans) - A font family from Google that aims to support all languages with a harmonious look and feel.
