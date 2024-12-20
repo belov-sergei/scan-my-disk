@@ -1,14 +1,11 @@
 ﻿// Copyright ❤️ 2023-2024, Sergei Belov
 
-#define STB_IMAGE_WRITE_IMPLEMENTATION
-#define STB_TRUETYPE_IMPLEMENTATION
-
 #include "Common/Encoding.h"
 #include "Filesystem.h"
-#include "stb_image_write.h"
 
 #include <ft2build.h>
 #include FT_FREETYPE_H
+#include "Image.h"
 
 #include <pugixml.hpp>
 
@@ -159,10 +156,13 @@ int main(int argc, char* argv[]) {
 
 	stream << "};\n";
 
-	int length = 0;
-	auto* data = stbi_write_png_to_mem(atlasBitmap.data(), atlasWidth * 1, atlasWidth, atlasHeight, 1, &length);
+	size_t length = 0;
+	// auto* data = stbi_write_png_to_mem(atlasBitmap.data(), atlasWidth * 1, atlasWidth, atlasHeight, 1, &length);
+	auto* data = Image::Write(atlasBitmap.data(), atlasWidth, atlasHeight, 1, atlasWidth * 1, &length);
+	auto* mem = data;
 
 	// stbi_write_png("Test.png", atlasWidth, atlasHeight, 1, atlasBitmap.data(), atlasWidth * 1);
+	Image::Write("Test.png", atlasBitmap.data(), atlasWidth, atlasHeight, 1, atlasWidth * 1);
 
 	stream << "unsigned char IMGUIFontComponent::TextureData[] = {\n\t";
 	for (int offset = 0; offset < length; offset++) {
@@ -179,6 +179,8 @@ int main(int argc, char* argv[]) {
 	for (auto& glyph : glyphCollection) {
 		delete [] glyph.bitmap;
 	}
+
+	delete [] mem;
 
 	return 0;
 }
