@@ -13,7 +13,6 @@ CREATE_PROJECT(Kernel
 		"${PROJECT_SOURCE_DIR}/Source"
 	LINK_LIBRARIES
 		imgui
-		stb
 		pugixml-static
 		fmt
 		gdi32
