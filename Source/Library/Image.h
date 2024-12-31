@@ -8,5 +8,5 @@ namespace Image {
 	void Write(std::string_view path, const unsigned char* buffer, int width, int height, int channels, int stride);
 	unsigned char* Write(const unsigned char* buffer, int width, int height, int channels, int stride, size_t* length);
 
-	void Free(void* bytes);
+	void Free(unsigned char* bytes);
 } // namespace Image

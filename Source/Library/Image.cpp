@@ -144,7 +144,7 @@ unsigned char* Image::Write(const unsigned char* buffer, int width, int height, 
 	return out;
 }
 
-void Image::Free(void* bytes) {
+void Image::Free(unsigned char* bytes) {
 	auto it = std::find(images.begin(), images.end(), bytes);
 	if (it != images.end()) {
 		delete[] bytes;
