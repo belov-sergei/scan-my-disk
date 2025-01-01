@@ -15,12 +15,6 @@ THIRD_PARTY_PROJECT(
 )
 
 THIRD_PARTY_PROJECT(
-	"${CMAKE_CURRENT_LIST_DIR}/stb-master"
-	TARGETS
-		stb
-)
-
-THIRD_PARTY_PROJECT(
 	"${CMAKE_CURRENT_LIST_DIR}/pugixml-1.14"
 	TARGETS
 		pugixml-static
@@ -62,4 +56,59 @@ THIRD_PARTY_PROJECT(
 		UTF8PROC_INSTALL OFF
 		UTF8PROC_ENABLE_TESTING OFF
 		LIB_FUZZING_ENGINE OFF
+)
+
+THIRD_PARTY_PROJECT(
+	"${CMAKE_CURRENT_LIST_DIR}/zlib-1.3.1"
+	TARGETS
+		zlib
+		zlibstatic
+	OPTIONS
+		ZLIB_BUILD_EXAMPLES OFF
+)
+
+add_library(ZLIB::ZLIB ALIAS zlibstatic)
+set(ZLIB_INCLUDE_DIRS ${zlib_SOURCE_DIR} ${zlib_BINARY_DIR})
+
+set(SKIP_INSTALL_EXPORT ON)
+set(SKIP_INSTALL_CONFIG_FILE ON)
+
+THIRD_PARTY_PROJECT(
+	"${CMAKE_CURRENT_LIST_DIR}/libpng-1.6.44"
+	TARGETS
+		png_static
+		png_genfiles
+		png_genprebuilt
+		png_gensym
+		png_genvers
+		png_scripts_intprefix_out
+		png_scripts_pnglibconf_c
+		png_scripts_prefix_out
+		png_scripts_sym_out
+		png_scripts_symbols_chk
+		png_scripts_symbols_out
+		png_scripts_vers_out
+		pnglibconf_c
+		pnglibconf_h
+		pnglibconf_out
+		pngprefix_h
+	OPTIONS
+		PNG_BUILD_ZLIB ON
+		PNG_DEBUG OFF
+		PNG_HARDWARE_OPTIMIZATIONS ON
+		PNG_SHARED OFF
+		PNG_STATIC ON
+		PNG_TESTS OFF
+		PNG_TOOLS OFF
+)
+
+THIRD_PARTY_PROJECT(
+	"${CMAKE_CURRENT_LIST_DIR}/freetype-2.13.3"
+	TARGETS
+		freetype
+	OPTIONS
+		FT_DISABLE_BROTLI ON
+		FT_DISABLE_BZIP2 ON
+		FT_DISABLE_HARFBUZZ ON
+		FT_ENABLE_ERROR_STRINGS OFF
 )

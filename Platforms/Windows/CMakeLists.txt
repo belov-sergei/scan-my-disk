@@ -13,7 +13,6 @@ CREATE_PROJECT(Kernel
 		"${PROJECT_SOURCE_DIR}/Source"
 	LINK_LIBRARIES
 		imgui
-		stb
 		pugixml-static
 		fmt
 		gdi32
@@ -22,6 +21,9 @@ CREATE_PROJECT(Kernel
 		dwmapi
 		glfw
 		utf8proc
+		zlibstatic
+		png_static
+		freetype
 	COMPILE_DEFINITIONS
 		WIN32_LEAN_AND_MEAN
 	COMPILE_OPTIONS

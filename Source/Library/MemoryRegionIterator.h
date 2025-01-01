@@ -20,7 +20,7 @@ struct MemoryRegionIterator final : GenericForwardIterator<MemoryRegionIterator<
 
 	bool Equal(const MemoryRegionIterator& other) const {
 		if (other.memoryStart == nullptr) {
-			return currentX == regionWidth - 1 && currentY == regionHeight;
+			return currentY * regionWidth + currentX >= regionWidth * regionHeight;
 		}
 
 		return &Dereference() == &other.Dereference();

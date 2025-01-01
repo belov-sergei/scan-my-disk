@@ -1,12 +1,11 @@
 ﻿// Copyright ❤️ 2023-2024, Sergei Belov
 
-#define STB_IMAGE_WRITE_IMPLEMENTATION
-#define STB_TRUETYPE_IMPLEMENTATION
-
 #include "Common/Encoding.h"
 #include "Filesystem.h"
-#include "stb_image_write.h"
-#include "stb_truetype.h"
+
+#include <ft2build.h>
+#include FT_FREETYPE_H
+#include "Image.h"
 
 #include <pugixml.hpp>
 
@@ -61,16 +60,16 @@ int main(int argc, char* argv[]) {
 		}
 	}
 
+	FT_Library library;
+	FT_Error error = FT_Init_FreeType(&library);
+
 	// Area of all glyphs for calculating the atlas size.
 	int totalGlyphPixelArea = 0;
 
-	for (const auto* fontPath : FontPaths) {
-		const auto fontData = Filesystem::ReadFile<unsigned char>(fontPath);
-
-		stbtt_fontinfo fontInfo;
-		stbtt_InitFont(&fontInfo, fontData.data(), stbtt_GetFontOffsetForIndex(fontData.data(), 0));
-
-		const float fontScaling = stbtt_ScaleForPixelHeight(&fontInfo, 18.0f);
+	for (const auto* font : FontPaths) {
+		FT_Face face;
+		error = FT_New_Face(library, font, 0, &face);
+		error = FT_Set_Pixel_Sizes(face, 0, 13);
 
 		for (auto& glyph : glyphCollection) {
 			// Previously found glyphs are skipped.
@@ -78,14 +77,24 @@ int main(int argc, char* argv[]) {
 				continue;
 			}
 
-			if (const auto glyphIndex = stbtt_FindGlyphIndex(&fontInfo, static_cast<int>(glyph.codepoint))) {
-				glyph.bitmap = stbtt_GetGlyphBitmap(&fontInfo, fontScaling, fontScaling, glyphIndex, &glyph.width, &glyph.height, &glyph.offsetX, &glyph.offsetY);
+			if (const FT_UInt glyphIndex = FT_Get_Char_Index(face, glyph.codepoint)) {
+				error = FT_Load_Glyph(face, glyphIndex, FT_LOAD_DEFAULT);
+				error = FT_Render_Glyph(face->glyph, FT_RENDER_MODE_NORMAL);
 
-				int advanceWidth = 0;
-				stbtt_GetGlyphHMetrics(&fontInfo, glyphIndex, &advanceWidth, nullptr);
-				glyph.advanceX = static_cast<float>(advanceWidth) * fontScaling;
+				FT_GlyphSlot slot = face->glyph;
 
-				totalGlyphPixelArea += glyph.width * glyph.height;
+				unsigned int size = slot->bitmap.width * slot->bitmap.rows;
+				glyph.bitmap = new unsigned char[size];
+
+				memcpy(glyph.bitmap, slot->bitmap.buffer, size);
+
+				glyph.width = slot->bitmap.width;
+				glyph.height = slot->bitmap.rows;
+				glyph.offsetX = slot->bitmap_left;
+				glyph.offsetY = slot->bitmap_top;
+				glyph.advanceX = slot->advance.x >> 6;
+
+				totalGlyphPixelArea += size;
 			}
 		}
 	}
@@ -137,7 +146,7 @@ int main(int argc, char* argv[]) {
 			}
 		}
 
-		stream << fmt::format("\t{{0, (ImWchar){}, {}, {}, {}, {}, {}f, {{{}, {}}}}},\n", glyph.codepoint, x, y, glyph.width, glyph.height, glyph.advanceX, glyph.offsetX, glyph.offsetY + 11);
+		stream << fmt::format("\t{{0, (ImWchar){}, {}, {}, {}, {}, {}, {{{}, {}}}}},\n", glyph.codepoint, x, y, glyph.width, glyph.height, glyph.advanceX, glyph.offsetX, -glyph.offsetY + 11);
 
 		x += glyph.width;
 		if (glyph.height > maxGlyphHeight) {
@@ -147,8 +156,13 @@ int main(int argc, char* argv[]) {
 
 	stream << "};\n";
 
-	int length = 0;
-	auto* data = stbi_write_png_to_mem(atlasBitmap.data(), atlasWidth * 1, atlasWidth, atlasHeight, 1, &length);
+	size_t length = 0;
+	// auto* data = stbi_write_png_to_mem(atlasBitmap.data(), atlasWidth * 1, atlasWidth, atlasHeight, 1, &length);
+	auto* data = Image::Write(atlasBitmap.data(), atlasWidth, atlasHeight, 1, atlasWidth * 1, &length);
+	auto* mem = data;
+
+	// stbi_write_png("Test.png", atlasWidth, atlasHeight, 1, atlasBitmap.data(), atlasWidth * 1);
+	Image::Write("Test.png", atlasBitmap.data(), atlasWidth, atlasHeight, 1, atlasWidth * 1);
 
 	stream << "unsigned char IMGUIFontComponent::TextureData[] = {\n\t";
 	for (int offset = 0; offset < length; offset++) {
@@ -163,8 +177,10 @@ int main(int argc, char* argv[]) {
 	stream << "// clang-format on\n";
 
 	for (auto& glyph : glyphCollection) {
-		stbtt_FreeBitmap(glyph.bitmap, nullptr);
+		delete [] glyph.bitmap;
 	}
+
+	delete [] mem;
 
 	return 0;
 }

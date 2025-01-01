@@ -13,10 +13,12 @@ CREATE_PROJECT(Kernel
 		"${PROJECT_SOURCE_DIR}/Source"
 	LINK_LIBRARIES
 		imgui
-		stb
 		pugixml-static
 		fmt
 		utf8proc
+		zlibstatic
+		png_static
+		freetype
 		"-framework OpenGL"
 	COMPILE_DEFINITIONS
 		GL_SILENCE_DEPRECATION
