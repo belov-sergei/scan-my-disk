@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.16)
-include("CMakeCommon.cmake")
+include("CMake/Common.cmake")
 
 set(PROJECT_LANGUAGES CXX)
 
