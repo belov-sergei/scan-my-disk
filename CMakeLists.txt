@@ -33,6 +33,9 @@ set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 # Folder name for ALL_BUILD, ZERO_CHECK, etc. targets.
 set_property(GLOBAL PROPERTY PREDEFINED_TARGETS_FOLDER "Build")
 
+# Override FindZLIB and FindPNG with custom scripts.
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/CMake")
+
 add_subdirectory("Platforms/${CMAKE_SYSTEM_NAME}")
 add_subdirectory("ThirdParty")
 add_subdirectory("Tools")
