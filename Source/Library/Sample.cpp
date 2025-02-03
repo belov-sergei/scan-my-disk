@@ -1,3 +1,3 @@
-﻿// Copyright ❤️ 2023-2024, Sergei Belov
+﻿// Copyright ❤️ 2023-2025, Sergei Belov
 
 #include <Sample.h>

@@ -1,3 +1,5 @@
+# Copyright ❤️ 2023-2025, Sergei Belov
+
 # A workaround for building PNG and FreeType libraries. They try to find an already built one ZLIB,
 # but in this project, ZLIB is built together with them, and at the time of project generation, it doesn't exist yet.
 

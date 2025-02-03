@@ -1,3 +1,5 @@
+# Copyright ❤️ 2023-2025, Sergei Belov
+
 set(SKIP_INSTALL_ALL ON)
 
 THIRD_PARTY_PROJECT(

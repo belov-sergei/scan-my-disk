@@ -1,3 +1,5 @@
+# Copyright ❤️ 2023-2025, Sergei Belov
+
 # Creates a project with the specified settings.
 function(CREATE_PROJECT PROJECT_NAME)
 	cmake_parse_arguments(PROJECT

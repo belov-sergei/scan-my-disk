@@ -1,3 +1,5 @@
+# Copyright ❤️ 2023-2025, Sergei Belov
+
 CREATE_PROJECT(MakeFont
 	SOURCES
 		"${PROJECT_SOURCE_DIR}/Tools/MakeFont"

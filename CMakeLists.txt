@@ -1,3 +1,5 @@
+# Copyright ❤️ 2023-2025, Sergei Belov
+
 cmake_minimum_required(VERSION 3.16)
 include("CMake/Common.cmake")
 
